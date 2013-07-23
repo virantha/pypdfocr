@@ -22,16 +22,16 @@ from optparse import OptionParser
 import sys, os
 import logging
 
-from pyocr_pdf import PyPdf
-from pyocr_tesseract import PyTesseract
-from pyocr_gs import PyGs
+from pypdfocr_pdf import PyPdf
+from pypdfocr_tesseract import PyTesseract
+from pypdfocr_gs import PyGs
 
 def error(text):
     print("ERROR: %s" % text)
     exit(-1)
 
 
-class PyOCR(object):
+class PyPDFOCR(object):
 
     def __init__ (self):
         self.maxlength = 500
@@ -40,7 +40,7 @@ class PyOCR(object):
         self.pdf = PyPdf()
 
     def getOptions(self, argv):
-        usage = 'pyocr [options] pdf_file'
+        usage = 'python pypdfocr.py [options] pdf_file'
         p = OptionParser(usage)
 
         p.add_option('-d', '--debug', action='store_true',
@@ -88,7 +88,7 @@ class PyOCR(object):
         self.clean_up_files((tiff_filename, hocr_filename))
 
 if __name__ == '__main__':
-    script = PyOCR()
+    script = PyPDFOCR()
     script.go(sys.argv[1:])
 
 
