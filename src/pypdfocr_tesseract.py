@@ -29,7 +29,11 @@ def error(text):
 class PyTesseract(object):
     """Class to wrap all the tesseract calls"""
     def __init__(self):
-        self.ts_binary = "tesseract"
+        # Detect windows tesseract location
+        if os.name == 'nt':
+            self.ts_binary = '"c:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe"'
+        else:
+            self.ts_binary = "tesseract"
 
     def make_hocr_from_tiff(self, tiff_filename):
         basename,filext = os.path.splitext(tiff_filename)
@@ -39,7 +43,7 @@ class PyTesseract(object):
             error("Cannot find specified tiff file %s" % (tiff_filename))
 
         logging.info("Running OCR on %s to create %s.html" % (tiff_filename, basename))
-        cmd = "tesseract %s %s hocr" % (tiff_filename, basename)
+        cmd = "%s %s %s hocr" % (self.ts_binary, tiff_filename, basename)
         logging.info(cmd)        
         ret = os.system(cmd)
         if ret != 0:

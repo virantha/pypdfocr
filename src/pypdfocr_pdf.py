@@ -58,32 +58,28 @@ class PyPdf(object):
             pdf.setCreator('pyocr')
             pdf.setTitle(os.path.basename(hocr_filename))
             logging.info("Analyzing OCR and applying text to PDF...")
-            w,h = self.image.size
             dpi = (300,300)
             try:
                 dpi = self.image.info['dpi']
             except KeyError:
                 logging.info("Could not get dpi from image file. Defaulting to %d" % dpi)
-            
             dpi = dpi[0]
-            dpi = 200
-            width = w*72.0/dpi
-            height = h*72.0/dpi
-
-            i = 0
 
             pdf.setPageCompression(1)
             logging.info("Searching for %s" % ("%s*.jpg" % basename))
+
             for jpg_file in glob.glob("%s*.jpg" % basename):
-                #try:
-                    #self.image.seek(i)
-                    #self.image.save(tmpfile)
-                #except Exception as e:
-                    #print e
-                    #logging.info("Done seeking through tiff file")
-                    #break
+
+                jpg = Image.open(jpg_file)
+                w,h = jpg.size
+                dpi_jpg = jpg.info['dpi']
+                width = w*72.0/dpi_jpg[0]
+                height = h*72.0/dpi_jpg[1]
+                del jpg
+
                 pdf.setPageSize((width,height))
                 logging.info("Adding page image %s" % jpg_file)
+                logging.info("Page width=%f, height=%f" % (width, height))
                 pdf.drawImage(jpg_file,0,0, width=width, height=height)
                 # Get the page number
                 pg_num = int(jpg_file.split(basename)[1].split('.')[0])

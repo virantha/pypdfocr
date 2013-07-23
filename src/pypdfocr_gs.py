@@ -30,7 +30,12 @@ def error(text):
 class PyGs(object):
     """Class to wrap all the ghostscript calls"""
     def __init__(self):
-        self.gs_binary = "gs"
+        # Detect windows gs binary (make this smarter in the future)
+        if os.name == 'nt':
+            #self.gs_binary = 'start /wait "gs" "c:\\Program Files (x86)\\gs\\gs9.07\\bin\\gswin32c.exe"'
+            self.gs_binary = '"c:\\Program Files (x86)\\gs\\gs9.07\\bin\\gswin32c.exe"'
+        else:
+            self.gs_binary = "gs"
         self.gs_options = {'tiff': ['-sDEVICE=tiff24nc','-r300'],
                             'jpg': ['-sDEVICE=jpeg','-dJPEGQ=75', '-r200']
                         }

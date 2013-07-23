@@ -86,6 +86,7 @@ class PyPDFOCR(object):
         #tiff_filename = "dmv.tiff"
         im = Image.open(tiff_filename)
         pdf_filename = self.pdf.overlay_hocr(im, hocr_filename)
+	del im
         self.clean_up_files((tiff_filename, hocr_filename))
 
 if __name__ == '__main__':
