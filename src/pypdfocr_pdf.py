@@ -49,8 +49,7 @@ class PyPdf(object):
         self.load_invisible_font()
         pass
 
-    def overlay_hocr(self, img, hocr_filename):
-        self.image = img
+    def overlay_hocr(self, dpi, hocr_filename):
         basename = hocr_filename.split('.')[0]
         pdf_filename = "%s_ocr.pdf" % (basename)
         with open(pdf_filename, "w") as f:
@@ -58,12 +57,6 @@ class PyPdf(object):
             pdf.setCreator('pyocr')
             pdf.setTitle(os.path.basename(hocr_filename))
             logging.info("Analyzing OCR and applying text to PDF...")
-            dpi = (300,300)
-            try:
-                dpi = self.image.info['dpi']
-            except KeyError:
-                logging.info("Could not get dpi from image file. Defaulting to %d" % dpi)
-            dpi = dpi[0]
 
             pdf.setPageCompression(1)
             logging.info("Searching for %s" % ("%s*.jpg" % basename))

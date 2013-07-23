@@ -79,14 +79,12 @@ class PyPDFOCR(object):
         self.getOptions(argv)
         conversion_format = "tiff"
 
-        tiff_filename = self.gs.make_img_from_pdf(self.pdf_filename, conversion_format)
+        tiff_dpi, tiff_filename = self.gs.make_img_from_pdf(self.pdf_filename, conversion_format)
         hocr_filename = self.ts.make_hocr_from_tiff(tiff_filename)
         
         #hocr_filename = "dmv.hocr.html"
         #tiff_filename = "dmv.tiff"
-        im = Image.open(tiff_filename)
-        pdf_filename = self.pdf.overlay_hocr(im, hocr_filename)
-	del im
+        pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename)
         self.clean_up_files((tiff_filename, hocr_filename))
 
 if __name__ == '__main__':

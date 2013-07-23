@@ -36,7 +36,8 @@ class PyGs(object):
             self.gs_binary = '"c:\\Program Files (x86)\\gs\\gs9.07\\bin\\gswin32c.exe"'
         else:
             self.gs_binary = "gs"
-        self.gs_options = {'tiff': ['-sDEVICE=tiff24nc','-r300'],
+        self.tiff_dpi = 300
+        self.gs_options = {'tiff': ['-sDEVICE=tiff24nc','-r%d' % (self.tiff_dpi)],
                             'jpg': ['-sDEVICE=jpeg','-dJPEGQ=75', '-r200']
                         }
 
@@ -69,5 +70,5 @@ class PyGs(object):
         ret = os.system(cmd)
         if ret != 0:
             error ("Ghostscript execution failed!")
-        return output_filename
+        return (self.tiff_dpi,output_filename)
 
