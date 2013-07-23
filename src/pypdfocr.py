@@ -22,6 +22,7 @@ from optparse import OptionParser
 import sys, os
 import logging
 
+from PIL import Image
 from pypdfocr_pdf import PyPdf
 from pypdfocr_tesseract import PyTesseract
 from pypdfocr_gs import PyGs
