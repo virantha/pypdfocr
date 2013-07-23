@@ -1,11 +1,11 @@
-PyOCR
+PyPDFOCR
 =============
 
 This script will take a pdf file and generate the corresponding OCR'ed version.
 
 Usage: 
 ------
-    python pyocr.py filename.pdf
+    python pypdfocr.py filename.pdf
 
     --> filename_ocr.pdf will be generated
     
@@ -18,7 +18,7 @@ things as time allows in the near-future.
 Dependencies:
 ------------ 
 
-PyOCR relies on the following (free) programs being installed and in the path:
+PyPDFOCR relies on the following (free) programs being installed and in the path:
 - Tesseract OCR software https://code.google.com/p/tesseract-ocr/
 - GhostScript http://www.ghostscript.com/
 - PIL (Python Imaging Library) http://www.pythonware.com/products/pil/
