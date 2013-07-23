@@ -10,23 +10,27 @@ Usage:
     --> filename_ocr.pdf will be generated
     
 
+Caveats
+-------
+This code is brand-new, and is barely commented with no unit-tests included.  I plan to improve 
+things as time allows in the near-future.
+
 Dependencies:
 ------------ 
 
 PyOCR relies on the following (free) programs being installed and in the path:
-    - Tesseract OCR software
-        https://code.google.com/p/tesseract-ocr/
-    - GhostScript
-        http://www.ghostscript.com/
-    - PIL (Python Imaging Library)
-        http://www.pythonware.com/products/pil/
+- Tesseract OCR software https://code.google.com/p/tesseract-ocr/
+- GhostScript http://www.ghostscript.com/
+- PIL (Python Imaging Library) http://www.pythonware.com/products/pil/
+- ReportLab (PDF generation library) http://www.reportlab.com/software/opensource/
 
 On Mac OS X, you can install the first two using homebrew:
 
     brew install tesseract
     brew install ghostscript
 
-The PIL can be installed using a regular python manager such as pip:
+The last two can be installed using a regular python manager such as pip:
 
     pip install pil
+    pip install reportlab
 
