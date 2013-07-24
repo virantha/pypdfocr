@@ -9,6 +9,13 @@ Usage:
 
     --> filename_ocr.pdf will be generated
     
+For those on Windows, because it's such a pain to get all the PIL and PDF
+dependencies installed, I've gone ahead and made an executable available under:
+
+    dist/pypdfocr.exe
+
+You still need to install Tesseract and GhostScript as detailed below in the dependencies
+list.
 
 Caveats
 -------
