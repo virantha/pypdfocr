@@ -16,5 +16,5 @@ setup (
     package_data = {'': ['*.xml']},
     packages = find_packages(exclude="tests"),
     zip_safe = True,
-    install_requires = [ 'pil>=1.1.7', 'reportlab>=2.7' ]
+    install_requires = [ 'pil>=1.1.7', 'reportlab>=2.7', "watchdog>=0.6.0" ]
 )
