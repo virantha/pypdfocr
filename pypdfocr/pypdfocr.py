@@ -18,7 +18,8 @@
     Wrap ghostscript and tesseract to generate OCR'ed pdfs
 """
 
-from optparse import OptionParser
+#from optparse import OptionParser
+import argparse
 import sys, os
 import logging
 
@@ -41,30 +42,28 @@ class PyPDFOCR(object):
         self.pdf = PyPdf()
 
     def getOptions(self, argv):
-        usage = 'python pypdfocr.py [options] pdf_file'
-        p = OptionParser(usage)
+        usage = 'python pypdfocr.py '
+        p = argparse.ArgumentParser(prog=usage)
 
-        p.add_option('-d', '--debug', action='store_true',
+        p.add_argument('-d', '--debug', action='store_true',
             default=False, dest='debug', help='Turn on debugging')
 
-        p.add_option('-v', '--verbose', action='store_true',
+        p.add_argument('-v', '--verbose', action='store_true',
             default=False, dest='verbose', help='Turn on verbose mode')
 
+        # Positional argument
+        p.add_argument("pdf_filename", help="Scanned pdf file to OCR")
 
-        (opt, args) = p.parse_args(argv)
+        args = p.parse_args(argv)
 
-        self.debug = opt.debug
-        self.verbose = opt.verbose
+        self.debug = args.debug
+        self.verbose = args.verbose
+        self.pdf_filename = args.pdf_filename
         
-        if len(args) != 1:
-            error(usage)
-        else:
-            self.pdf_filename = args[0]
-
-        if opt.debug:
+        if self.debug:
             logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
-        if opt.verbose:
+        if self.verbose:
             logging.basicConfig(level=logging.INFO, format='%(message)s')
     
     def clean_up_files(self, files):
