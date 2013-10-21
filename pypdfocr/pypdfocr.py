@@ -22,11 +22,13 @@
 import argparse
 import sys, os
 import logging
+import shutil
 
 from PIL import Image
 from pypdfocr_pdf import PyPdf
 from pypdfocr_tesseract import PyTesseract
 from pypdfocr_gs import PyGs
+from pypdfocr_watcher import PyPdfWatcher
 
 def error(text):
     print("ERROR: %s" % text)
@@ -51,20 +53,32 @@ class PyPDFOCR(object):
         p.add_argument('-v', '--verbose', action='store_true',
             default=False, dest='verbose', help='Turn on verbose mode')
 
+        p.add_argument('-w', '--watch', 
+             dest='watch_dir', help='Watch given directory and run ocr automatically until terminated')
+
         # Positional argument
-        p.add_argument("pdf_filename", help="Scanned pdf file to OCR")
+        p.add_argument("pdf_filename", nargs="?", help="Scanned pdf file to OCR")
 
         args = p.parse_args(argv)
 
         self.debug = args.debug
         self.verbose = args.verbose
         self.pdf_filename = args.pdf_filename
+        self.watch_dir = args.watch_dir
         
         if self.debug:
             logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
         if self.verbose:
             logging.basicConfig(level=logging.INFO, format='%(message)s')
+
+        self.watch = False
+        if args.watch_dir:
+            logging.debug("Starting to watch")
+            self.watch = True
+        elif not self.pdf_filename:
+            p.print_help()
+            error("pdf_filename or -w option are required")
     
     def clean_up_files(self, files):
         for file in files:
@@ -73,18 +87,27 @@ class PyPDFOCR(object):
             except:
                 logging.info("Error removing file %s .... continuing" % file)
 
-    def go(self, argv):
-        # Read the command line options
-        self.getOptions(argv)
+            
+    def runConversion(self, pdf_filename):
         conversion_format = "tiff"
-
-        tiff_dpi, tiff_filename = self.gs.make_img_from_pdf(self.pdf_filename, conversion_format)
+        tiff_dpi, tiff_filename = self.gs.make_img_from_pdf(pdf_filename, conversion_format)
         hocr_filename = self.ts.make_hocr_from_tiff(tiff_filename)
         
         #hocr_filename = "dmv.hocr.html"
         #tiff_filename = "dmv.tiff"
         pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename)
         self.clean_up_files((tiff_filename, hocr_filename))
+
+    def go(self, argv):
+        # Read the command line options
+        self.getOptions(argv)
+        if self.watch:
+            py_watcher = PyPdfWatcher(self.watch_dir)
+            for pdf_filename in py_watcher.start():
+                self.runConversion(pdf_filename)
+        else:
+            self.runConversion(self.pdf_filename)
+
 
 if __name__ == '__main__':
     script = PyPDFOCR()
