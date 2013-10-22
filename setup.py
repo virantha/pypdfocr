@@ -19,6 +19,11 @@ setup (
     zip_safe = True,
     packages = packages,
     install_requires = [ 'pil>=1.1.7', 'reportlab>=2.7', "watchdog>=0.6.0" ],
+    entry_points = {
+            'console_scripts': [
+                    'pypdfocr = pypdfocr.pypdfocr:main'
+                ],
+        },
     options = {
 	    "pyinstaller": {"packages": packages}
 	    }
