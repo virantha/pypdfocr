@@ -5,7 +5,7 @@ import os
 def build_dist():
     if os.name == 'nt':
         # Call the pyinstaller
-        local("python ../pyinstaller/pyinstaller.py pypdfocr.spec --onefile")
+        local("python ../pyinstaller/pyinstaller.py pypdfocr_windows.spec --onefile")
 
 def prep_release():
     # Build the documentation
