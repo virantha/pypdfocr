@@ -19,12 +19,13 @@
    Run Tesseract to generate hocr file 
 """
 
-import os
+import os, sys
 import logging
+import subprocess
 
 def error(text):
     print("ERROR: %s" % text)
-    exit(-1)
+    sys.exit(-1)
 
 class PyTesseract(object):
     """Class to wrap all the tesseract calls"""
@@ -43,9 +44,9 @@ class PyTesseract(object):
             error("Cannot find specified tiff file %s" % (tiff_filename))
 
         logging.info("Running OCR on %s to create %s.html" % (tiff_filename, basename))
-        cmd = "%s %s %s hocr" % (self.ts_binary, tiff_filename, basename)
+        cmd = '%s "%s" "%s" hocr' % (self.ts_binary, tiff_filename, basename)
         logging.info(cmd)        
-        ret = os.system(cmd)
+        ret = subprocess.call(cmd)
         if ret != 0:
             error ("tesseract execution failed!")
         logging.info("Created %s.html" % basename)
