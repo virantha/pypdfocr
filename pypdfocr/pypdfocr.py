@@ -32,7 +32,7 @@ from pypdfocr_watcher import PyPdfWatcher
 
 def error(text):
     print("ERROR: %s" % text)
-    exit(-1)
+    sys.exit(-1)
 
 
 class PyPDFOCR(object):
