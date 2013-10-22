@@ -27,6 +27,7 @@ things as time allows in the near-future.
 
 ## Dependencies:
 PyPDFOCR relies on the following (free) programs being installed and in the path:
+
 - Tesseract OCR software https://code.google.com/p/tesseract-ocr/
 - GhostScript http://www.ghostscript.com/
 - PIL (Python Imaging Library) http://www.pythonware.com/products/pil/

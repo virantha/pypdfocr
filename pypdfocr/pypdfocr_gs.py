@@ -50,18 +50,17 @@ class PyGs(object):
         filename, filext = os.path.splitext(pdf_filename)
         output_filename = "%s.%s" % (filename, output_format)
 
-        logging.info("Running ghostscript fucked on %s to create %s" % (pdf_filename, output_filename))
+        logging.info("Running ghostscript on %s to create %s" % (pdf_filename, output_filename))
 
-        #if os.name=='nt':
-                #output_filename= output_filename.replace("\\","\\\\") 
-                #pdf_filename= pdf_filename.replace("\\","\\\\") 
         options = ' '.join(self.gs_options[output_format])
-        cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s" "%s" -c quit' % (self.gs_binary, options, output_filename, pdf_filename)
+        if os.name=='nt':
+            cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s" "%s" -c quit' % (self.gs_binary, options, output_filename, pdf_filename)
+            logging.info(cmd)        
+            ret = subprocess.call(cmd)
+        else:
+            cmd = '%s -q -dNOPAUSE %s -sOutputFile=%s %s -c quit' % (self.gs_binary, options, output_filename, pdf_filename)
+            ret = os.system(cmd)
 
-
-        logging.info(cmd)        
-        #ret = subprocess.call(cmd, shell=False)
-        ret = subprocess.call(cmd)
         if ret != 0:
             error ("Ghostscript execution failed!")
         logging.info("Created %s" % output_filename)
@@ -70,9 +69,15 @@ class PyGs(object):
         # that reportlab doesn't compress PIL images, leading to huge PDFs
         # Instead, we insert the jpeg directly per page
         options = ' '.join(self.gs_options['jpg'])
-        cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s%%d.jpg" "%s" -c quit' % (self.gs_binary, options, filename, pdf_filename)
-        logging.info(cmd)        
-        ret = subprocess.call(cmd)
+        if os.name == 'nt':
+            cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s%%d.jpg" "%s" -c quit' % (self.gs_binary, options, filename, pdf_filename)
+            logging.info(cmd)        
+            ret = subprocess.call(cmd)
+        else:
+            cmd = '%s -q -dNOPAUSE %s -sOutputFile=%s%%d.jpg %s -c quit' % (self.gs_binary, options, filename, pdf_filename)
+            logging.info(cmd)        
+            ret = os.system(cmd)
+            
         if ret != 0:
             error ("Ghostscript execution failed!")
         return (self.tiff_dpi,output_filename)

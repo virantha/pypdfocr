@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 import pypdfocr
 
-with open('README.md') as file:
+with open('README.rst') as file:
         long_description = file.read()
 
 packages = find_packages(exclude="tests")

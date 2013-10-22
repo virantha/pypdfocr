@@ -44,9 +44,15 @@ class PyTesseract(object):
             error("Cannot find specified tiff file %s" % (tiff_filename))
 
         logging.info("Running OCR on %s to create %s.html" % (tiff_filename, basename))
-        cmd = '%s "%s" "%s" hocr' % (self.ts_binary, tiff_filename, basename)
-        logging.info(cmd)        
-        ret = subprocess.call(cmd)
+        if os.name == 'nt':
+            cmd = '%s "%s" "%s" hocr' % (self.ts_binary, tiff_filename, basename)
+            logging.info(cmd)        
+            ret = subprocess.call(cmd)
+        else:
+            cmd = '%s %s %s hocr' % (self.ts_binary, tiff_filename, basename)
+            logging.info(cmd)        
+            ret = os.system(cmd)
+                
         if ret != 0:
             error ("tesseract execution failed!")
         logging.info("Created %s.html" % basename)
