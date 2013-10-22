@@ -108,9 +108,11 @@ class PyPDFOCR(object):
         else:
             self.runConversion(self.pdf_filename)
 
-
-if __name__ == '__main__':
+def main():
     script = PyPDFOCR()
     script.go(sys.argv[1:])
+
+if __name__ == '__main__':
+    main()
 
 
