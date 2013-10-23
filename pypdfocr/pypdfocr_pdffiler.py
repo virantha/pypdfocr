@@ -27,10 +27,11 @@ import shutil
 from PyPDF2 import PdfFileReader
 
 class PyPdfFiler(object):
-    def __init__(self, target_folder, default_folder):
+    def __init__(self, target_folder, default_folder, original_move_folder=None):
 
         self.target_folder = target_folder
         self.default_folder = default_folder
+        self.original_move_folder = original_move_folder
 
         self.folder_targets = {}  # This will need to be populated by the caller using addFolder
 
@@ -52,6 +53,7 @@ class PyPdfFiler(object):
         for folder,strings in self.folder_targets.items():
             for s in strings:
                 if s in searchText:
+                    logging.info("Matched keyword '%s'" % s)
                     return folder
         # No match found, so return 
         return None
@@ -78,6 +80,20 @@ class PyPdfFiler(object):
             logging.info("Using name %s instead for copying to target directory %s" % (os.path.basename(tgtfilename),os.path.dirname(tgtfilename )))
         return tgtfilename
 
+    def file_original(self, original_filename):
+        if not self.original_move_folder:
+            logging.debug("Leaving original untouched")
+            return original_filename
+
+        tgt_path = self.original_move_folder
+        logging.debug("Moving original %s to %s" % (original_filename, tgt_path))
+        tgtfilename = os.path.join(tgt_path, os.path.basename(original_filename))
+        tgtfilename = self._get_unique_filename_by_appending_version_integer(tgtfilename)
+
+        shutil.move(original_filename, tgtfilename)
+        return tgtfilename
+
+
     def move_to_matching_folder(self, filename):
         for page_text in self.iter_pdf_page_text(filename):
             tgt_folder = self._get_matching_folder(page_text)
@@ -87,7 +103,7 @@ class PyPdfFiler(object):
             logging.info("[DEFAULT] %s --> %s" % (filename, self.default_folder))
             tgt_path = os.path.join(self.target_folder, self.default_folder)
         else:   
-            logging.info("[MATCH ] %s --> %s" % (filename, tgt_folder))
+            logging.info("[MATCH] %s --> %s" % (filename, tgt_folder))
             tgt_path = os.path.join(self.target_folder,tgt_folder)
 
         if not os.path.exists(tgt_path):

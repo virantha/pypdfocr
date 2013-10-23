@@ -145,18 +145,28 @@ class PyPDFOCR(object):
             if not os.path.exists(self.config[orig]):
                 os.makedirs(self.config[orig])
             self.move_original = True
+            original_move_folder = self.config[orig]
         else:
             self.move_original = False
+            original_move_folder = None
 
         # Start the filing object
         self.filer = PyPdfFiler(target_folder = self.config['target_folder'],
-                                default_folder = self.config['default_folder']
+                                default_folder = self.config['default_folder'],
+                                original_move_folder = original_move_folder
                                 )
+        keyword_count = 0
+        folder_count = 0
         if 'folders' in self.config:
             for folder, keywords in self.config['folders'].items():
+                folder_count +=1
+                keyword_count += len(keywords)
                 self.filer.add_folder_target(folder, keywords)
 
         print ("Filing of PDFs is enabled")
+        print (" - %d target filing folders" % (folder_count))
+        print (" - %d keywords" % (keyword_count))
+
 
     
     def run_conversion(self, pdf_filename):
@@ -169,6 +179,13 @@ class PyPDFOCR(object):
         self.clean_up_files((tiff_filename, hocr_filename))
         print ("Completed conversion successfully to %s" % ocr_pdf_filename)
         return ocr_pdf_filename
+
+    def file_converted_file(self, ocr_pdffilename, original_pdffilename):
+        tgt_path = self.filer.move_to_matching_folder(ocr_pdffilename)  
+        print("Filed %s to %s as %s" % (ocr_pdffilename, os.path.dirname(tgt_path), os.path.basename(tgt_path)))
+        if self.move_original:
+            tgt_path = self.filer.file_original(original_pdffilename)
+            print("Filed original file %s to %s as %s" % (original_pdffilename, os.path.dirname(tgt_path), os.path.basename(tgt_path)))
 
     def go(self, argv):
 
@@ -184,13 +201,11 @@ class PyPDFOCR(object):
             for pdf_filename in py_watcher.start():
                 ocr_pdffilename = self.run_conversion(pdf_filename)
                 if self.enable_filing:
-                    tgt_path = self.filer.move_to_matching_folder(ocr_pdffilename)  
-                    print("Filed %s to %s as %s" % (ocr_pdffilename, os.path.dirname(tgt_path), os.path.basename(tgt_path)))
+                    self.file_converted_file(ocr_pdffilename, pdf_filename)
         else:
             ocr_pdffilename = self.run_conversion(self.pdf_filename)
             if self.enable_filing:
-                tgt_path = self.filer.move_to_matching_folder(ocr_pdffilename)  
-                print("Filed %s to %s as %s" % (ocr_pdffilename, os.path.dirname(tgt_path), os.path.basename(tgt_path)))
+                self.file_converted_file(ocr_pdffilename, self.pdf_filename)
 
 def main():
     script = PyPDFOCR()
