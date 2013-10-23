@@ -30,6 +30,7 @@ from pypdfocr_pdf import PyPdf
 from pypdfocr_tesseract import PyTesseract
 from pypdfocr_gs import PyGs
 from pypdfocr_watcher import PyPdfWatcher
+from pypdfocr_
 
 def error(text):
     print("ERROR: %s" % text)
@@ -44,7 +45,7 @@ class PyPDFOCR(object):
         self.ts = PyTesseract()
         self.pdf = PyPdf()
 
-    def getOptions(self, argv):
+    def get_options(self, argv):
         p = argparse.ArgumentParser(
                 description = "Convert scanned PDFs into their OCR equivalent.  Depends on GhostScript and Tesseract-OCR being installed.",
                 epilog = "PyPDFOCR version %s (Copyright 2013 Virantha Ekanayake)" % __version__,
@@ -91,25 +92,24 @@ class PyPDFOCR(object):
                 logging.info("Error removing file %s .... continuing" % file)
 
             
-    def runConversion(self, pdf_filename):
+    def run_conversion(self, pdf_filename):
         conversion_format = "tiff"
         tiff_dpi, tiff_filename = self.gs.make_img_from_pdf(pdf_filename, conversion_format)
         hocr_filename = self.ts.make_hocr_from_tiff(tiff_filename)
         
-        #hocr_filename = "dmv.hocr.html"
-        #tiff_filename = "dmv.tiff"
         pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename)
         self.clean_up_files((tiff_filename, hocr_filename))
 
     def go(self, argv):
+
         # Read the command line options
-        self.getOptions(argv)
+        self.get_options(argv)
         if self.watch:
             py_watcher = PyPdfWatcher(self.watch_dir)
             for pdf_filename in py_watcher.start():
-                self.runConversion(pdf_filename)
+                self.run_conversion(pdf_filename)
         else:
-            self.runConversion(self.pdf_filename)
+            self.run_conversion(self.pdf_filename)
 
 def main():
     script = PyPDFOCR()
