@@ -24,6 +24,7 @@ import sys, os
 import logging
 import shutil
 
+from version import __version__
 from PIL import Image
 from pypdfocr_pdf import PyPdf
 from pypdfocr_tesseract import PyTesseract
@@ -44,8 +45,10 @@ class PyPDFOCR(object):
         self.pdf = PyPdf()
 
     def getOptions(self, argv):
-        usage = 'python pypdfocr.py '
-        p = argparse.ArgumentParser(prog=usage)
+        p = argparse.ArgumentParser(
+                description = "Convert scanned PDFs into their OCR equivalent.  Depends on GhostScript and Tesseract-OCR being installed.",
+                epilog = "PyPDFOCR version %s (Copyright 2013 Virantha Ekanayake)" % __version__,
+                )
 
         p.add_argument('-d', '--debug', action='store_true',
             default=False, dest='debug', help='Turn on debugging')
