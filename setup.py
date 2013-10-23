@@ -18,6 +18,7 @@ setup (
     author_email="virantha@gmail.com", # Removed.
     package_data = {'': ['*.xml']},
     zip_safe = True,
+    include_package_data = True,
     packages = packages,
     install_requires = [ 
         'pil>=1.1.7', 
