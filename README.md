@@ -99,6 +99,7 @@ Clone the source directly from github (you need to have git installed):
     git clone https://github.com/virantha/pypdfocr.git
 
 Then, install the following third-party python libraries:
+
 - PIL (Python Imaging Library) http://www.pythonware.com/products/pil/
 - ReportLab (PDF generation library) http://www.reportlab.com/software/opensource/
 - Watchdog (Cross-platform fhlesystem events monitoring) https://pypi.python.org/pypi/watchdog
