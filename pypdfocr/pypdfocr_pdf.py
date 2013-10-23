@@ -50,9 +50,15 @@ class PyPdf(object):
         pass
 
     def overlay_hocr(self, dpi, hocr_filename):
-        basename = hocr_filename.split('.')[0]
-        pdf_filename = "%s_ocr.pdf" % (basename)
+        hocr_dir, hocr_basename = os.path.split(hocr_filename)
+        basename = hocr_basename.split('.')[0]
+        pdf_filename = os.path.join("%s_ocr.pdf" % (basename))
+        # Switch to the hocr directory to make this easier
+        cwd = os.getcwd()
+        os.chdir(hocr_dir)
+
         with open(pdf_filename, "w") as f:
+            logging.info("Overlaying hocr and creating final %s" % pdf_filename)
             pdf = Canvas(f, pageCompression=1)
             pdf.setCreator('pyocr')
             pdf.setTitle(os.path.basename(hocr_filename))
@@ -83,7 +89,8 @@ class PyPdf(object):
 
             pdf.save()
         logging.info("Created OCR'ed pdf as %s" % (pdf_filename))
-        return pdf_filename
+        os.chdir(cwd)
+        return os.path.join(hocr_dir,pdf_filename)
 
     def add_text_layer(self,pdf, hocrfile, page_num,height, dpi):
       """Draw an invisible text layer for OCR data"""

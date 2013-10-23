@@ -36,22 +36,21 @@ class PyPdfWatcher(FileSystemEventHandler):
         self.scan_interval = 3 # If no updates in 3 seconds process file
 
     def start(self):
-        while True:
-            observer = Observer()
-            observer.schedule(self, self.monitor_dir)
-            observer.start()
-            print("Starting to watch for new pdfs in %s" % (self.monitor_dir))
-            try:
+        try: 
+            while True:
+                observer = Observer()
+                observer.schedule(self, self.monitor_dir)
+                observer.start()
+                print("Starting to watch for new pdfs in %s" % (self.monitor_dir))
                 while True:
                     time.sleep(self.scan_interval)
                     newFile = self.check_queue()
                     if newFile:
-                        print("Starting conversion for %s" % (newFile))
                         yield newFile
-                        print("Conversion completed")
-            except KeyboardInterrupt:
-                observer.stop()
-            observer.join()
+                observer.join()
+        except KeyboardInterrupt:
+            return
+            
 
         
     def rename_file_with_spaces(self, pdf_filename):
