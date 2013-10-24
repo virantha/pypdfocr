@@ -74,19 +74,19 @@ class PyPDFOCR(object):
 
     def get_options(self, argv):
         """
-            Parse the command-line options and set the following properties:
-
-                - debug: Enable logging debug statements
-                - verbose: Enable more information on the program run
-                - enable_filing: Whether to enable post-OCR filing of PDFs
-                - One of the following:
-                    - pdf_filename
-                    - watch_dir
-                - config: Dict of the config file
-                - watch: Whether folder watching mode is turned on
-
             :param argv: usually just sys.argv[1:]
             :returns: Nothing
+            Parse the command-line options and set the following object properties:
+
+
+            :ivar debug: Enable logging debug statements
+            :ivar verbose: Enable verbose logging
+            :ivar enable_filing: Whether to enable post-OCR filing of PDFs
+            :ivar pdf_filename: Filename for single conversion mode
+            :ivar watch_dir: Directory to watch for files to convert
+            :ivar config: Dict of the config file
+            :ivar watch: Whether folder watching mode is turned on
+
         """
         p = argparse.ArgumentParser(
                 description = "Convert scanned PDFs into their OCR equivalent.  Depends on GhostScript and Tesseract-OCR being installed.",

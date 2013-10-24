@@ -30,16 +30,19 @@ class PyFiler(object):
             :param filename: File to move
             :type filename: string
             :returns: Full path+filename of destination
+            :rtype: string
         """
         return
 
     @abc.abstractmethod
     def file_original(self, original_filename):
-        """ Move the original file given by filename to the proper location
+        """ Move the original file given by filename to the proper location.
+            You will need to use :py:attr:`original_move_target`
 
             :param original_filename: File to move
             :type original_filename: string
             :returns: Full path+filename of destination(original_filename if not moved)
+            :rtype: string
         """
 
     @abc.abstractmethod
@@ -71,3 +74,6 @@ class PyFiler(object):
     original_move_folder = property(get_original_move_folder, set_original_move_folder)
    
     folder_targets = property(get_folder_targets, set_folder_targets)
+    """ Data structure for mapping a keyword to a folder target.  Usually just a dict, and new mappings
+        are added from :py:func:`add_folder_target` 
+    """

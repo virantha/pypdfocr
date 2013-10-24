@@ -11,6 +11,7 @@ pypdfocr.pypdfocr module
     :members:
     :undoc-members:
     :show-inheritance:
+    :private-members:
 
 pypdfocr.pypdfocr_gs module
 ---------------------------
@@ -52,13 +53,14 @@ pypdfocr.pypdfocr_watcher module
     :undoc-members:
     :show-inheritance:
 
-pypdfocr.version module
------------------------
+pypdfocr.pypdfocr_filer module
+--------------------------------
 
-.. automodule:: pypdfocr.version
+.. automodule:: pypdfocr.pypdfocr_filer
     :members:
     :undoc-members:
     :show-inheritance:
+
 
 
 Module contents
