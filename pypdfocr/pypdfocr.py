@@ -13,12 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-"""
-    Wrap ghostscript and tesseract to generate OCR'ed pdfs
-"""
-
-#from optparse import OptionParser
 import argparse
 import sys, os
 import logging
@@ -33,13 +27,34 @@ from pypdfocr_tesseract import PyTesseract
 from pypdfocr_gs import PyGs
 from pypdfocr_watcher import PyPdfWatcher
 from pypdfocr_pdffiler import PyPdfFiler
+from pypdfocr_filer_dirs import PyFilerDirs
 
 def error(text):
     print("ERROR: %s" % text)
     sys.exit(-1)
 
 
+
+"""
+    Make scanned PDFs searchable using Tesseract-OCR and autofile them
+.. automodule:: pypdfocr
+    :private-members:
+"""
+
 class PyPDFOCR(object):
+    """
+        The main clas.  Performs the following functions:
+
+        * Parses command line options
+        * Optionally just watches a directory for new PDF's to OCR; once a file appears, it does the next step
+        * Runs a single file conversion:
+            * Runs ghostscript to get tiff/jpg
+            * Runs Tesseract-OCR to do the actual OCR
+            * Takes the HOCR from Tesseract and creates a new PDF with the text overlay
+        * Files the OCR'ed file in the proper place if specified
+        * Files the original file if specified
+        * 
+    """
 
     def __init__ (self):
         self.maxlength = 500
@@ -48,6 +63,9 @@ class PyPDFOCR(object):
         self.pdf = PyPdf()
 
     def _get_config_file(self, config_file):
+        """
+            
+        """
         with config_file:
             myconfig = yaml.load(config_file)
         return myconfig
@@ -55,6 +73,21 @@ class PyPDFOCR(object):
 
 
     def get_options(self, argv):
+        """
+            :param argv: usually just sys.argv[1:]
+            :returns: Nothing
+            Parse the command-line options and set the following object properties:
+
+
+            :ivar debug: Enable logging debug statements
+            :ivar verbose: Enable verbose logging
+            :ivar enable_filing: Whether to enable post-OCR filing of PDFs
+            :ivar pdf_filename: Filename for single conversion mode
+            :ivar watch_dir: Directory to watch for files to convert
+            :ivar config: Dict of the config file
+            :ivar watch: Whether folder watching mode is turned on
+
+        """
         p = argparse.ArgumentParser(
                 description = "Convert scanned PDFs into their OCR equivalent.  Depends on GhostScript and Tesseract-OCR being installed.",
                 epilog = "PyPDFOCR version %s (Copyright 2013 Virantha Ekanayake)" % __version__,
@@ -118,7 +151,7 @@ class PyPDFOCR(object):
             logging.debug("Starting to watch")
             self.watch = True
     
-    def clean_up_files(self, files):
+    def _clean_up_files(self, files):
         for file in files:
             try:
                 os.remove(file)
@@ -128,7 +161,7 @@ class PyPDFOCR(object):
             
 
     def _setup_filing(self):
-        # Look at self.config and create a self.filer object
+        # Look at self.config and create a self.pdf_filer object
 
         # Some sanity checks
         assert(self.config and self.enable_filing)
@@ -144,17 +177,18 @@ class PyPDFOCR(object):
             self.config[orig] = os.path.abspath(self.config[orig])
             if not os.path.exists(self.config[orig]):
                 os.makedirs(self.config[orig])
-            self.move_original = True
             original_move_folder = self.config[orig]
         else:
-            self.move_original = False
             original_move_folder = None
 
         # Start the filing object
-        self.filer = PyPdfFiler(target_folder = self.config['target_folder'],
-                                default_folder = self.config['default_folder'],
-                                original_move_folder = original_move_folder
-                                )
+        self.filer = PyFilerDirs()
+        self.filer.target_folder = self.config['target_folder']
+        self.filer.default_folder = self.config['default_folder']
+        self.filer.original_move_folder = original_move_folder
+
+        self.pdf_filer = PyPdfFiler(self.filer)
+
         keyword_count = 0
         folder_count = 0
         if 'folders' in self.config:
@@ -167,7 +201,6 @@ class PyPDFOCR(object):
         print (" - %d target filing folders" % (folder_count))
         print (" - %d keywords" % (keyword_count))
 
-
     
     def run_conversion(self, pdf_filename):
         print ("Starting conversion of %s" % pdf_filename)
@@ -176,15 +209,16 @@ class PyPDFOCR(object):
         hocr_filename = self.ts.make_hocr_from_tiff(tiff_filename)
         
         ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename)
-        self.clean_up_files((tiff_filename, hocr_filename))
+        self._clean_up_files((tiff_filename, hocr_filename))
         print ("Completed conversion successfully to %s" % ocr_pdf_filename)
         return ocr_pdf_filename
 
     def file_converted_file(self, ocr_pdffilename, original_pdffilename):
-        tgt_path = self.filer.move_to_matching_folder(ocr_pdffilename)  
+        tgt_path = self.pdf_filer.move_to_matching_folder(ocr_pdffilename)  
         print("Filed %s to %s as %s" % (ocr_pdffilename, os.path.dirname(tgt_path), os.path.basename(tgt_path)))
-        if self.move_original:
-            tgt_path = self.filer.file_original(original_pdffilename)
+
+        tgt_path = self.pdf_filer.file_original(original_pdffilename)
+        if tgt_path != original_pdffilename:
             print("Filed original file %s to %s as %s" % (original_pdffilename, os.path.dirname(tgt_path), os.path.basename(tgt_path)))
 
     def go(self, argv):
