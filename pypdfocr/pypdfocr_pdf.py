@@ -83,7 +83,7 @@ class PyPdf(object):
                 # Get the page number
                 pg_num = int(jpg_file.split(basename)[1].split('.')[0])
                 logging.info("Adding text to page %d" % pg_num)
-                self.add_text_layer(pdf, hocr_filename,pg_num,height,dpi)
+                self.add_text_layer(pdf, hocr_basename,pg_num,height,dpi)
                 pdf.showPage()
                 os.remove(jpg_file)
 
