@@ -39,10 +39,22 @@ def error(text):
     Make scanned PDFs searchable using Tesseract-OCR and autofile them
 .. automodule:: pypdfocr
     :private-members:
-
 """
 
 class PyPDFOCR(object):
+    """
+        The main clas.  Performs the following functions:
+
+        * Parses command line options
+        * Optionally just watches a directory for new PDF's to OCR; once a file appears, it does the next step
+        * Runs a single file conversion:
+            * Runs ghostscript to get tiff/jpg
+            * Runs Tesseract-OCR to do the actual OCR
+            * Takes the HOCR from Tesseract and creates a new PDF with the text overlay
+        * Files the OCR'ed file in the proper place if specified
+        * Files the original file if specified
+        * 
+    """
 
     def __init__ (self):
         self.maxlength = 500
@@ -64,11 +76,17 @@ class PyPDFOCR(object):
         """
             Parse the command-line options and set the following properties:
 
-                - debug
-                - verbose
+                - debug: Enable logging debug statements
+                - verbose: Enable more information on the program run
+                - enable_filing: Whether to enable post-OCR filing of PDFs
+                - One of the following:
+                    - pdf_filename
+                    - watch_dir
+                - config: Dict of the config file
+                - watch: Whether folder watching mode is turned on
 
             :param argv: usually just sys.argv[1:]
-            :returns: 
+            :returns: Nothing
         """
         p = argparse.ArgumentParser(
                 description = "Convert scanned PDFs into their OCR equivalent.  Depends on GhostScript and Tesseract-OCR being installed.",
@@ -133,7 +151,7 @@ class PyPDFOCR(object):
             logging.debug("Starting to watch")
             self.watch = True
     
-    def clean_up_files(self, files):
+    def _clean_up_files(self, files):
         for file in files:
             try:
                 os.remove(file)
@@ -191,7 +209,7 @@ class PyPDFOCR(object):
         hocr_filename = self.ts.make_hocr_from_tiff(tiff_filename)
         
         ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename)
-        self.clean_up_files((tiff_filename, hocr_filename))
+        self._clean_up_files((tiff_filename, hocr_filename))
         print ("Completed conversion successfully to %s" % ocr_pdf_filename)
         return ocr_pdf_filename
 
