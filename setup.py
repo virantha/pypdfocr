@@ -25,6 +25,7 @@ setup (
         'reportlab>=2.7', 
         "watchdog>=0.6.0",
         "pypdf2",
+        "evernote",
         ],
     entry_points = {
             'console_scripts': [
