@@ -49,7 +49,7 @@ class PyTesseract(object):
             logging.info(cmd)        
             ret = subprocess.call(cmd)
         else:
-            cmd = '%s %s %s hocr' % (self.ts_binary, tiff_filename, basename)
+            cmd = '%s "%s" "%s" hocr' % (self.ts_binary, tiff_filename, basename)
             logging.info(cmd)        
             ret = os.system(cmd)
                 

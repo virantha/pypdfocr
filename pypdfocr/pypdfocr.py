@@ -28,6 +28,7 @@ from pypdfocr_gs import PyGs
 from pypdfocr_watcher import PyPdfWatcher
 from pypdfocr_pdffiler import PyPdfFiler
 from pypdfocr_filer_dirs import PyFilerDirs
+from pypdfocr_filer_evernote import PyFilerEvernote
 
 def error(text):
     print("ERROR: %s" % text)
@@ -86,6 +87,7 @@ class PyPDFOCR(object):
             :ivar watch_dir: Directory to watch for files to convert
             :ivar config: Dict of the config file
             :ivar watch: Whether folder watching mode is turned on
+            :ivar enable_evernote: Enable filing to evernote
 
         """
         p = argparse.ArgumentParser(
@@ -117,6 +119,8 @@ class PyPDFOCR(object):
             default=False, dest='enable_filing', help='Enable filing of converted PDFs')
         filing_group.add_argument('-c', '--config', type = argparse.FileType('r'),
              dest='configfile', help='Configuration file for defaults and PDF filing')
+        filing_group.add_argument('-e', '--evernote', action='store_true',
+            default=False, dest='enable_evernote', help='Enable filing to Evernote')
 
 
         args = p.parse_args(argv)
@@ -138,7 +142,12 @@ class PyPDFOCR(object):
             logging.debug("Read in configuration file")
             logging.debug(self.config)
 
-        if args.enable_filing:
+        if args.enable_evernote:
+            self.enable_evernote = True
+        else:
+            self.enable_evernote = False
+
+        if args.enable_filing or args.enable_evernote:
             self.enable_filing = True
             if not args.configfile:
                 p.error("Please specify a configuration file(CONFIGFILE) to enable filing")
@@ -182,7 +191,11 @@ class PyPDFOCR(object):
             original_move_folder = None
 
         # Start the filing object
-        self.filer = PyFilerDirs()
+        if self.enable_evernote:
+            self.filer = PyFilerEvernote()
+        else:
+            self.filer = PyFilerDirs()
+            
         self.filer.target_folder = self.config['target_folder']
         self.filer.default_folder = self.config['default_folder']
         self.filer.original_move_folder = original_move_folder
