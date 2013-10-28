@@ -14,6 +14,7 @@ Contents:
    pypdfocr
 
 .. include:: ../CHANGES.rst
+.. include:: ../TODO.rst
 .. include:: ../README.rst
 
 Indices and tables

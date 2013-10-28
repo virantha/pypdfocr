@@ -300,6 +300,9 @@ class PyPDFOCR(object):
                   subject, message,
                   login, password,
                   smtpserver):
+        """
+            Send email using smtp
+        """
         header  = 'From: %s\n' % from_addr
         header += 'To: %s\n' % ','.join(to_addr_list)
         header += 'Cc: %s\n' % ','.join(cc_addr_list)

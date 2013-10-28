@@ -12,4 +12,19 @@ def prep_release():
     # Convert the README.md to README.rst
     local("pandoc README.md -f markdown -t rst -o README.rst")
 
+def push_docs():
+    """ Build the sphinx docs from develop
+        And push it to gh-pages
+    """
+    githubpages = "/Users/virantha/dev/githubdocs/pypdfocr"
+    with lcd(githubpages):
+        local("git checkout gh-pages")
+        local("git pull origin gh-pages")
+    with lcd("docs"):
+        print("Running sphinx in docs/ and building to ~/dev/githubpages/pypdfocr")
+        local("make html")
+    with lcd(githubpages):
+        local("git add .")
+        local('git commit -am "doc update"')
+        local('git push origin gh-pages')
 
