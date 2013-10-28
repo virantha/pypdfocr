@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pypdfocr.pypdfocr_watcher &mdash; pypdfocr 0.4 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="pypdfocr 0.4 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pypdfocr 0.4 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pypdfocr.pypdfocr_watcher</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Something</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Lock</span>
+
+<span class="kn">from</span> <span class="nn">watchdog.observers</span> <span class="kn">import</span> <span class="n">Observer</span>
+<span class="kn">from</span> <span class="nn">watchdog.events</span> <span class="kn">import</span> <span class="n">LoggingEventHandler</span>
+<span class="kn">from</span> <span class="nn">watchdog.events</span> <span class="kn">import</span> <span class="n">FileSystemEventHandler</span>
+
+        
+<div class="viewcode-block" id="PyPdfWatcher"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher">[docs]</a><span class="k">class</span> <span class="nc">PyPdfWatcher</span><span class="p">(</span><span class="n">FileSystemEventHandler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Watch a folder for new pdf files</span>
+
+<span class="sd">        If new file event, then add it to queue with timestamp</span>
+<span class="sd">        If file mofified event, then change timestamp in queue</span>
+<span class="sd">        Every 10 seconds pop-off queue and if timestamp older than 10 seconds,</span>
+<span class="sd">            process the file</span>
+<span class="sd">        else, push it back onto queue</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">events</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">events_lock</span> <span class="o">=</span> <span class="n">Lock</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monitor_dir</span><span class="p">):</span>
+        <span class="n">FileSystemEventHandler</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">monitor_dir</span> <span class="o">=</span> <span class="n">monitor_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scan_interval</span> <span class="o">=</span> <span class="mi">3</span> <span class="c"># If no updates in 3 seconds process file</span>
+
+<div class="viewcode-block" id="PyPdfWatcher.start"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span> 
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">observer</span> <span class="o">=</span> <span class="n">Observer</span><span class="p">()</span>
+                <span class="n">observer</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor_dir</span><span class="p">)</span>
+                <span class="n">observer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&quot;Starting to watch for new pdfs in </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">monitor_dir</span><span class="p">))</span>
+                <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scan_interval</span><span class="p">)</span>
+                    <span class="n">newFile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_queue</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">newFile</span><span class="p">:</span>
+                        <span class="k">yield</span> <span class="n">newFile</span>
+                <span class="n">observer</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="k">return</span>
+            
+
+        </div>
+<div class="viewcode-block" id="PyPdfWatcher.rename_file_with_spaces"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.rename_file_with_spaces">[docs]</a>    <span class="k">def</span> <span class="nf">rename_file_with_spaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">):</span>
+        <span class="n">filepath</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s">&#39; &#39;</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="n">newFilename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">,</span><span class="s">&#39;_&#39;</span><span class="p">))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Renaming spaces&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;---&gt; </span><span class="si">%s</span><span class="s"> </span><span class="se">\n</span><span class="s"> ------&gt; </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="n">newFilename</span><span class="p">))</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="n">newFilename</span><span class="p">)</span> 
+            <span class="k">return</span> <span class="n">newFilename</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pdf_filename</span>
+</div>
+<div class="viewcode-block" id="PyPdfWatcher.check_for_new_pdf"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_for_new_pdf">[docs]</a>    <span class="k">def</span> <span class="nf">check_for_new_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ev_path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ev_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.pdf&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ev_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;_ocr.pdf&quot;</span><span class="p">):</span>
+                <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">ev_path</span> <span class="ow">in</span> <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
+                    <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">ev_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span> <span class="p">(</span><span class="s">&quot;Adding </span><span class="si">%s</span><span class="s"> to event queue&quot;</span> <span class="o">%</span> <span class="n">ev_path</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">ev_path</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">info</span> <span class="p">(</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> removing from event queue&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ev_path</span><span class="p">))</span>
+                        <span class="k">del</span> <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">ev_path</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span> 
+                        <span class="n">newTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span> <span class="p">(</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> already in event queue, updating timestamp to </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ev_path</span><span class="p">,</span> <span class="n">newTime</span><span class="p">))</span>
+                        <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">ev_path</span><span class="p">]</span>  <span class="o">=</span> <span class="n">newTime</span>
+                <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+                      
+              </div>
+<div class="viewcode-block" id="PyPdfWatcher.on_created"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.on_created">[docs]</a>    <span class="k">def</span> <span class="nf">on_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span> <span class="p">(</span><span class="s">&quot;on_created: </span><span class="si">%s</span><span class="s"> at time </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_for_new_pdf</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PyPdfWatcher.on_moved"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.on_moved">[docs]</a>    <span class="k">def</span> <span class="nf">on_moved</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span> <span class="p">(</span><span class="s">&quot;on_moved: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_for_new_pdf</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">dest_path</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PyPdfWatcher.on_modified"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.on_modified">[docs]</a>    <span class="k">def</span> <span class="nf">on_modified</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span> <span class="p">(</span><span class="s">&quot;on_modified: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_for_new_pdf</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PyPdfWatcher.on_deleted"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.on_deleted">[docs]</a>    <span class="k">def</span> <span class="nf">on_deleted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">event</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span> <span class="p">(</span><span class="s">&quot;on_deleted: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">)</span>
+        <span class="k">pass</span> 
+</div>
+<div class="viewcode-block" id="PyPdfWatcher.check_queue"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_queue">[docs]</a>    <span class="k">def</span> <span class="nf">check_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Called at regular time intervals</span>
+        <span class="c"># Chech the events queue for events that have been there longer</span>
+        <span class="c"># than given time period</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">monitored_file</span><span class="p">,</span> <span class="n">timestamp</span> <span class="ow">in</span> <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">timestamp</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">monitored_file</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">now</span> <span class="o">-</span> <span class="n">timestamp</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">scan_interval</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Processing new file </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">monitored_file</span><span class="p">))</span>
+                <span class="c"># Remove this file from the dict</span>
+                <span class="k">del</span> <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">monitored_file</span><span class="p">]</span>
+                <span class="n">monitored_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rename_file_with_spaces</span><span class="p">(</span><span class="n">monitored_file</span><span class="p">)</span>
+                <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">monitored_file</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="c"># Add back into queue and mark as not needing further action in the event handler</span>
+                <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                <span class="k">return</span> <span class="n">monitored_file</span>
+        <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">None</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pypdfocr 0.4 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b3.
+    </div>
+  </body>
+</html>

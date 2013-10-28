@@ -1,0 +1,698 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pypdfocr package &mdash; pypdfocr 0.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pypdfocr 0.4 documentation" href="index.html" />
+    <link rel="prev" title="PyPDFOCR API Reference (version 0.4)" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="PyPDFOCR API Reference (version 0.4)"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pypdfocr 0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pypdfocr-package">
+<h1>pypdfocr package<a class="headerlink" href="#pypdfocr-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pypdfocr.pypdfocr">
+<span id="pypdfocr-pypdfocr-module"></span><h2>pypdfocr.pypdfocr module<a class="headerlink" href="#module-pypdfocr.pypdfocr" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pypdfocr.pypdfocr.PyPDFOCR">
+<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr.</tt><tt class="descname">PyPDFOCR</tt><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#PyPDFOCR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>The main clas.  Performs the following functions:</p>
+<ul>
+<li><p class="first">Parses command line options</p>
+</li>
+<li><p class="first">Optionally just watches a directory for new PDF&#8217;s to OCR; once a file appears, it does the next step</p>
+</li>
+<li><dl class="first docutils">
+<dt>Runs a single file conversion:</dt>
+<dd><ul class="first last simple">
+<li>Runs ghostscript to get tiff/jpg</li>
+<li>Runs Tesseract-OCR to do the actual OCR</li>
+<li>Takes the HOCR from Tesseract and creates a new PDF with the text overlay</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">Files the OCR&#8217;ed file in the proper place if specified</p>
+</li>
+<li><p class="first">Files the original file if specified</p>
+</li>
+<li></li>
+</ul>
+<dl class="method">
+<dt id="pypdfocr.pypdfocr.PyPDFOCR._clean_up_files">
+<tt class="descname">_clean_up_files</tt><big>(</big><em>files</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#PyPDFOCR._clean_up_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR._clean_up_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to delete files
+:param files: List of files to delete
+:type files: list
+:returns: None</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr.PyPDFOCR._get_config_file">
+<tt class="descname">_get_config_file</tt><big>(</big><em>config_file</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#PyPDFOCR._get_config_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR._get_config_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in the yaml config file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config_file</strong> (<em>file</em>) &#8211; Configuration file (YAML format)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">dict of yaml file</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr.PyPDFOCR._send_email">
+<tt class="descname">_send_email</tt><big>(</big><em>from_addr</em>, <em>to_addr_list</em>, <em>cc_addr_list</em>, <em>subject</em>, <em>message</em>, <em>login</em>, <em>password</em>, <em>smtpserver</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#PyPDFOCR._send_email"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR._send_email" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr.PyPDFOCR._setup_filing">
+<tt class="descname">_setup_filing</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#PyPDFOCR._setup_filing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR._setup_filing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instance the proper PyFiler object (either
+<a class="reference internal" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs" title="pypdfocr.pypdfocr_filer_dirs.PyFilerDirs"><tt class="xref py py-class docutils literal"><span class="pre">pypdfocr.pypdfocr_filer_dirs.PyFilerDirs</span></tt></a> or
+<a class="reference internal" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote" title="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote"><tt class="xref py py-class docutils literal"><span class="pre">pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote</span></tt></a>)</p>
+<p>TODO: Make this more generic to allow third-party plugin filing objects</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first simple">
+<li><strong>filer</strong> &#8211; <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler" title="pypdfocr.pypdfocr_filer.PyFiler"><tt class="xref py py-class docutils literal"><span class="pre">pypdfocr.pypdfocr_filer.PyFiler</span></tt></a> PyFiler subclass object that is instantiated</li>
+<li><strong>pdf_filer</strong> &#8211; <a class="reference internal" href="#pypdfocr.pypdfocr_pdffiler.PyPdfFiler" title="pypdfocr.pypdfocr_pdffiler.PyPdfFiler"><tt class="xref py py-class docutils literal"><span class="pre">pypdfocr.pypdfocr_pdffiler.PyPdfFiler</span></tt></a> object to help with PDF reading</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Nothing</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr.PyPDFOCR.file_converted_file">
+<tt class="descname">file_converted_file</tt><big>(</big><em>ocr_pdffilename</em>, <em>original_pdffilename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#PyPDFOCR.file_converted_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR.file_converted_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call <a href="#id1"><span class="problematic" id="id2">:method:`filer`</span></a> to move the converted filename to its destiantion directory.  Optionally also
+moves the original PDF.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ocr_pdffilename</strong> (<em>filename string</em>) &#8211; Converted PDF file</li>
+<li><strong>original_pdffilename</strong> (<em>filename string</em>) &#8211; Original scanned PDF file</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Nothing</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr.PyPDFOCR.get_options">
+<tt class="descname">get_options</tt><big>(</big><em>argv</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#PyPDFOCR.get_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR.get_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the command-line options and set the following object properties:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>argv</strong> &#8211; usually just sys.argv[1:]</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Nothing</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>debug</strong> &#8211; Enable logging debug statements</li>
+<li><strong>verbose</strong> &#8211; Enable verbose logging</li>
+<li><strong>enable_filing</strong> &#8211; Whether to enable post-OCR filing of PDFs</li>
+<li><strong>pdf_filename</strong> &#8211; Filename for single conversion mode</li>
+<li><strong>watch_dir</strong> &#8211; Directory to watch for files to convert</li>
+<li><strong>config</strong> &#8211; Dict of the config file</li>
+<li><strong>watch</strong> &#8211; Whether folder watching mode is turned on</li>
+<li><strong>enable_evernote</strong> &#8211; Enable filing to evernote</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr.PyPDFOCR.go">
+<tt class="descname">go</tt><big>(</big><em>argv</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#PyPDFOCR.go"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR.go" title="Permalink to this definition">¶</a></dt>
+<dd><p>The main entry point into PyPDFOCR</p>
+<ol class="arabic simple">
+<li>Parses options</li>
+<li>If filing is enabled, call <a class="reference internal" href="#pypdfocr.pypdfocr.PyPDFOCR._setup_filing" title="pypdfocr.pypdfocr.PyPDFOCR._setup_filing"><tt class="xref py py-func docutils literal"><span class="pre">_setup_filing()</span></tt></a></li>
+<li>If watch is enabled, start the watcher</li>
+<li><a class="reference internal" href="#pypdfocr.pypdfocr.PyPDFOCR.run_conversion" title="pypdfocr.pypdfocr.PyPDFOCR.run_conversion"><tt class="xref py py-func docutils literal"><span class="pre">run_conversion()</span></tt></a></li>
+<li>if filing is enabled, call <a class="reference internal" href="#pypdfocr.pypdfocr.PyPDFOCR.file_converted_file" title="pypdfocr.pypdfocr.PyPDFOCR.file_converted_file"><tt class="xref py py-func docutils literal"><span class="pre">file_converted_file()</span></tt></a></li>
+</ol>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr.PyPDFOCR.pdf">
+<tt class="descname">pdf</tt><em class="property"> = None</em><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR.pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>PDF read and generation class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr.PyPDFOCR.run_conversion">
+<tt class="descname">run_conversion</tt><big>(</big><em>pdf_filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#PyPDFOCR.run_conversion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR.run_conversion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does the following:</p>
+<ul class="simple">
+<li>Convert the PDF using GhostScript to TIFF and JPG</li>
+<li>Run Tesseract on the TIFF to extract the text into HOCR (html)</li>
+<li>Use PDF generator to overlay the text on the JPG and output a new PDF</li>
+<li>Clean up temporary image files</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pdf_filename</strong> (<em>string</em>) &#8211; Scanned PDF</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">OCR&#8217;ed PDF</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">filename string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pypdfocr.pypdfocr.error">
+<tt class="descclassname">pypdfocr.pypdfocr.</tt><tt class="descname">error</tt><big>(</big><em>text</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pypdfocr.pypdfocr.main">
+<tt class="descclassname">pypdfocr.pypdfocr.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-pypdfocr.pypdfocr_gs">
+<span id="pypdfocr-pypdfocr-gs-module"></span><h2>pypdfocr.pypdfocr_gs module<a class="headerlink" href="#module-pypdfocr.pypdfocr_gs" title="Permalink to this headline">¶</a></h2>
+<p>Wrap ghostscript calls</p>
+<dl class="class">
+<dt id="pypdfocr.pypdfocr_gs.PyGs">
+<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_gs.</tt><tt class="descname">PyGs</tt><a class="reference internal" href="_modules/pypdfocr/pypdfocr_gs.html#PyGs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_gs.PyGs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Class to wrap all the ghostscript calls</p>
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_gs.PyGs.make_img_from_pdf">
+<tt class="descname">make_img_from_pdf</tt><big>(</big><em>pdf_filename</em>, <em>output_format</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_gs.html#PyGs.make_img_from_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_gs.PyGs.make_img_from_pdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pypdfocr.pypdfocr_gs.error">
+<tt class="descclassname">pypdfocr.pypdfocr_gs.</tt><tt class="descname">error</tt><big>(</big><em>text</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_gs.html#error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_gs.error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-pypdfocr.pypdfocr_pdf">
+<span id="pypdfocr-pypdfocr-pdf-module"></span><h2>pypdfocr.pypdfocr_pdf module<a class="headerlink" href="#module-pypdfocr.pypdfocr_pdf" title="Permalink to this headline">¶</a></h2>
+<p>Wrap pdf generation and text addition code</p>
+<dl class="class">
+<dt id="pypdfocr.pypdfocr_pdf.PyPdf">
+<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_pdf.</tt><tt class="descname">PyPdf</tt><a class="reference internal" href="_modules/pypdfocr/pypdfocr_pdf.html#PyPdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_pdf.PyPdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Class to create pdfs from images</p>
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_pdf.PyPdf.add_text_layer">
+<tt class="descname">add_text_layer</tt><big>(</big><em>pdf</em>, <em>hocrfile</em>, <em>page_num</em>, <em>height</em>, <em>dpi</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_pdf.html#PyPdf.add_text_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_pdf.PyPdf.add_text_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw an invisible text layer for OCR data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_pdf.PyPdf.load_invisible_font">
+<tt class="descname">load_invisible_font</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_pdf.html#PyPdf.load_invisible_font"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_pdf.PyPdf.load_invisible_font" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_pdf.PyPdf.overlay_hocr">
+<tt class="descname">overlay_hocr</tt><big>(</big><em>dpi</em>, <em>hocr_filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_pdf.html#PyPdf.overlay_hocr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_pdf.PyPdf.overlay_hocr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_pdf.PyPdf.polyval">
+<tt class="descname">polyval</tt><big>(</big><em>poly</em>, <em>x</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_pdf.html#PyPdf.polyval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_pdf.PyPdf.polyval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypdfocr.pypdfocr_pdffiler">
+<span id="pypdfocr-pypdfocr-pdffiler-module"></span><h2>pypdfocr.pypdfocr_pdffiler module<a class="headerlink" href="#module-pypdfocr.pypdfocr_pdffiler" title="Permalink to this headline">¶</a></h2>
+<p>Provides capability to search PDFs and file to a specific folder based
+on keywords</p>
+<dl class="class">
+<dt id="pypdfocr.pypdfocr_pdffiler.PyPdfFiler">
+<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_pdffiler.</tt><tt class="descname">PyPdfFiler</tt><big>(</big><em>filer</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_pdffiler.html#PyPdfFiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_pdffiler.PyPdfFiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_pdffiler.PyPdfFiler.file_original">
+<tt class="descname">file_original</tt><big>(</big><em>original_filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_pdffiler.html#PyPdfFiler.file_original"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_pdffiler.PyPdfFiler.file_original" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_pdffiler.PyPdfFiler.iter_pdf_page_text">
+<tt class="descname">iter_pdf_page_text</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_pdffiler.html#PyPdfFiler.iter_pdf_page_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_pdffiler.PyPdfFiler.iter_pdf_page_text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_pdffiler.PyPdfFiler.move_to_matching_folder">
+<tt class="descname">move_to_matching_folder</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_pdffiler.html#PyPdfFiler.move_to_matching_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_pdffiler.PyPdfFiler.move_to_matching_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypdfocr.pypdfocr_tesseract">
+<span id="pypdfocr-pypdfocr-tesseract-module"></span><h2>pypdfocr.pypdfocr_tesseract module<a class="headerlink" href="#module-pypdfocr.pypdfocr_tesseract" title="Permalink to this headline">¶</a></h2>
+<p>Run Tesseract to generate hocr file</p>
+<dl class="class">
+<dt id="pypdfocr.pypdfocr_tesseract.PyTesseract">
+<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_tesseract.</tt><tt class="descname">PyTesseract</tt><a class="reference internal" href="_modules/pypdfocr/pypdfocr_tesseract.html#PyTesseract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_tesseract.PyTesseract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Class to wrap all the tesseract calls</p>
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_tesseract.PyTesseract.make_hocr_from_tiff">
+<tt class="descname">make_hocr_from_tiff</tt><big>(</big><em>tiff_filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_tesseract.html#PyTesseract.make_hocr_from_tiff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_tesseract.PyTesseract.make_hocr_from_tiff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pypdfocr.pypdfocr_tesseract.error">
+<tt class="descclassname">pypdfocr.pypdfocr_tesseract.</tt><tt class="descname">error</tt><big>(</big><em>text</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_tesseract.html#error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_tesseract.error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-pypdfocr.pypdfocr_watcher">
+<span id="pypdfocr-pypdfocr-watcher-module"></span><h2>pypdfocr.pypdfocr_watcher module<a class="headerlink" href="#module-pypdfocr.pypdfocr_watcher" title="Permalink to this headline">¶</a></h2>
+<p>Something</p>
+<dl class="class">
+<dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher">
+<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_watcher.</tt><tt class="descname">PyPdfWatcher</tt><big>(</big><em>monitor_dir</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_watcher.html#PyPdfWatcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">watchdog.events.FileSystemEventHandler</span></tt></p>
+<p>Watch a folder for new pdf files</p>
+<p>If new file event, then add it to queue with timestamp
+If file mofified event, then change timestamp in queue
+Every 10 seconds pop-off queue and if timestamp older than 10 seconds,</p>
+<blockquote>
+<div>process the file</div></blockquote>
+<p>else, push it back onto queue</p>
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_for_new_pdf">
+<tt class="descname">check_for_new_pdf</tt><big>(</big><em>ev_path</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_watcher.html#PyPdfWatcher.check_for_new_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_for_new_pdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_queue">
+<tt class="descname">check_queue</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_watcher.html#PyPdfWatcher.check_queue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_queue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.events">
+<tt class="descname">events</tt><em class="property"> = {}</em><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.events" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.events_lock">
+<tt class="descname">events_lock</tt><em class="property"> = &lt;thread.lock object at 0x10c8bfb50&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.events_lock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.on_created">
+<tt class="descname">on_created</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_watcher.html#PyPdfWatcher.on_created"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.on_created" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.on_deleted">
+<tt class="descname">on_deleted</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_watcher.html#PyPdfWatcher.on_deleted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.on_deleted" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.on_modified">
+<tt class="descname">on_modified</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_watcher.html#PyPdfWatcher.on_modified"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.on_modified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.on_moved">
+<tt class="descname">on_moved</tt><big>(</big><em>event</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_watcher.html#PyPdfWatcher.on_moved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.on_moved" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.rename_file_with_spaces">
+<tt class="descname">rename_file_with_spaces</tt><big>(</big><em>pdf_filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_watcher.html#PyPdfWatcher.rename_file_with_spaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.rename_file_with_spaces" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.start">
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_watcher.html#PyPdfWatcher.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypdfocr.pypdfocr_filer">
+<span id="pypdfocr-pypdfocr-filer-module"></span><h2>pypdfocr.pypdfocr_filer module<a class="headerlink" href="#module-pypdfocr.pypdfocr_filer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler">
+<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_filer.</tt><tt class="descname">PyFiler</tt><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer.html#PyFiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Abstract base class for defining filing objects, whether you want to 
+save to a file-system/directory structure or to something like Evernote</p>
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler.add_folder_target">
+<tt class="descname">add_folder_target</tt><big>(</big><em>folder</em>, <em>keywords</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer.html#PyFiler.add_folder_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.add_folder_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a target folder for a list of keywords</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler.default_folder">
+<tt class="descname">default_folder</tt><em class="property"> None</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.default_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler.file_original">
+<tt class="descname">file_original</tt><big>(</big><em>original_filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer.html#PyFiler.file_original"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.file_original" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the original file given by filename to the proper location.
+You will need to use <tt class="xref py py-attr docutils literal"><span class="pre">original_move_target</span></tt></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>original_filename</strong> (<em>string</em>) &#8211; File to move</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Full path+filename of destination(original_filename if not moved)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler.folder_targets">
+<tt class="descname">folder_targets</tt><em class="property"> None</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.folder_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Data structure for mapping a keyword to a folder target.  Usually just a dict, and new mappings
+are added from <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler.add_folder_target" title="pypdfocr.pypdfocr_filer.PyFiler.add_folder_target"><tt class="xref py py-func docutils literal"><span class="pre">add_folder_target()</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler.get_default_folder">
+<tt class="descname">get_default_folder</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer.html#PyFiler.get_default_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.get_default_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler.get_folder_targets">
+<tt class="descname">get_folder_targets</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer.html#PyFiler.get_folder_targets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.get_folder_targets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler.get_original_move_folder">
+<tt class="descname">get_original_move_folder</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer.html#PyFiler.get_original_move_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.get_original_move_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler.get_target_folder">
+<tt class="descname">get_target_folder</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer.html#PyFiler.get_target_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.get_target_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler.move_to_matching_folder">
+<tt class="descname">move_to_matching_folder</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer.html#PyFiler.move_to_matching_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.move_to_matching_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the file given by filename to the proper location.
+You will need to use <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler.target_folder" title="pypdfocr.pypdfocr_filer.PyFiler.target_folder"><tt class="xref py py-attr docutils literal"><span class="pre">target_folder</span></tt></a> and <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler.folder_targets" title="pypdfocr.pypdfocr_filer.PyFiler.folder_targets"><tt class="xref py py-attr docutils literal"><span class="pre">folder_targets</span></tt></a>
+to figure out what the proper destination is.  If there is no matching location,
+then use <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler.default_folder" title="pypdfocr.pypdfocr_filer.PyFiler.default_folder"><tt class="xref py py-attr docutils literal"><span class="pre">default_folder</span></tt></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>string</em>) &#8211; File to move</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Full path+filename of destination</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler.original_move_folder">
+<tt class="descname">original_move_folder</tt><em class="property"> None</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.original_move_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler.set_default_folder">
+<tt class="descname">set_default_folder</tt><big>(</big><em>default_folder</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer.html#PyFiler.set_default_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.set_default_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler.set_folder_targets">
+<tt class="descname">set_folder_targets</tt><big>(</big><em>folder_targets</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer.html#PyFiler.set_folder_targets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.set_folder_targets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler.set_original_move_folder">
+<tt class="descname">set_original_move_folder</tt><big>(</big><em>original_move_folder</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer.html#PyFiler.set_original_move_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.set_original_move_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler.set_target_folder">
+<tt class="descname">set_target_folder</tt><big>(</big><em>target_folder</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer.html#PyFiler.set_target_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.set_target_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler.target_folder">
+<tt class="descname">target_folder</tt><em class="property"> None</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.target_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypdfocr.pypdfocr_filer_dirs">
+<span id="pypdfocr-pypdfocr-filer-dirs-module"></span><h2>pypdfocr.pypdfocr_filer_dirs module<a class="headerlink" href="#module-pypdfocr.pypdfocr_filer_dirs" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pypdfocr.pypdfocr_filer_dirs.PyFilerDirs">
+<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_filer_dirs.</tt><tt class="descname">PyFilerDirs</tt><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_dirs.html#PyFilerDirs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler" title="pypdfocr.pypdfocr_filer.PyFiler"><tt class="xref py py-class docutils literal"><span class="pre">pypdfocr.pypdfocr_filer.PyFiler</span></tt></a></p>
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer_dirs.PyFilerDirs.add_folder_target">
+<tt class="descname">add_folder_target</tt><big>(</big><em>folder</em>, <em>keywords</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_dirs.html#PyFilerDirs.add_folder_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs.add_folder_target" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer_dirs.PyFilerDirs.file_original">
+<tt class="descname">file_original</tt><big>(</big><em>original_filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_dirs.html#PyFilerDirs.file_original"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs.file_original" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer_dirs.PyFilerDirs.move_to_matching_folder">
+<tt class="descname">move_to_matching_folder</tt><big>(</big><em>filename</em>, <em>foldername</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_dirs.html#PyFilerDirs.move_to_matching_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs.move_to_matching_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypdfocr.pypdfocr_filer_evernote">
+<span id="pypdfocr-pypdfocr-filer-evernote-module"></span><h2>pypdfocr.pypdfocr_filer_evernote module<a class="headerlink" href="#module-pypdfocr.pypdfocr_filer_evernote" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote">
+<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_filer_evernote.</tt><tt class="descname">PyFilerEvernote</tt><big>(</big><em>dev_token</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler" title="pypdfocr.pypdfocr_filer.PyFiler"><tt class="xref py py-class docutils literal"><span class="pre">pypdfocr.pypdfocr_filer.PyFiler</span></tt></a></p>
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.add_folder_target">
+<tt class="descname">add_folder_target</tt><big>(</big><em>folder</em>, <em>keywords</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote.add_folder_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.add_folder_target" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.default_folder">
+<tt class="descname">default_folder</tt><em class="property"> None</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.default_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override this to make sure we only have the basename</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.file_original">
+<tt class="descname">file_original</tt><big>(</big><em>original_filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote.file_original"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.file_original" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just file it to the local file system (don&#8217;t upload to evernote)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.get_default_folder">
+<tt class="descname">get_default_folder</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote.get_default_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.get_default_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override this to make sure we only have the basename</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.get_target_folder">
+<tt class="descname">get_target_folder</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote.get_target_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.get_target_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.move_to_matching_folder">
+<tt class="descname">move_to_matching_folder</tt><big>(</big><em>filename</em>, <em>foldername</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote.move_to_matching_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.move_to_matching_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.set_default_folder">
+<tt class="descname">set_default_folder</tt><big>(</big><em>default_folder</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote.set_default_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.set_default_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override this to make sure we only have the basename</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.set_target_folder">
+<tt class="descname">set_target_folder</tt><big>(</big><em>target_folder</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote.set_target_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.set_target_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override this to make sure we only have the basename</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.target_folder">
+<tt class="descname">target_folder</tt><em class="property"> None</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.target_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pypdfocr.pypdfocr_filer_evernote.en_handle">
+<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_filer_evernote.</tt><tt class="descname">en_handle</tt><big>(</big><em>f</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#en_handle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.en_handle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Generic exception handler for Evernote actions</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypdfocr">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pypdfocr" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pypdfocr package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pypdfocr.pypdfocr">pypdfocr.pypdfocr module</a></li>
+<li><a class="reference internal" href="#module-pypdfocr.pypdfocr_gs">pypdfocr.pypdfocr_gs module</a></li>
+<li><a class="reference internal" href="#module-pypdfocr.pypdfocr_pdf">pypdfocr.pypdfocr_pdf module</a></li>
+<li><a class="reference internal" href="#module-pypdfocr.pypdfocr_pdffiler">pypdfocr.pypdfocr_pdffiler module</a></li>
+<li><a class="reference internal" href="#module-pypdfocr.pypdfocr_tesseract">pypdfocr.pypdfocr_tesseract module</a></li>
+<li><a class="reference internal" href="#module-pypdfocr.pypdfocr_watcher">pypdfocr.pypdfocr_watcher module</a></li>
+<li><a class="reference internal" href="#module-pypdfocr.pypdfocr_filer">pypdfocr.pypdfocr_filer module</a></li>
+<li><a class="reference internal" href="#module-pypdfocr.pypdfocr_filer_dirs">pypdfocr.pypdfocr_filer_dirs module</a></li>
+<li><a class="reference internal" href="#module-pypdfocr.pypdfocr_filer_evernote">pypdfocr.pypdfocr_filer_evernote module</a></li>
+<li><a class="reference internal" href="#module-pypdfocr">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">PyPDFOCR API Reference (version 0.4)</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/pypdfocr.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="PyPDFOCR API Reference (version 0.4)"
+             >previous</a> |</li>
+        <li><a href="index.html">pypdfocr 0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b3.
+    </div>
+  </body>
+</html>

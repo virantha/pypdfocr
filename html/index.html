@@ -1,0 +1,399 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PyPDFOCR API Reference (version 0.4) &mdash; pypdfocr 0.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pypdfocr 0.4 documentation" href="#" />
+    <link rel="next" title="pypdfocr package" href="pypdfocr.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pypdfocr.html" title="pypdfocr package"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">pypdfocr 0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pypdfocr-api-reference-version-release">
+<h1>PyPDFOCR API Reference (version 0.4)<a class="headerlink" href="#pypdfocr-api-reference-version-release" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pypdfocr.html">pypdfocr package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pypdfocr.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypdfocr.html#module-pypdfocr.pypdfocr">pypdfocr.pypdfocr module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypdfocr.html#module-pypdfocr.pypdfocr_gs">pypdfocr.pypdfocr_gs module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypdfocr.html#module-pypdfocr.pypdfocr_pdf">pypdfocr.pypdfocr_pdf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypdfocr.html#module-pypdfocr.pypdfocr_pdffiler">pypdfocr.pypdfocr_pdffiler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypdfocr.html#module-pypdfocr.pypdfocr_tesseract">pypdfocr.pypdfocr_tesseract module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypdfocr.html#module-pypdfocr.pypdfocr_watcher">pypdfocr.pypdfocr_watcher module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypdfocr.html#module-pypdfocr.pypdfocr_filer">pypdfocr.pypdfocr_filer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypdfocr.html#module-pypdfocr.pypdfocr_filer_dirs">pypdfocr.pypdfocr_filer_dirs module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypdfocr.html#module-pypdfocr.pypdfocr_filer_evernote">pypdfocr.pypdfocr_filer_evernote module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypdfocr.html#module-pypdfocr">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="5%" />
+<col width="6%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Version</td>
+<td>Date</td>
+<td>Changes</td>
+</tr>
+<tr class="row-even"><td>v0.4</td>
+<td>10/28/13</td>
+<td>Added early Evernote upload support</td>
+</tr>
+<tr class="row-odd"><td>v0.3.1</td>
+<td>10/24/13</td>
+<td>Path fix on windows</td>
+</tr>
+<tr class="row-even"><td>v0.3</td>
+<td>10/23/13</td>
+<td>Added filing of converted pdfs using a configuration file to specify target directories based on keyword matches in the pdf text</td>
+</tr>
+<tr class="row-odd"><td>v0.2.2</td>
+<td>10/22/13</td>
+<td>Added a console script to put the pypdfocr script into your bin</td>
+</tr>
+<tr class="row-even"><td>v0.2.1</td>
+<td>10/22/13</td>
+<td>Fix to initial packaging problem.</td>
+</tr>
+<tr class="row-odd"><td>v0.2</td>
+<td>10/21/13</td>
+<td>Initial release.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="pypdfocr">
+<h1>PyPDFOCR<a class="headerlink" href="#pypdfocr" title="Permalink to this headline">¶</a></h1>
+<p>This program will help manage your scanned PDFs by doing the following:</p>
+<ul class="simple">
+<li>Take a scanned PDF file and run OCR on it (using free OCR tools),
+generating a searchable PDF</li>
+<li>Optionally, watch a folder for incoming scanned PDFs and
+automatically run OCR on them</li>
+<li>Optionally, file the scanned PDFs into directories based on simple
+keyword matching that you specify</li>
+<li><strong>New:</strong> Evernote auto-upload and filing based on keyword search</li>
+</ul>
+<p>More links:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://virantha.com/category/projects/pypdfocr">Blog &#64;
+virantha.com</a></li>
+<li><a class="reference external" href="http://documentup.com/virantha/pypdfocr">Documentation &#64;
+documentup.com</a></li>
+<li><a class="reference external" href="https://www.github.com/virantha/pypdfocr">Source &#64; github</a></li>
+</ul>
+<div class="section" id="usage">
+<h2>Usage:<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="single-conversion">
+<h3>Single conversion:<a class="headerlink" href="#single-conversion" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre>pypdfocr filename.pdf
+
+--&gt; filename_ocr.pdf will be generated</pre>
+</div>
+</div>
+<div class="section" id="folder-monitoring">
+<h3>Folder monitoring:<a class="headerlink" href="#folder-monitoring" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre>pypdfocr -w watch_directory
+
+--&gt; Every time a pdf file is added to `watch_directory` it will be OCR'ed</pre>
+</div>
+</div>
+<div class="section" id="automatic-filing">
+<h3>Automatic filing:<a class="headerlink" href="#automatic-filing" title="Permalink to this headline">¶</a></h3>
+<p>To automatically move the OCR&#8217;ed pdf to a directory based on a keyword,
+use the -f option and specify a configuration file (described below):</p>
+<div class="highlight-python"><pre>pypdfocr filename.pdf -f -c config.yaml</pre>
+</div>
+<p>You can also do this in folder monitoring mode:</p>
+<div class="highlight-python"><pre>pypdfocr -w watch_directory -f -c config.yaml</pre>
+</div>
+<div class="section" id="configuration-file-for-automatic-pdf-filing">
+<h4>Configuration file for automatic PDF filing<a class="headerlink" href="#configuration-file-for-automatic-pdf-filing" title="Permalink to this headline">¶</a></h4>
+<p>The config.yaml file above is a simple folder to keyword matching text
+file. It determines where your OCR&#8217;ed PDFs (and optionally, the original
+scanned PDF) are placed after processing. An example is given below:</p>
+<div class="highlight-python"><pre>target_folder: "docs/filed"
+default_folder: "docs/filed/manual_sort"
+original_move_folder: "docs/originals"
+
+folders:
+    finances:
+        - american express
+        - chase card
+        - internal revenue service
+    travel:
+        - boarding pass
+        - airlines
+        - expedia
+        - orbitz
+    receipts:
+        - receipt</pre>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">target_folder</span></tt> is the root of your filing cabinet. Any PDF moving
+will happen in sub-directories under this directory.</p>
+<p>The <tt class="docutils literal"><span class="pre">folders</span></tt> section defines your filing directories and the keywords
+associated with them. In this example, we have three filing directories
+(finances, travl, receipts), and some associated keywords for each
+filing directory. For example, if your OCR&#8217;ed PDF contains the phrase
+&#8220;american express&#8221; (in any upper/lower case), it will be filed into
+<tt class="docutils literal"><span class="pre">docs/filed/finances</span></tt></p>
+<p>The <tt class="docutils literal"><span class="pre">default_folder</span></tt> is where the OCR&#8217;ed PDF is moved to if there is
+no keyword match.</p>
+<p>The <tt class="docutils literal"><span class="pre">original_move_folder</span></tt> is optional (you can comment it out with
+<tt class="docutils literal"><span class="pre">#</span></tt> in front of that line), but if specified, the original scanned PDF
+is moved into this directory after OCR is done. Otherwise, if this field
+is not present or commented out, your original PDF will stay where it
+was found.</p>
+<p>If there is any naming conflict during filing, the program will add an
+underscore followed by a number to each filename, in order to avoid
+overwriting files that may already be present.</p>
+</div>
+</div>
+<div class="section" id="evernote-upload-new">
+<h3>Evernote upload(new!):<a class="headerlink" href="#evernote-upload-new" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="evernote-authentication-token">
+<h4>Evernote authentication token<a class="headerlink" href="#evernote-authentication-token" title="Permalink to this headline">¶</a></h4>
+<p>To enable Evernote support, you will need to <a class="reference external" href="https://www.evernote.com/api/DeveloperToken.action">get a developer token for
+your Evernote
+account.</a>. You
+should note that this script will never delete or modify existing notes
+in your account, and limits itself to creating new Notebooks and Notes.
+Once you get that token, you copy and paste it into your configuration
+file as shown below</p>
+</div>
+<div class="section" id="evernote-filing-usage">
+<h4>Evernote filing usage<a class="headerlink" href="#evernote-filing-usage" title="Permalink to this headline">¶</a></h4>
+<p>To automatically upload the OCR&#8217;ed pdf to a folder based on a keyword,
+use the <tt class="docutils literal"><span class="pre">-e</span></tt> option instead of the <tt class="docutils literal"><span class="pre">-f</span></tt> auto filing option.</p>
+<div class="highlight-python"><pre>pypdfocr filename.pdf -e -c config.yaml</pre>
+</div>
+<p>Similarly, you can also do this in folder monitoring mode:</p>
+<div class="highlight-python"><pre>pypdfocr -w watch_directory -e -c config.yaml</pre>
+</div>
+</div>
+<div class="section" id="evernote-filing-configuration-file">
+<h4>Evernote filing configuration file<a class="headerlink" href="#evernote-filing-configuration-file" title="Permalink to this headline">¶</a></h4>
+<p>The config file shown above only needs to change slightly. The folders
+section is completely unchanged, but note that <tt class="docutils literal"><span class="pre">target_folder</span></tt> is the
+name of your &#8220;Notebook stack&#8221; in Evernote, and the <tt class="docutils literal"><span class="pre">default_folder</span></tt>
+should just be the default Evernote upload notebook name.</p>
+<div class="highlight-python"><pre>target_folder: "evernote_stack"
+default_folder: "default"
+original_move_folder: "docs/originals"
+evernote_developer_token: "YOUR_TOKEN"
+
+folders:
+    finances:
+        - american express
+        - chase card
+        - internal revenue service
+    travel:
+        - boarding pass
+        - airlines
+        - expedia
+        - orbitz
+    receipts:
+        - receipt</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="caveats">
+<h2>Caveats<a class="headerlink" href="#caveats" title="Permalink to this headline">¶</a></h2>
+<p>This code is brand-new, and incorporation of unit-testing is just
+starting. I plan to improve things as time allows in the near-future.
+Sphinx code generation is on my TODO list. The software is distributed
+on an &#8220;AS IS&#8221; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="using-pip">
+<h3>Using pip<a class="headerlink" href="#using-pip" title="Permalink to this headline">¶</a></h3>
+<p>PyPDFOCR is available in PyPI, so you can just run:</p>
+<div class="highlight-python"><pre>pip install pypdfocr</pre>
+</div>
+<p>You will also need to install the external dependencies listed below.
+For those on <strong>Windows</strong>, because it&#8217;s such a pain to get all the PIL
+and PDF dependencies installed, I&#8217;ve gone ahead and made an executable
+called
+<a class="reference external" href="https://github.com/virantha/pypdfocr/blob/master/dist/pypdfocr.exe?raw=true">pypdfocr.exe</a></p>
+<p>You still need to install Tesseract and GhostScript as detailed below in
+the dependencies list.</p>
+</div>
+<div class="section" id="manual-install">
+<h3>Manual install<a class="headerlink" href="#manual-install" title="Permalink to this headline">¶</a></h3>
+<p>Clone the source directly from github (you need to have git installed):</p>
+<div class="highlight-python"><pre>git clone https://github.com/virantha/pypdfocr.git</pre>
+</div>
+<p>Then, install the following third-party python libraries:</p>
+<ul class="simple">
+<li>PIL (Python Imaging Library) <a class="reference external" href="http://www.pythonware.com/products/pil/">http://www.pythonware.com/products/pil/</a></li>
+<li>ReportLab (PDF generation library)
+<a class="reference external" href="http://www.reportlab.com/software/opensource/">http://www.reportlab.com/software/opensource/</a></li>
+<li>Watchdog (Cross-platform fhlesystem events monitoring)
+<a class="reference external" href="https://pypi.python.org/pypi/watchdog">https://pypi.python.org/pypi/watchdog</a></li>
+<li>PyPDF2 (Pure python pdf library)</li>
+</ul>
+<p>These can all be installed via pip:</p>
+<div class="highlight-python"><pre>pip install pil
+pip install reportlab
+pip install watchdog
+pip install pypdf2</pre>
+</div>
+<p>You will also need to install the external dependencies listed below.</p>
+</div>
+</div>
+<div class="section" id="external-dependencies">
+<h2>External Dependencies<a class="headerlink" href="#external-dependencies" title="Permalink to this headline">¶</a></h2>
+<p>PyPDFOCR relies on the following (free) programs being installed and in
+the path:</p>
+<ul class="simple">
+<li>Tesseract OCR software <a class="reference external" href="https://code.google.com/p/tesseract-ocr/">https://code.google.com/p/tesseract-ocr/</a></li>
+<li>GhostScript <a class="reference external" href="http://www.ghostscript.com/">http://www.ghostscript.com/</a></li>
+</ul>
+<p>On Mac OS X, you can install these using homebrew:</p>
+<div class="highlight-python"><pre>brew install tesseract
+brew install ghostscript</pre>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">PyPDFOCR API Reference (version 0.4)</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#pypdfocr">PyPDFOCR</a><ul>
+<li><a class="reference internal" href="#usage">Usage:</a><ul>
+<li><a class="reference internal" href="#single-conversion">Single conversion:</a></li>
+<li><a class="reference internal" href="#folder-monitoring">Folder monitoring:</a></li>
+<li><a class="reference internal" href="#automatic-filing">Automatic filing:</a><ul>
+<li><a class="reference internal" href="#configuration-file-for-automatic-pdf-filing">Configuration file for automatic PDF filing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#evernote-upload-new">Evernote upload(new!):</a><ul>
+<li><a class="reference internal" href="#evernote-authentication-token">Evernote authentication token</a></li>
+<li><a class="reference internal" href="#evernote-filing-usage">Evernote filing usage</a></li>
+<li><a class="reference internal" href="#evernote-filing-configuration-file">Evernote filing configuration file</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#caveats">Caveats</a></li>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#using-pip">Using pip</a></li>
+<li><a class="reference internal" href="#manual-install">Manual install</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#external-dependencies">External Dependencies</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pypdfocr.html"
+                        title="next chapter">pypdfocr package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pypdfocr.html" title="pypdfocr package"
+             >next</a> |</li>
+        <li><a href="#">pypdfocr 0.4 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b3.
+    </div>
+  </body>
+</html>

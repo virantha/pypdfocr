@@ -1,0 +1,269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.4 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="pypdfocr 0.4 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pypdfocr 0.4 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pypdfocr.pypdfocr_pdf</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python2.7</span>
+<span class="c"># Copyright 2013 Virantha Ekanayake All Rights Reserved.</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+
+<span class="c"># Following code is adapted and modified from hocr-pdf.py released under</span>
+<span class="c"># Apache License, Version 2.0 available at </span>
+<span class="c"># https://code.google.com/p/hocr-tools/source/browse/hocr-pdf</span>
+<span class="c">#   - Code was improved to allow multi-page hocr files</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrap pdf generation and text addition code</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="kn">import</span> <span class="nn">cStringIO</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">zlib</span>
+
+<span class="c"># Pkg to read multiple image tiffs</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">reportlab.pdfgen.canvas</span> <span class="kn">import</span> <span class="n">Canvas</span>
+<span class="kn">from</span> <span class="nn">reportlab.pdfbase</span> <span class="kn">import</span> <span class="n">pdfmetrics</span>
+<span class="kn">from</span> <span class="nn">reportlab.pdfbase.ttfonts</span> <span class="kn">import</span> <span class="n">TTFont</span>
+<span class="kn">from</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">import</span> <span class="n">ElementTree</span><span class="p">,</span> <span class="n">ParseError</span>
+
+<div class="viewcode-block" id="PyPdf"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf">[docs]</a><span class="k">class</span> <span class="nc">PyPdf</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class to create pdfs from images&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_invisible_font</span><span class="p">()</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="PyPdf.overlay_hocr"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.overlay_hocr">[docs]</a>    <span class="k">def</span> <span class="nf">overlay_hocr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpi</span><span class="p">,</span> <span class="n">hocr_filename</span><span class="p">):</span>
+        <span class="n">hocr_dir</span><span class="p">,</span> <span class="n">hocr_basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">hocr_filename</span><span class="p">)</span>
+        <span class="n">basename</span> <span class="o">=</span> <span class="n">hocr_basename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">pdf_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">_ocr.pdf&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">basename</span><span class="p">))</span>
+        <span class="c"># Switch to the hocr directory to make this easier</span>
+        <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">hocr_dir</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Overlaying hocr and creating final </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pdf_filename</span><span class="p">)</span>
+            <span class="n">pdf</span> <span class="o">=</span> <span class="n">Canvas</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">pageCompression</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">pdf</span><span class="o">.</span><span class="n">setCreator</span><span class="p">(</span><span class="s">&#39;pyocr&#39;</span><span class="p">)</span>
+            <span class="n">pdf</span><span class="o">.</span><span class="n">setTitle</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">hocr_filename</span><span class="p">))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Analyzing OCR and applying text to PDF...&quot;</span><span class="p">)</span>
+
+            <span class="n">pdf</span><span class="o">.</span><span class="n">setPageCompression</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Searching for </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">*.jpg&quot;</span> <span class="o">%</span> <span class="n">basename</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">jpg_file</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">*.jpg&quot;</span> <span class="o">%</span> <span class="n">basename</span><span class="p">):</span>
+
+                <span class="n">jpg</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">jpg_file</span><span class="p">)</span>
+                <span class="n">w</span><span class="p">,</span><span class="n">h</span> <span class="o">=</span> <span class="n">jpg</span><span class="o">.</span><span class="n">size</span>
+                <span class="n">dpi_jpg</span> <span class="o">=</span> <span class="n">jpg</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s">&#39;dpi&#39;</span><span class="p">]</span>
+                <span class="n">width</span> <span class="o">=</span> <span class="n">w</span><span class="o">*</span><span class="mf">72.0</span><span class="o">/</span><span class="n">dpi_jpg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">height</span> <span class="o">=</span> <span class="n">h</span><span class="o">*</span><span class="mf">72.0</span><span class="o">/</span><span class="n">dpi_jpg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">del</span> <span class="n">jpg</span>
+
+                <span class="n">pdf</span><span class="o">.</span><span class="n">setPageSize</span><span class="p">((</span><span class="n">width</span><span class="p">,</span><span class="n">height</span><span class="p">))</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Adding page image </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">jpg_file</span><span class="p">)</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Page width=</span><span class="si">%f</span><span class="s">, height=</span><span class="si">%f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>
+                <span class="n">pdf</span><span class="o">.</span><span class="n">drawImage</span><span class="p">(</span><span class="n">jpg_file</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">)</span>
+                <span class="c"># Get the page number</span>
+                <span class="n">pg_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">jpg_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">basename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Adding text to page </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pg_num</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_text_layer</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">hocr_basename</span><span class="p">,</span><span class="n">pg_num</span><span class="p">,</span><span class="n">height</span><span class="p">,</span><span class="n">dpi</span><span class="p">)</span>
+                <span class="n">pdf</span><span class="o">.</span><span class="n">showPage</span><span class="p">()</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">jpg_file</span><span class="p">)</span>
+
+            <span class="n">pdf</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Created OCR&#39;ed pdf as </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pdf_filename</span><span class="p">))</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hocr_dir</span><span class="p">,</span><span class="n">pdf_filename</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PyPdf.add_text_layer"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.add_text_layer">[docs]</a>    <span class="k">def</span> <span class="nf">add_text_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">pdf</span><span class="p">,</span> <span class="n">hocrfile</span><span class="p">,</span> <span class="n">page_num</span><span class="p">,</span><span class="n">height</span><span class="p">,</span> <span class="n">dpi</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Draw an invisible text layer for OCR data&quot;&quot;&quot;</span>
+      <span class="n">p1</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;bbox((\s+\d+){4})&#39;</span><span class="p">)</span>
+      <span class="n">p2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;baseline((\s+[\d\.\-]+){2})&#39;</span><span class="p">)</span>
+      <span class="n">hocr</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="p">()</span>
+      <span class="n">hocr</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">hocrfile</span><span class="p">)</span>
+      <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">hocr</span><span class="o">.</span><span class="n">getroot</span><span class="p">():</span>  <span class="c"># Find the &lt;body&gt; tag</span>
+          <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s">&#39;body&#39;</span><span class="p">:</span>
+              <span class="k">continue</span>
+      <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span> <span class="c"># Each child in the body is a page tag</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;ocr_page&quot;</span><span class="p">):</span>
+              <span class="k">assert</span> <span class="p">(</span><span class="s">&quot;Why is this hocr not paging properly??&quot;</span><span class="p">)</span>
+          <span class="k">if</span> <span class="n">page</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;page_</span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">page_num</span><span class="p">):</span>
+              <span class="k">break</span>
+
+      <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">page</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;.//{http://www.w3.org/1999/xhtml}span&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;ocr_line&#39;</span><span class="p">:</span>
+          <span class="k">continue</span>
+        <span class="n">linebox</span> <span class="o">=</span> <span class="n">p1</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+          <span class="n">baseline</span> <span class="o">=</span> <span class="n">p2</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+          <span class="n">baseline</span> <span class="o">=</span> <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="p">]</span>
+
+        <span class="n">linebox</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">linebox</span><span class="p">]</span>
+        <span class="n">baseline</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">baseline</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+          <span class="k">if</span> <span class="n">word</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;ocrx_word&#39;</span><span class="p">:</span>
+            <span class="k">continue</span>
+          <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">word</span><span class="p">:</span>
+             <span class="k">if</span> <span class="s">&#39;strong&#39;</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span>
+                <span class="n">word</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">text</span>
+          <span class="k">if</span> <span class="n">word</span><span class="o">.</span><span class="n">text</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+          <span class="n">font_width</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">stringWidth</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="s">&#39;invisible&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+          <span class="k">if</span> <span class="n">font_width</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+          <span class="n">box</span> <span class="o">=</span> <span class="n">p1</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+          <span class="n">box</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">box</span><span class="p">]</span>
+          <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span><span class="n">baseline</span><span class="p">,</span> <span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">linebox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="n">linebox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+          <span class="n">text</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">beginText</span><span class="p">()</span>
+          <span class="n">text</span><span class="o">.</span><span class="n">setTextRenderMode</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c"># double invisible</span>
+          <span class="n">text</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="s">&#39;invisible&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+          <span class="n">text</span><span class="o">.</span><span class="n">setTextOrigin</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">72</span> <span class="o">/</span> <span class="n">dpi</span><span class="p">,</span> <span class="n">height</span> <span class="o">-</span> <span class="n">b</span> <span class="o">*</span> <span class="mi">72</span> <span class="o">/</span> <span class="n">dpi</span><span class="p">)</span>
+          <span class="n">box_width</span> <span class="o">=</span> <span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mi">72</span> <span class="o">/</span> <span class="n">dpi</span>
+          <span class="n">text</span><span class="o">.</span><span class="n">setHorizScale</span><span class="p">(</span><span class="mf">100.0</span> <span class="o">*</span> <span class="n">box_width</span> <span class="o">/</span> <span class="n">font_width</span><span class="p">)</span>
+          <span class="n">text</span><span class="o">.</span><span class="n">textLine</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+          <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span> <span class="s">&quot;Pg</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">!&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">page_num</span><span class="p">,</span><span class="n">word</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()))</span>
+          <span class="n">pdf</span><span class="o">.</span><span class="n">drawText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PyPdf.polyval"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.polyval">[docs]</a>    <span class="k">def</span> <span class="nf">polyval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">poly</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">poly</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">poly</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="c"># Glyphless variation of vedaal&#39;s invisible font retrieved from</span>
+<span class="c"># http://www.angelfire.com/pr/pgpf/if.html, which says:</span>
+<span class="c"># &#39;Invisible font&#39; is unrestricted freeware. Enjoy, Improve, Distribute freely</span></div>
+<div class="viewcode-block" id="PyPdf.load_invisible_font"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.load_invisible_font">[docs]</a>    <span class="k">def</span> <span class="nf">load_invisible_font</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="n">font</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">    eJzdlk1sG0UUx/+zs3btNEmrUKpCPxikSqRS4jpfFURUagmkEQQoiRXgAl07Y3vL2mvt2ml8APXG</span>
+<span class="s">    hQPiUEGEVDhWVHyIC1REPSAhBOWA+BCgSoULUqsKcWhVBKjhzfPU+VCi3Flrdn7vzZv33ryZ3TUE</span>
+<span class="s">    gC6chsTx8fHck1ONd98D0jnS7jn26GPjyMIleZhk9fT0wcHFl1/9GRDPkTxTqHg1dMkzJH9CbbTk</span>
+<span class="s">    xbWlJfKEdB+Np0pBswi+nH/Nvay92VtfJp4nvEztUJkUHXsdksUOkveXK/X5FNuLD838ICx4dv4N</span>
+<span class="s">    I1e8+ZqbxwCNP2jyqXoV/fmhy+WW/2SqFsb1pX68SfEpZ/TCrI3aHzcP//jitodvYmvL+6Xcr5mV</span>
+<span class="s">    vb1ScCzRnPRPfz+LsRSWNasuwRrZlh1sx0E8AriddyzEDfE6EkglFhJDJO5u9fJbFJ0etEMB78D5</span>
+<span class="s">    4Djm/7kjT0wqhSNURyS+u/2MGJKRu+0ExNkrt1pJti9p2x6b3TBJgmUXuzgnDmI8UWMbkVxeinCw</span>
+<span class="s">    Mo311/l/v3rF7+01D+OkZYE0PrbsYAu+sSyxU0jLLtIiYzmBrFiwnCT9FcsdOOK8ZHbFleSn0znP</span>
+<span class="s">    nDCnxbnAnGT9JeYtrP+FOcV8nTlNnsoc3bBAD85adtCNRcsSffjBsoseca/lBE7Q09LiJOm/ttyB</span>
+<span class="s">    0+IqcwfncJt5q4krO5k7jV7uY+5m7mPebuLKUea7iHvk48w72OYF5rvZT8C8k/WvMN/Dc19j3s02</span>
+<span class="s">    bzPvZZv3me9j/ox5P9t/xdzPzPVJcc7yGnPL/1+GO1lPVTXM+VNWOTRRg0YRHgrUK5yj1kvaEA1E</span>
+<span class="s">    xAWiCtl4qJL2ADKkG6Q3XxYjzEcR0E9hCj5KtBd1xCxp6jV5mKP7LJBr1nTRK2h1TvU2w0akCmGl</span>
+<span class="s">    5lWbBzJqMJsdyaijQaCm/FK5HqspHetoTtMsn4LO0T2mlqcwmlTVOT/28wGhCVKiNANKLiJRlxqB</span>
+<span class="s">    F603axQznIzRhDSq6EWZ4UUs+xud0VHsh1U1kMlmNwu9kTuFaRqpURU0VS3PVmZ0iE7gct0MG/8+</span>
+<span class="s">    2fmUvKlfRLYmisd1w8pk1LSu1XUlryM1MNTH9epTftWv+16gIh1oL9abJZyjrfF5a4qccp3oFAcz</span>
+<span class="s">    Wxxx4DpvlaKKxuytRDzeth5rW4W8qBFesvEX8RFRmLBHoB+TpCmRVCCb1gFCruzHqhhW6+qUF6tC</span>
+<span class="s">    pL26nlWN2K+W1LhRjxlVGKmRTFYVo7CiJug09E+GJb+QocMCPMWBK1wvEOfRFF2U0klK8CppqqvG</span>
+<span class="s">    pylRc2Zn+XDQWZIL8iO5KC9S+1RekOex1uOyZGR/w/Hf1lhzqVfFsxE39B/ws7Rm3N3nDrhPuMfc</span>
+<span class="s">    w3R/aE28KsfY2J+RPNp+j+KaOoCey4h+Dd48b9O5G0v2K7j0AM6s+5WQ/E0wVoK+pA6/3bup7bJf</span>
+<span class="s">    CMGjwvxTsr74/f/F95m3TH9x8o0/TU//N+7/D/ScVcA=</span>
+<span class="s">    &quot;&quot;&quot;</span>
+      <span class="n">ttf</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="n">zlib</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">base64</span><span class="o">.</span><span class="n">decodestring</span><span class="p">(</span><span class="n">font</span><span class="p">)))</span>
+      <span class="n">pdfmetrics</span><span class="o">.</span><span class="n">registerFont</span><span class="p">(</span><span class="n">TTFont</span><span class="p">(</span><span class="s">&#39;invisible&#39;</span><span class="p">,</span> <span class="n">ttf</span><span class="p">))</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pypdfocr 0.4 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b3.
+    </div>
+  </body>
+</html>
