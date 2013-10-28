@@ -40,12 +40,14 @@ class PyPdfFiler(object):
         for pgnum in range(reader.getNumPages()):
             text = reader.getPage(pgnum).extractText()
             text = text.encode('ascii', 'ignore')
+            text = text.replace('\n', ' ')
             yield text
 
     def _get_matching_folder(self, pdfText):
         searchText = pdfText.lower()
         for folder,strings in self.filer.folder_targets.items():
             for s in strings:
+                logging.debug("Checking string %s" % s)
                 if s in searchText:
                     logging.info("Matched keyword '%s'" % s)
                     return folder

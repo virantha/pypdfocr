@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import smtplib
 import argparse
 import sys, os
 import logging
@@ -28,6 +29,7 @@ from pypdfocr_gs import PyGs
 from pypdfocr_watcher import PyPdfWatcher
 from pypdfocr_pdffiler import PyPdfFiler
 from pypdfocr_filer_dirs import PyFilerDirs
+from pypdfocr_filer_evernote import PyFilerEvernote
 
 def error(text):
     print("ERROR: %s" % text)
@@ -86,6 +88,7 @@ class PyPDFOCR(object):
             :ivar watch_dir: Directory to watch for files to convert
             :ivar config: Dict of the config file
             :ivar watch: Whether folder watching mode is turned on
+            :ivar enable_evernote: Enable filing to evernote
 
         """
         p = argparse.ArgumentParser(
@@ -117,6 +120,8 @@ class PyPDFOCR(object):
             default=False, dest='enable_filing', help='Enable filing of converted PDFs')
         filing_group.add_argument('-c', '--config', type = argparse.FileType('r'),
              dest='configfile', help='Configuration file for defaults and PDF filing')
+        filing_group.add_argument('-e', '--evernote', action='store_true',
+            default=False, dest='enable_evernote', help='Enable filing to Evernote')
 
 
         args = p.parse_args(argv)
@@ -138,7 +143,12 @@ class PyPDFOCR(object):
             logging.debug("Read in configuration file")
             logging.debug(self.config)
 
-        if args.enable_filing:
+        if args.enable_evernote:
+            self.enable_evernote = True
+        else:
+            self.enable_evernote = False
+
+        if args.enable_filing or args.enable_evernote:
             self.enable_filing = True
             if not args.configfile:
                 p.error("Please specify a configuration file(CONFIGFILE) to enable filing")
@@ -182,7 +192,11 @@ class PyPDFOCR(object):
             original_move_folder = None
 
         # Start the filing object
-        self.filer = PyFilerDirs()
+        if self.enable_evernote:
+            self.filer = PyFilerEvernote(self.config['evernote_developer_token'])
+        else:
+            self.filer = PyFilerDirs()
+            
         self.filer.target_folder = self.config['target_folder']
         self.filer.default_folder = self.config['default_folder']
         self.filer.original_move_folder = original_move_folder
@@ -221,10 +235,39 @@ class PyPDFOCR(object):
         if tgt_path != original_pdffilename:
             print("Filed original file %s to %s as %s" % (original_pdffilename, os.path.dirname(tgt_path), os.path.basename(tgt_path)))
 
+  
+    def _send_email(self, from_addr, to_addr_list, cc_addr_list,
+                  subject, message,
+                  login, password,
+                  smtpserver):
+        header  = 'From: %s\n' % from_addr
+        header += 'To: %s\n' % ','.join(to_addr_list)
+        header += 'Cc: %s\n' % ','.join(cc_addr_list)
+        header += 'Subject: %s\n\n' % subject
+        message = header + message
+      
+        server = smtplib.SMTP(smtpserver)
+        server.starttls()
+        server.login(login,password)
+        problems = server.sendmail(from_addr, to_addr_list, message)
+        server.quit()
+
     def go(self, argv):
 
         # Read the command line options
         self.get_options(argv)
+
+        # 
+        #self._send_email(
+                        #from_addr="virantha@gmail.com",
+                        #to_addr_list=["virantha@gmail.com"],
+                        #cc_addr_list = [],
+                        #subject = "PyPDFOCR upload",
+                        #message = "Uploaded email\n\n-Virantha", 
+                        #login = "virantha@gmail.com",
+                        #password = "cctahvuntxbuwmox",
+                        #smtpserver = "smtp.gmail.com:587",
+                        #)
 
         # Setup the pdf filing if enabled
         if self.enable_filing:

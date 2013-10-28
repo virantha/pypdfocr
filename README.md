@@ -1,16 +1,16 @@
 # PyPDFOCR
-This program will help manage your scanned PDFs for you.  It can do the following:
+This program will help manage your scanned PDFs by doing the following:
 
 - Take a scanned PDF file and run OCR on it (using free OCR tools), generating a searchable PDF
 - Optionally, watch a folder for incoming scanned PDFs and automatically run OCR on them
 - Optionally, file the scanned PDFs into directories based on simple keyword matching that you specify
-- _Coming soon_: Evernote auto-upload and filing
+- **New:** Evernote auto-upload and filing based on keyword search
 
 More links:
 
-- [Blog](http://virantha.com/categories/projects/pypdfocr)
-- [Documentation](http://documentup.com/virantha/pypdfocr)
-- [Source](https://www.github.com/virantha/pypdfocr)
+- [Blog @ virantha.com](http://virantha.com/category/projects/pypdfocr)
+- [Documentation @ documentup.com](http://documentup.com/virantha/pypdfocr)
+- [Source @ github](https://www.github.com/virantha/pypdfocr)
 
  
 ## Usage: 
@@ -24,7 +24,7 @@ More links:
 
     --> Every time a pdf file is added to `watch_directory` it will be OCR'ed
     
-### Automatic filing (new!):
+### Automatic filing:
 To automatically move the OCR'ed pdf to a directory based on a keyword, use the -f option
 and specify a configuration file (described below):
 
@@ -75,9 +75,53 @@ commented out, your original PDF will stay where it was found.
 If there is any naming conflict during filing, the program will add an underscore followed by a
 number to each filename, in order to avoid overwriting files that may already be present.
 
+### Evernote upload(new!):
+#### Evernote authentication token
+To enable Evernote support, you will need to [get a developer token for your 
+Evernote account.](https://www.evernote.com/api/DeveloperToken.action).  You
+should note that this script will never delete or modify existing notes in your
+account, and limits itself to creating new Notebooks and Notes.
+Once you get that token, you copy and paste it into your configuration file
+as shown below
+
+#### Evernote filing usage
+To automatically upload the OCR'ed pdf to a folder based on a keyword, use the
+``-e`` option instead of the ``-f`` auto filing option.
+
+    pypdfocr filename.pdf -e -c config.yaml
+
+Similarly, you can also do this in folder monitoring mode:
+
+    pypdfocr -w watch_directory -e -c config.yaml
+
+#### Evernote filing configuration file
+The config file shown above only needs to change slightly. The folders section
+is completely unchanged, but note that ``target_folder`` is the name of your
+"Notebook stack" in Evernote, and the ``default_folder`` should just be the
+default Evernote upload notebook name.
+
+    target_folder: "evernote_stack"
+    default_folder: "default"
+    original_move_folder: "docs/originals"
+    evernote_developer_token: "YOUR_TOKEN"
+   
+    folders:
+        finances:
+            - american express
+            - chase card
+            - internal revenue service
+        travel:
+            - boarding pass
+            - airlines
+            - expedia
+            - orbitz
+        receipts:
+            - receipt
 ## Caveats
-This code is brand-new, and is barely commented with no unit-tests included.  I plan to improve 
-things as time allows in the near-future.  Sphinx code generation is on my TODO list.
+This code is brand-new, and incorporation of unit-testing is just starting.  I
+plan to improve things as time allows in the near-future.  Sphinx code
+generation is on my TODO list.  The software is distributed on an "AS IS"
+BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
 ## Installation
 ### Using pip
@@ -114,7 +158,7 @@ These can all be installed via pip:
 
 You will also need to install the external dependencies listed below.
 
-## External Dependencies:
+## External Dependencies
 PyPDFOCR relies on the following (free) programs being installed and in the path:
 
 - Tesseract OCR software https://code.google.com/p/tesseract-ocr/

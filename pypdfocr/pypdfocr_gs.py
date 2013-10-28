@@ -58,7 +58,8 @@ class PyGs(object):
             logging.info(cmd)        
             ret = subprocess.call(cmd)
         else:
-            cmd = '%s -q -dNOPAUSE %s -sOutputFile=%s %s -c quit' % (self.gs_binary, options, output_filename, pdf_filename)
+            cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s" "%s" -c quit' % (self.gs_binary, options, output_filename, pdf_filename)
+            logging.debug(cmd)
             ret = os.system(cmd)
 
         if ret != 0:
@@ -74,7 +75,7 @@ class PyGs(object):
             logging.info(cmd)        
             ret = subprocess.call(cmd)
         else:
-            cmd = '%s -q -dNOPAUSE %s -sOutputFile=%s%%d.jpg %s -c quit' % (self.gs_binary, options, filename, pdf_filename)
+            cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s%%d.jpg" "%s" -c quit' % (self.gs_binary, options, filename, pdf_filename)
             logging.info(cmd)        
             ret = os.system(cmd)
             
