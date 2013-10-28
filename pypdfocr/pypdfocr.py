@@ -59,14 +59,21 @@ class PyPDFOCR(object):
     """
 
     def __init__ (self):
-        self.maxlength = 500
+        """ Initializes the GhostScript, Tesseract, and PDF helper classes.
+        """
         self.gs = PyGs()
         self.ts = PyTesseract()
         self.pdf = PyPdf()
+        """PDF read and generation class"""
 
     def _get_config_file(self, config_file):
         """
-            
+           Read in the yaml config file
+
+           :param config_file: Configuration file (YAML format)
+           :type config_file: file
+           :returns: dict of yaml file
+           :rtype: dict
         """
         with config_file:
             myconfig = yaml.load(config_file)
@@ -76,10 +83,10 @@ class PyPDFOCR(object):
 
     def get_options(self, argv):
         """
-            :param argv: usually just sys.argv[1:]
-            :returns: Nothing
             Parse the command-line options and set the following object properties:
 
+            :param argv: usually just sys.argv[1:]
+            :returns: Nothing
 
             :ivar debug: Enable logging debug statements
             :ivar verbose: Enable verbose logging
@@ -160,20 +167,40 @@ class PyPDFOCR(object):
         if args.watch_dir:
             logging.debug("Starting to watch")
             self.watch = True
-    
+
     def _clean_up_files(self, files):
-        for file in files:
+        """
+            Helper function to delete files
+            :param files: List of files to delete
+            :type files: list
+            :returns: None
+        """
+        for f in files:
             try:
-                os.remove(file)
+                os.remove(f)
             except:
                 logging.info("Error removing file %s .... continuing" % file)
 
             
 
     def _setup_filing(self):
+        """
+            Instance the proper PyFiler object (either
+            :class:`pypdfocr.pypdfocr_filer_dirs.PyFilerDirs` or
+            :class:`pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote`)
+
+            TODO: Make this more generic to allow third-party plugin filing objects
+
+            :ivar filer: :class:`pypdfocr.pypdfocr_filer.PyFiler` PyFiler subclass object that is instantiated
+            :ivar pdf_filer: :class:`pypdfocr.pypdfocr_pdffiler.PyPdfFiler` object to help with PDF reading
+            :returns: Nothing
+
+        """
         # Look at self.config and create a self.pdf_filer object
 
+        # --------------------------------------------------
         # Some sanity checks
+        # --------------------------------------------------
         assert(self.config and self.enable_filing)
         for required in ['target_folder', 'default_folder']:
             if not required in self.config:
@@ -190,8 +217,9 @@ class PyPDFOCR(object):
             original_move_folder = self.config[orig]
         else:
             original_move_folder = None
-
+        # --------------------------------------------------
         # Start the filing object
+        # --------------------------------------------------
         if self.enable_evernote:
             self.filer = PyFilerEvernote(self.config['evernote_developer_token'])
         else:
@@ -203,6 +231,10 @@ class PyPDFOCR(object):
 
         self.pdf_filer = PyPdfFiler(self.filer)
 
+        # ------------------------------
+        # Add all the folder names with associated keywords
+        # to the filer object
+        # ------------------------------
         keyword_count = 0
         folder_count = 0
         if 'folders' in self.config:
@@ -217,17 +249,45 @@ class PyPDFOCR(object):
 
     
     def run_conversion(self, pdf_filename):
+        """
+            Does the following:
+            
+            - Convert the PDF using GhostScript to TIFF and JPG
+            - Run Tesseract on the TIFF to extract the text into HOCR (html)
+            - Use PDF generator to overlay the text on the JPG and output a new PDF
+            - Clean up temporary image files
+            
+            :param pdf_filename: Scanned PDF
+            :type pdf_filename: string
+            :returns: OCR'ed PDF
+            :rtype: filename string
+        """
         print ("Starting conversion of %s" % pdf_filename)
         conversion_format = "tiff"
+        # Make the images for Tesseract
         tiff_dpi, tiff_filename = self.gs.make_img_from_pdf(pdf_filename, conversion_format)
+        # Run teserract
         hocr_filename = self.ts.make_hocr_from_tiff(tiff_filename)
         
+        # Generate new pdf with overlayed text
         ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename)
+
+        # Clean up the files
         self._clean_up_files((tiff_filename, hocr_filename))
+
         print ("Completed conversion successfully to %s" % ocr_pdf_filename)
         return ocr_pdf_filename
 
     def file_converted_file(self, ocr_pdffilename, original_pdffilename):
+        """ Call :method:`filer` to move the converted filename to its destiantion directory.  Optionally also
+            moves the original PDF.
+
+            :param ocr_pdffilename: Converted PDF file
+            :type ocr_pdffilename: filename string
+            :param original_pdffilename: Original scanned PDF file
+            :type original_pdffilename: filename string
+            :returns: Nothing
+        """
         tgt_path = self.pdf_filer.move_to_matching_folder(ocr_pdffilename)  
         print("Filed %s to %s as %s" % (ocr_pdffilename, os.path.dirname(tgt_path), os.path.basename(tgt_path)))
 
@@ -253,7 +313,15 @@ class PyPDFOCR(object):
         server.quit()
 
     def go(self, argv):
+        """ 
+            The main entry point into PyPDFOCR
 
+            #. Parses options
+            #. If filing is enabled, call :func:`_setup_filing`
+            #. If watch is enabled, start the watcher
+            #. :func:`run_conversion`
+            #. if filing is enabled, call :func:`file_converted_file`
+        """
         # Read the command line options
         self.get_options(argv)
 

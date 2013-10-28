@@ -2,6 +2,7 @@ from __future__ import print_function
 from setuptools import setup, find_packages
 
 import pypdfocr
+import io
 from pypdfocr.version import __version__
 
 
