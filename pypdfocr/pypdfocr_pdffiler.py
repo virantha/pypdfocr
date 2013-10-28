@@ -45,10 +45,9 @@ class PyPdfFiler(object):
 
     def _get_matching_folder(self, pdfText):
         searchText = pdfText.lower()
-        print searchText
         for folder,strings in self.filer.folder_targets.items():
             for s in strings:
-                logging.info("Checking string %s" % s)
+                logging.debug("Checking string %s" % s)
                 if s in searchText:
                     logging.info("Matched keyword '%s'" % s)
                     return folder

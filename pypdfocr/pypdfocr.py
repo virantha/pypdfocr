@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import smtplib
 import argparse
 import sys, os
 import logging
@@ -192,7 +193,7 @@ class PyPDFOCR(object):
 
         # Start the filing object
         if self.enable_evernote:
-            self.filer = PyFilerEvernote()
+            self.filer = PyFilerEvernote(self.config['evernote_developer_token'])
         else:
             self.filer = PyFilerDirs()
             
@@ -234,10 +235,39 @@ class PyPDFOCR(object):
         if tgt_path != original_pdffilename:
             print("Filed original file %s to %s as %s" % (original_pdffilename, os.path.dirname(tgt_path), os.path.basename(tgt_path)))
 
+  
+    def _send_email(self, from_addr, to_addr_list, cc_addr_list,
+                  subject, message,
+                  login, password,
+                  smtpserver):
+        header  = 'From: %s\n' % from_addr
+        header += 'To: %s\n' % ','.join(to_addr_list)
+        header += 'Cc: %s\n' % ','.join(cc_addr_list)
+        header += 'Subject: %s\n\n' % subject
+        message = header + message
+      
+        server = smtplib.SMTP(smtpserver)
+        server.starttls()
+        server.login(login,password)
+        problems = server.sendmail(from_addr, to_addr_list, message)
+        server.quit()
+
     def go(self, argv):
 
         # Read the command line options
         self.get_options(argv)
+
+        # 
+        #self._send_email(
+                        #from_addr="virantha@gmail.com",
+                        #to_addr_list=["virantha@gmail.com"],
+                        #cc_addr_list = [],
+                        #subject = "PyPDFOCR upload",
+                        #message = "Uploaded email\n\n-Virantha", 
+                        #login = "virantha@gmail.com",
+                        #password = "cctahvuntxbuwmox",
+                        #smtpserver = "smtp.gmail.com:587",
+                        #)
 
         # Setup the pdf filing if enabled
         if self.enable_filing:

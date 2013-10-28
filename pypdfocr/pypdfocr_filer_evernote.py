@@ -17,6 +17,7 @@ import os
 import shutil
 import hashlib
 import time
+import sys
 
 from pypdfocr_filer import PyFiler
 
@@ -104,12 +105,12 @@ class PyFilerEvernote(PyFiler):
 
     default_folder = property(get_default_folder, set_default_folder)
 
-    def __init__(self):
+    def __init__(self, dev_token):
         self.target_folder = None
         self.default_folder = None
         self.original_move_folder = None
         self.folder_targets = {}
-        self.dictUserInfo = { 'dev_token': "S=s1:U=889c2:E=1493ed0d350:C=141e71fa753:P=1cd:A=en-devtoken:V=2:H=3b99efdea7ff9c8db33f32f1dd0bbc35"}
+        self.dictUserInfo = { 'dev_token': dev_token }
         self._connect_to_evernote(self.dictUserInfo)
 
     def _connect_to_evernote(self, dictUserInfo):
@@ -122,9 +123,19 @@ class PyFilerEvernote(PyFiler):
         print("Authenticating to Evernote")
         dev_token = dictUserInfo['dev_token']
         logging.debug("Authenticating using token %s" % dev_token)
-        self.client = EvernoteClient(token=dev_token)
-        self.user_store = self.client.get_user_store()
-        user = self.user_store.getUser()
+        try:
+            self.client = EvernoteClient(token=dev_token)
+            self.user_store = self.client.get_user_store()
+            user = self.user_store.getUser()
+        except EDAMUserException as e:
+            err = e.errorCode
+            print("Error attempting to authenticate to Evernote: %s - %s" % (EDAMErrorCode._VALUES_TO_NAMES[err], e.parameter))
+        except EDAMSystemException as e:
+            err = e.errorCode
+            print("Error attempting to authenticate to Evernote: %s - %s" % (EDAMErrorCode._VALUES_TO_NAMES[err], e.message))
+            sys.exit(-1)
+
+
         print("Authenticated to evernote as user %s" % user.username)
         return True
 
@@ -238,7 +249,7 @@ class PyFilerEvernote(PyFiler):
         note = note_store.createNote(note)
         os.remove(filename)
 
-        return "%s/%s" % (notebook.name, foldername)
+        return "%s/%s" % (notebook.name, note.title)
 
     def _get_unique_filename_by_appending_version_integer(self, tgtfilename):
         if os.path.exists(tgtfilename):
