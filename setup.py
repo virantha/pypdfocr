@@ -4,15 +4,25 @@ from setuptools import setup, find_packages
 import pypdfocr
 from pypdfocr.version import __version__
 
-with open('README.rst') as file:
-        long_description = file.read()
+
+def read(*filenames, **kwargs):
+    encoding = kwargs.get('encoding', 'utf-8')
+    sep = kwargs.get('sep', '\n')
+    buf = []
+    for filename in filenames:
+        with io.open(filename, encoding=encoding) as f:
+            buf.append(f.read())
+    return sep.join(buf)
 
 packages = find_packages(exclude="tests")
+
+long_description = read('README.rst', 'CHANGES.rst', 'TODO.rst')
+
 setup (
     name = "pypdfocr",
     version = __version__,
     description="Converts a scanned PDF into an OCR'ed pdf using Tesseract-OCR and Ghostscript",
-    license = "LICENSE",
+    license = "LICENSE.txt",
     long_description = long_description,
     author="Virantha N. Ekanayake",
     author_email="virantha@gmail.com", # Removed.
