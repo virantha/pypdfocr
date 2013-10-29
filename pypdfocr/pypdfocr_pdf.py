@@ -51,11 +51,14 @@ class PyPdf(object):
 
     def overlay_hocr(self, dpi, hocr_filename):
         hocr_dir, hocr_basename = os.path.split(hocr_filename)
+        logging.debug("hocr_filename:%s, hocr_dir:%s, hocr_basename:%s" % (hocr_filename, hocr_dir, hocr_basename))
         basename = hocr_basename.split('.')[0]
         pdf_filename = os.path.join("%s_ocr.pdf" % (basename))
         # Switch to the hocr directory to make this easier
+
         cwd = os.getcwd()
-        os.chdir(hocr_dir)
+        if hocr_dir != "":
+            os.chdir(hocr_dir)
 
         with open(pdf_filename, "w") as f:
             logging.info("Overlaying hocr and creating final %s" % pdf_filename)
@@ -124,10 +127,15 @@ class PyPdf(object):
           if word.attrib['class'] != 'ocrx_word':
             continue
           for child in word:
-             if 'strong' in child.tag:
-                word.text = child.text
+             if child.tag:
+                 word.text = child.text
+             #if 'strong' in child.tag:
+                #word.text = child.text
+             ##elif 'em' in child.tag:
+             #    word.text = child.text
           if word.text is None:
             continue
+          logging.debug(word.text)
           font_width = pdf.stringWidth(word.text.strip(), 'invisible', 8)
           if font_width <= 0:
             continue
