@@ -117,11 +117,14 @@
 
 <div class="viewcode-block" id="PyPdf.overlay_hocr"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.overlay_hocr">[docs]</a>    <span class="k">def</span> <span class="nf">overlay_hocr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpi</span><span class="p">,</span> <span class="n">hocr_filename</span><span class="p">):</span>
         <span class="n">hocr_dir</span><span class="p">,</span> <span class="n">hocr_basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">hocr_filename</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;hocr_filename:</span><span class="si">%s</span><span class="s">, hocr_dir:</span><span class="si">%s</span><span class="s">, hocr_basename:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hocr_filename</span><span class="p">,</span> <span class="n">hocr_dir</span><span class="p">,</span> <span class="n">hocr_basename</span><span class="p">))</span>
         <span class="n">basename</span> <span class="o">=</span> <span class="n">hocr_basename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">pdf_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">_ocr.pdf&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">basename</span><span class="p">))</span>
         <span class="c"># Switch to the hocr directory to make this easier</span>
+
         <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">hocr_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hocr_dir</span> <span class="o">!=</span> <span class="s">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">hocr_dir</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Overlaying hocr and creating final </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pdf_filename</span><span class="p">)</span>
@@ -190,10 +193,15 @@
           <span class="k">if</span> <span class="n">word</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;ocrx_word&#39;</span><span class="p">:</span>
             <span class="k">continue</span>
           <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">word</span><span class="p">:</span>
-             <span class="k">if</span> <span class="s">&#39;strong&#39;</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span>
-                <span class="n">word</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">text</span>
+             <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="p">:</span>
+                 <span class="n">word</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">text</span>
+             <span class="c">#if &#39;strong&#39; in child.tag:</span>
+                <span class="c">#word.text = child.text</span>
+             <span class="c">##elif &#39;em&#39; in child.tag:</span>
+             <span class="c">#    word.text = child.text</span>
           <span class="k">if</span> <span class="n">word</span><span class="o">.</span><span class="n">text</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">continue</span>
+          <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
           <span class="n">font_width</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">stringWidth</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="s">&#39;invisible&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
           <span class="k">if</span> <span class="n">font_width</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">continue</span>

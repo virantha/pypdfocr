@@ -345,7 +345,7 @@
         <span class="k">return</span> <span class="n">ocr_pdf_filename</span>
 </div>
 <div class="viewcode-block" id="PyPDFOCR.file_converted_file"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.PyPDFOCR.file_converted_file">[docs]</a>    <span class="k">def</span> <span class="nf">file_converted_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">original_pdffilename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Call :method:`filer` to move the converted filename to its destiantion directory.  Optionally also</span>
+        <span class="sd">&quot;&quot;&quot; move the converted filename to its destiantion directory.  Optionally also</span>
 <span class="sd">            moves the original PDF.</span>
 
 <span class="sd">            :param ocr_pdffilename: Converted PDF file</span>
@@ -366,6 +366,9 @@
                   <span class="n">subject</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span>
                   <span class="n">login</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span>
                   <span class="n">smtpserver</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Send email using smtp</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">header</span>  <span class="o">=</span> <span class="s">&#39;From: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">from_addr</span>
         <span class="n">header</span> <span class="o">+=</span> <span class="s">&#39;To: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">to_addr_list</span><span class="p">)</span>
         <span class="n">header</span> <span class="o">+=</span> <span class="s">&#39;Cc: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cc_addr_list</span><span class="p">)</span>

@@ -184,7 +184,7 @@
 <dl class="method">
 <dt id="pypdfocr.pypdfocr.PyPDFOCR.file_converted_file">
 <tt class="descname">file_converted_file</tt><big>(</big><em>ocr_pdffilename</em>, <em>original_pdffilename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#PyPDFOCR.file_converted_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR.file_converted_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Call <a href="#id1"><span class="problematic" id="id2">:method:`filer`</span></a> to move the converted filename to its destiantion directory.  Optionally also
+<dd><p>move the converted filename to its destiantion directory.  Optionally also
 moves the original PDF.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -399,10 +399,9 @@ on keywords</p>
 <p>Watch a folder for new pdf files</p>
 <p>If new file event, then add it to queue with timestamp
 If file mofified event, then change timestamp in queue
-Every 10 seconds pop-off queue and if timestamp older than 10 seconds,</p>
-<blockquote>
-<div>process the file</div></blockquote>
-<p>else, push it back onto queue</p>
+Every 10 seconds pop-off queue and if timestamp older than 10 seconds,
+process the file
+else, push it back onto queue</p>
 <dl class="method">
 <dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_for_new_pdf">
 <tt class="descname">check_for_new_pdf</tt><big>(</big><em>ev_path</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_watcher.html#PyPdfWatcher.check_for_new_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_for_new_pdf" title="Permalink to this definition">¶</a></dt>
@@ -420,7 +419,7 @@ Every 10 seconds pop-off queue and if timestamp older than 10 seconds,</p>
 
 <dl class="attribute">
 <dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.events_lock">
-<tt class="descname">events_lock</tt><em class="property"> = &lt;thread.lock object at 0x10d491c50&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.events_lock" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">events_lock</tt><em class="property"> = &lt;thread.lock object at 0x10a8deb50&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.events_lock" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
