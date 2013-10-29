@@ -11,6 +11,7 @@ More links:
 - [Blog @ virantha.com](http://virantha.com/category/projects/pypdfocr)
 - [Documentation @ documentup.com](http://documentup.com/virantha/pypdfocr)
 - [Source @ github](https://www.github.com/virantha/pypdfocr)
+- [API docs @ gitpages](http://virantha.github.com/pypdfocr/html)
 
  
 ## Usage: 

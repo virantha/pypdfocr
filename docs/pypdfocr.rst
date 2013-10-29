@@ -61,7 +61,21 @@ pypdfocr.pypdfocr_filer module
     :undoc-members:
     :show-inheritance:
 
+pypdfocr.pypdfocr_filer_dirs module
+------------------------------------
 
+.. automodule:: pypdfocr.pypdfocr_filer_dirs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pypdfocr.pypdfocr_filer_evernote module
+----------------------------------------
+
+.. automodule:: pypdfocr.pypdfocr_filer_evernote
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 Module contents
 ---------------

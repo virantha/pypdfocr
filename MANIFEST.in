@@ -1,5 +1,4 @@
 include *.txt
 include *.rst
-include LICENSE
-include pypdfocr/config/*.yaml
+include LICENSE.rst
 
