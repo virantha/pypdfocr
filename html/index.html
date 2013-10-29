@@ -8,7 +8,7 @@
     
     <title>PyPDFOCR API Reference (version 0.4) &mdash; pypdfocr 0.4 documentation</title>
     
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -41,7 +41,66 @@
              accesskey="N">next</a> |</li>
         <li><a href="#">pypdfocr 0.4 documentation</a> &raquo;</li> 
       </ul>
-    </div>  
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">PyPDFOCR API Reference (version 0.4)</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#todo-list">Todo list</a></li>
+<li><a class="reference internal" href="#pypdfocr">PyPDFOCR</a><ul>
+<li><a class="reference internal" href="#usage">Usage:</a><ul>
+<li><a class="reference internal" href="#single-conversion">Single conversion:</a></li>
+<li><a class="reference internal" href="#folder-monitoring">Folder monitoring:</a></li>
+<li><a class="reference internal" href="#automatic-filing">Automatic filing:</a><ul>
+<li><a class="reference internal" href="#configuration-file-for-automatic-pdf-filing">Configuration file for automatic PDF filing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#evernote-upload-new">Evernote upload(new!):</a><ul>
+<li><a class="reference internal" href="#evernote-authentication-token">Evernote authentication token</a></li>
+<li><a class="reference internal" href="#evernote-filing-usage">Evernote filing usage</a></li>
+<li><a class="reference internal" href="#evernote-filing-configuration-file">Evernote filing configuration file</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#caveats">Caveats</a></li>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#using-pip">Using pip</a></li>
+<li><a class="reference internal" href="#manual-install">Manual install</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#external-dependencies">External Dependencies</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pypdfocr.html"
+                        title="next chapter">pypdfocr package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
 
     <div class="document">
       <div class="documentwrapper">
@@ -80,32 +139,43 @@
 <td>Date</td>
 <td>Changes</td>
 </tr>
-<tr class="row-even"><td>v0.4</td>
+<tr class="row-even"><td>v0.4.1</td>
+<td>10/28/13</td>
+<td>Made HOCR parsing more robust</td>
+</tr>
+<tr class="row-odd"><td>v0.4.0</td>
 <td>10/28/13</td>
 <td>Added early Evernote upload support</td>
 </tr>
-<tr class="row-odd"><td>v0.3.1</td>
+<tr class="row-even"><td>v0.3.1</td>
 <td>10/24/13</td>
 <td>Path fix on windows</td>
 </tr>
-<tr class="row-even"><td>v0.3</td>
+<tr class="row-odd"><td>v0.3.0</td>
 <td>10/23/13</td>
 <td>Added filing of converted pdfs using a configuration file to specify target directories based on keyword matches in the pdf text</td>
 </tr>
-<tr class="row-odd"><td>v0.2.2</td>
+<tr class="row-even"><td>v0.2.2</td>
 <td>10/22/13</td>
 <td>Added a console script to put the pypdfocr script into your bin</td>
 </tr>
-<tr class="row-even"><td>v0.2.1</td>
+<tr class="row-odd"><td>v0.2.1</td>
 <td>10/22/13</td>
 <td>Fix to initial packaging problem.</td>
 </tr>
-<tr class="row-odd"><td>v0.2</td>
+<tr class="row-even"><td>v0.2.0</td>
 <td>10/21/13</td>
 <td>Initial release.</td>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section" id="todo-list">
+<h1>Todo list<a class="headerlink" href="#todo-list" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>Add smtp emailing option after OCR</li>
+<li>Complete unit tests</li>
+</ul>
 </div>
 <div class="section" id="pypdfocr">
 <h1>PyPDFOCR<a class="headerlink" href="#pypdfocr" title="Permalink to this headline">¶</a></h1>
@@ -314,64 +384,6 @@ brew install ghostscript</pre>
 
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="#">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">PyPDFOCR API Reference (version 0.4)</a><ul>
-</ul>
-</li>
-<li><a class="reference internal" href="#pypdfocr">PyPDFOCR</a><ul>
-<li><a class="reference internal" href="#usage">Usage:</a><ul>
-<li><a class="reference internal" href="#single-conversion">Single conversion:</a></li>
-<li><a class="reference internal" href="#folder-monitoring">Folder monitoring:</a></li>
-<li><a class="reference internal" href="#automatic-filing">Automatic filing:</a><ul>
-<li><a class="reference internal" href="#configuration-file-for-automatic-pdf-filing">Configuration file for automatic PDF filing</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#evernote-upload-new">Evernote upload(new!):</a><ul>
-<li><a class="reference internal" href="#evernote-authentication-token">Evernote authentication token</a></li>
-<li><a class="reference internal" href="#evernote-filing-usage">Evernote filing usage</a></li>
-<li><a class="reference internal" href="#evernote-filing-configuration-file">Evernote filing configuration file</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#caveats">Caveats</a></li>
-<li><a class="reference internal" href="#installation">Installation</a><ul>
-<li><a class="reference internal" href="#using-pip">Using pip</a></li>
-<li><a class="reference internal" href="#manual-install">Manual install</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#external-dependencies">External Dependencies</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
-</ul>
-
-  <h4>Next topic</h4>
-  <p class="topless"><a href="pypdfocr.html"
-                        title="next chapter">pypdfocr package</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/index.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
