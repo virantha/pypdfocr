@@ -23,7 +23,7 @@ class PyPdfWatcher(FileSystemEventHandler):
         If new file event, then add it to queue with timestamp
         If file mofified event, then change timestamp in queue
         Every 10 seconds pop-off queue and if timestamp older than 10 seconds,
-            process the file
+        process the file
         else, push it back onto queue
     """
     events = {}

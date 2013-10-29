@@ -279,7 +279,7 @@ class PyPDFOCR(object):
         return ocr_pdf_filename
 
     def file_converted_file(self, ocr_pdffilename, original_pdffilename):
-        """ Call :method:`filer` to move the converted filename to its destiantion directory.  Optionally also
+        """ move the converted filename to its destiantion directory.  Optionally also
             moves the original PDF.
 
             :param ocr_pdffilename: Converted PDF file

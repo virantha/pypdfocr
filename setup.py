@@ -23,7 +23,7 @@ setup (
     name = "pypdfocr",
     version = __version__,
     description="Converts a scanned PDF into an OCR'ed pdf using Tesseract-OCR and Ghostscript",
-    license = "LICENSE.txt",
+    license = "ASL 2.0",
     long_description = long_description,
     author="Virantha N. Ekanayake",
     author_email="virantha@gmail.com", # Removed.

@@ -135,7 +135,6 @@ class PyPdf(object):
              #    word.text = child.text
           if word.text is None:
             continue
-          logging.debug(word.text)
           font_width = pdf.stringWidth(word.text.strip(), 'invisible', 8)
           if font_width <= 0:
             continue
@@ -149,7 +148,7 @@ class PyPdf(object):
           box_width = (box[2] - box[0]) * 72 / dpi
           text.setHorizScale(100.0 * box_width / font_width)
           text.textLine(word.text.strip())
-          logging.debug( "Pg%s: %s!" % (page_num,word.text.strip()))
+          #logging.debug( "Pg%s: %s" % (page_num,word.text.strip()))
           pdf.drawText(text)
 
     def polyval(self,poly, x):

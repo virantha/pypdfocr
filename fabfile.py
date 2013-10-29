@@ -22,6 +22,7 @@ def push_docs():
         local("git pull origin gh-pages")
     with lcd("docs"):
         print("Running sphinx in docs/ and building to ~/dev/githubpages/pypdfocr")
+        local("make clean")
         local("make html")
     with lcd(githubpages):
         local("git add .")
