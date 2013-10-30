@@ -84,13 +84,12 @@
         
 <div class="viewcode-block" id="PyPdfWatcher"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher">[docs]</a><span class="k">class</span> <span class="nc">PyPdfWatcher</span><span class="p">(</span><span class="n">FileSystemEventHandler</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Watch a folder for new pdf files</span>
+<span class="sd">        Watch a folder for new pdf files.</span>
 
-<span class="sd">        If new file event, then add it to queue with timestamp</span>
-<span class="sd">        If file mofified event, then change timestamp in queue</span>
-<span class="sd">        Every 10 seconds pop-off queue and if timestamp older than 10 seconds,</span>
-<span class="sd">        process the file</span>
-<span class="sd">        else, push it back onto queue</span>
+<span class="sd">        If new file event, then add it to queue with timestamp.</span>
+<span class="sd">        If file mofified event, then change timestamp in queue.</span>
+<span class="sd">        Every few seconds pop-off queue and if timestamp older than 3 seconds,</span>
+<span class="sd">        process the file else, push it back onto queue.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">events</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">events_lock</span> <span class="o">=</span> <span class="n">Lock</span><span class="p">()</span>
@@ -194,11 +193,14 @@
 </div>
 <div class="viewcode-block" id="PyPdfWatcher.check_queue"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_queue">[docs]</a>    <span class="k">def</span> <span class="nf">check_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            This function is called at regular intervals by :func:`start`</span>
+<span class="sd">            This function is called at regular intervals by :func:`start`.</span>
+<span class="sd">            </span>
+<span class="sd">            Iterate through the events, and if there is any with a timestamp</span>
+<span class="sd">            greater than the scan_interval, return it and set its timestamp to -1</span>
+<span class="sd">            for purging later.</span>
+
+<span class="sd">            :returns: Filename if available to process, otherwise None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Called at regular time intervals</span>
-        <span class="c"># Chech the events queue for events that have been there longer</span>
-        <span class="c"># than given time period</span>
         <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">monitored_file</span><span class="p">,</span> <span class="n">timestamp</span> <span class="ow">in</span> <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
