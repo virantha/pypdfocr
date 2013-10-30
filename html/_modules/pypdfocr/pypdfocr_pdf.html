@@ -201,7 +201,6 @@
              <span class="c">#    word.text = child.text</span>
           <span class="k">if</span> <span class="n">word</span><span class="o">.</span><span class="n">text</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">continue</span>
-          <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
           <span class="n">font_width</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">stringWidth</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="s">&#39;invisible&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
           <span class="k">if</span> <span class="n">font_width</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">continue</span>
@@ -215,7 +214,7 @@
           <span class="n">box_width</span> <span class="o">=</span> <span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mi">72</span> <span class="o">/</span> <span class="n">dpi</span>
           <span class="n">text</span><span class="o">.</span><span class="n">setHorizScale</span><span class="p">(</span><span class="mf">100.0</span> <span class="o">*</span> <span class="n">box_width</span> <span class="o">/</span> <span class="n">font_width</span><span class="p">)</span>
           <span class="n">text</span><span class="o">.</span><span class="n">textLine</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-          <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span> <span class="s">&quot;Pg</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">!&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">page_num</span><span class="p">,</span><span class="n">word</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()))</span>
+          <span class="c">#logging.debug( &quot;Pg%s: %s&quot; % (page_num,word.text.strip()))</span>
           <span class="n">pdf</span><span class="o">.</span><span class="n">drawText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="PyPdf.polyval"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.polyval">[docs]</a>    <span class="k">def</span> <span class="nf">polyval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">poly</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>

@@ -153,7 +153,7 @@
 
 <dl class="method">
 <dt id="pypdfocr.pypdfocr.PyPDFOCR._send_email">
-<tt class="descname">_send_email</tt><big>(</big><em>from_addr</em>, <em>to_addr_list</em>, <em>cc_addr_list</em>, <em>subject</em>, <em>message</em>, <em>login</em>, <em>password</em>, <em>smtpserver</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#PyPDFOCR._send_email"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR._send_email" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_send_email</tt><big>(</big><em>infilename</em>, <em>outfilename</em>, <em>filing</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#PyPDFOCR._send_email"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR._send_email" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send email using smtp</p>
 </dd></dl>
 
@@ -196,11 +196,12 @@ moves the original PDF.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Nothing</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Target folder name</p>
 </td>
 </tr>
 </tbody>
 </table>
+<p>&#8220;rtype: string</p>
 </dd></dl>
 
 <dl class="method">
@@ -419,7 +420,7 @@ else, push it back onto queue</p>
 
 <dl class="attribute">
 <dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.events_lock">
-<tt class="descname">events_lock</tt><em class="property"> = &lt;thread.lock object at 0x10a8deb50&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.events_lock" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">events_lock</tt><em class="property"> = &lt;thread.lock object at 0x1100dab50&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.events_lock" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -635,7 +636,13 @@ then use <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler.de
 <dl class="method">
 <dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.move_to_matching_folder">
 <tt class="descname">move_to_matching_folder</tt><big>(</big><em>filename</em>, <em>foldername</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote.move_to_matching_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.move_to_matching_folder" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Use the evernote API to create a new note:</p>
+<ol class="arabic simple">
+<li>Make the notebook if it doesn&#8217;t exist (<tt class="xref py py-func docutils literal"><span class="pre">_check_and_make_notebook()</span></tt>)</li>
+<li>Create the note (<tt class="xref py py-func docutils literal"><span class="pre">_create_evernote_note()</span></tt>)</li>
+<li>Upload note using API</li>
+</ol>
+</dd></dl>
 
 <dl class="method">
 <dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.set_default_folder">

@@ -175,6 +175,9 @@
         <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-v&#39;</span><span class="p">,</span> <span class="s">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;verbose&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Turn on verbose mode&#39;</span><span class="p">)</span>
 
+        <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-m&#39;</span><span class="p">,</span> <span class="s">&#39;--mail&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;mail&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Send email after conversion&#39;</span><span class="p">)</span>
+
         <span class="c">#---------</span>
         <span class="c"># Single or watch mode</span>
         <span class="c">#--------</span>
@@ -203,6 +206,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pdf_filename</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">pdf_filename</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">watch_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">watch_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enable_email</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">mail</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">)</span>
@@ -233,6 +237,10 @@
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">watch_dir</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Starting to watch&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">watch</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_email</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">configfile</span><span class="p">:</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Please specify a configuration file(CONFIGFILE) to enable email&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="PyPDFOCR._clean_up_files"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.PyPDFOCR._clean_up_files">[docs]</a>    <span class="k">def</span> <span class="nf">_clean_up_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -352,27 +360,40 @@
 <span class="sd">            :type ocr_pdffilename: filename string</span>
 <span class="sd">            :param original_pdffilename: Original scanned PDF file</span>
 <span class="sd">            :type original_pdffilename: filename string</span>
-<span class="sd">            :returns: Nothing</span>
+<span class="sd">            :returns: Target folder name</span>
+<span class="sd">            &quot;rtype: string</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">tgt_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdf_filer</span><span class="o">.</span><span class="n">move_to_matching_folder</span><span class="p">(</span><span class="n">ocr_pdffilename</span><span class="p">)</span>  
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Filed </span><span class="si">%s</span><span class="s"> to </span><span class="si">%s</span><span class="s"> as </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">tgt_path</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">tgt_path</span><span class="p">)))</span>
+        <span class="n">filed_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdf_filer</span><span class="o">.</span><span class="n">move_to_matching_folder</span><span class="p">(</span><span class="n">ocr_pdffilename</span><span class="p">)</span>  
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Filed </span><span class="si">%s</span><span class="s"> to </span><span class="si">%s</span><span class="s"> as </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filed_path</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filed_path</span><span class="p">)))</span>
 
         <span class="n">tgt_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdf_filer</span><span class="o">.</span><span class="n">file_original</span><span class="p">(</span><span class="n">original_pdffilename</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">tgt_path</span> <span class="o">!=</span> <span class="n">original_pdffilename</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&quot;Filed original file </span><span class="si">%s</span><span class="s"> to </span><span class="si">%s</span><span class="s"> as </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">original_pdffilename</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">tgt_path</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">tgt_path</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filed_path</span><span class="p">)</span>
 
   </div>
-<div class="viewcode-block" id="PyPDFOCR._send_email"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.PyPDFOCR._send_email">[docs]</a>    <span class="k">def</span> <span class="nf">_send_email</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_addr</span><span class="p">,</span> <span class="n">to_addr_list</span><span class="p">,</span> <span class="n">cc_addr_list</span><span class="p">,</span>
-                  <span class="n">subject</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span>
-                  <span class="n">login</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span>
-                  <span class="n">smtpserver</span><span class="p">):</span>
+<div class="viewcode-block" id="PyPDFOCR._send_email"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.PyPDFOCR._send_email">[docs]</a>    <span class="k">def</span> <span class="nf">_send_email</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">infilename</span><span class="p">,</span> <span class="n">outfilename</span><span class="p">,</span> <span class="n">filing</span> <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Send email using smtp</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">header</span>  <span class="o">=</span> <span class="s">&#39;From: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">from_addr</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Sending email status&quot;</span><span class="p">)</span>
+        <span class="n">from_addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&quot;mail_from_addr&quot;</span><span class="p">]</span>
+        <span class="n">to_addr_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&quot;mail_to_list&quot;</span><span class="p">]</span>
+        <span class="n">smtpserver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&quot;mail_smtp_server&quot;</span><span class="p">]</span>
+        <span class="n">login</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&quot;mail_smtp_login&quot;</span><span class="p">]</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&quot;mail_smtp_password&quot;</span><span class="p">]</span>
+
+        <span class="n">subject</span> <span class="o">=</span> <span class="s">&quot;PyPDFOCR converted: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">outfilename</span><span class="p">))</span>
+        <span class="n">header</span>  <span class="o">=</span> <span class="s">&#39;From: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">login</span>
         <span class="n">header</span> <span class="o">+=</span> <span class="s">&#39;To: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">to_addr_list</span><span class="p">)</span>
-        <span class="n">header</span> <span class="o">+=</span> <span class="s">&#39;Cc: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cc_addr_list</span><span class="p">)</span>
         <span class="n">header</span> <span class="o">+=</span> <span class="s">&#39;Subject: </span><span class="si">%s</span><span class="se">\n\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">subject</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">        PyPDFOCR Conversion:</span>
+<span class="s">        --------------------</span>
+<span class="s">        Original file: </span><span class="si">%s</span><span class="s"></span>
+<span class="s">        Converted file: </span><span class="si">%s</span><span class="s"></span>
+<span class="s">        Filing: </span><span class="si">%s</span><span class="s"></span>
+<span class="s">        &quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">infilename</span><span class="p">,</span> <span class="n">outfilename</span><span class="p">,</span> <span class="n">filing</span><span class="p">)</span>
         <span class="n">message</span> <span class="o">=</span> <span class="n">header</span> <span class="o">+</span> <span class="n">message</span>
       
         <span class="n">server</span> <span class="o">=</span> <span class="n">smtplib</span><span class="o">.</span><span class="n">SMTP</span><span class="p">(</span><span class="n">smtpserver</span><span class="p">)</span>
@@ -394,17 +415,6 @@
         <span class="c"># Read the command line options</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_options</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
-        <span class="c"># </span>
-        <span class="c">#self._send_email(</span>
-                        <span class="c">#from_addr=&quot;virantha@gmail.com&quot;,</span>
-                        <span class="c">#to_addr_list=[&quot;virantha@gmail.com&quot;],</span>
-                        <span class="c">#cc_addr_list = [],</span>
-                        <span class="c">#subject = &quot;PyPDFOCR upload&quot;,</span>
-                        <span class="c">#message = &quot;Uploaded email\n\n-Virantha&quot;, </span>
-                        <span class="c">#login = &quot;virantha@gmail.com&quot;,</span>
-                        <span class="c">#password = &quot;cctahvuntxbuwmox&quot;,</span>
-                        <span class="c">#smtpserver = &quot;smtp.gmail.com:587&quot;,</span>
-                        <span class="c">#)</span>
 
         <span class="c"># Setup the pdf filing if enabled</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_filing</span><span class="p">:</span>
@@ -414,12 +424,20 @@
             <span class="n">py_watcher</span> <span class="o">=</span> <span class="n">PyPdfWatcher</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">watch_dir</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">pdf_filename</span> <span class="ow">in</span> <span class="n">py_watcher</span><span class="o">.</span><span class="n">start</span><span class="p">():</span>
                 <span class="n">ocr_pdffilename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_conversion</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span>
+                <span class="n">filing</span> <span class="o">=</span> <span class="s">&quot;None&quot;</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_filing</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">file_converted_file</span><span class="p">(</span><span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">)</span>
+                    <span class="n">filing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_converted_file</span><span class="p">(</span><span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_email</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_send_email</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">filing</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ocr_pdffilename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_conversion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdf_filename</span><span class="p">)</span>
+            <span class="n">filing</span> <span class="o">=</span> <span class="s">&quot;None&quot;</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_filing</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">file_converted_file</span><span class="p">(</span><span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdf_filename</span><span class="p">)</span>
+                <span class="n">filing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_converted_file</span><span class="p">(</span><span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdf_filename</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_email</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_send_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">filing</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">script</span> <span class="o">=</span> <span class="n">PyPDFOCR</span><span class="p">()</span>
