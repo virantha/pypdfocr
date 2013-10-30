@@ -86,6 +86,8 @@
 
 <span class="kn">from</span> <span class="nn">pypdfocr_filer</span> <span class="kn">import</span> <span class="n">PyFiler</span>
 
+<span class="kn">import</span> <span class="nn">functools</span>
+
 <span class="kn">from</span> <span class="nn">evernote.api.client</span> <span class="kn">import</span> <span class="n">EvernoteClient</span>
 <span class="kn">import</span> <span class="nn">evernote.edam.type.ttypes</span> <span class="kn">as</span> <span class="nn">Types</span>
 <span class="kn">import</span> <span class="nn">evernote.edam.userstore.constants</span> <span class="kn">as</span> <span class="nn">UserStoreConstants</span>
@@ -105,6 +107,7 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
         <span class="c"># f is the method being decorated, so save it so we can call it later!</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">f</span>
+        <span class="n">functools</span><span class="o">.</span><span class="n">update_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
         <span class="c"># Save a ptr to the object being decorated</span>
@@ -179,8 +182,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_connect_to_evernote</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dictUserInfo</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_connect_to_evernote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dictUserInfo</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Establish a connection to evernote and authenticate</span>
+<div class="viewcode-block" id="PyFilerEvernote._connect_to_evernote"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._connect_to_evernote">[docs]</a>        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Establish a connection to evernote and authenticate.</span>
+
 <span class="sd">            :param dictUserInfo: Dict of user info like user/passwrod.  For now, just the dev token</span>
 <span class="sd">            :returns success: Return wheter connection succeeded</span>
 <span class="sd">            :rtype bool:</span>
@@ -188,6 +192,7 @@
         <span class="k">print</span><span class="p">(</span><span class="s">&quot;Authenticating to Evernote&quot;</span><span class="p">)</span>
         <span class="n">dev_token</span> <span class="o">=</span> <span class="n">dictUserInfo</span><span class="p">[</span><span class="s">&#39;dev_token&#39;</span><span class="p">]</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Authenticating using token </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">dev_token</span><span class="p">)</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">EvernoteClient</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">dev_token</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_store</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get_user_store</span><span class="p">()</span>
@@ -200,11 +205,11 @@
             <span class="k">print</span><span class="p">(</span><span class="s">&quot;Error attempting to authenticate to Evernote: </span><span class="si">%s</span><span class="s"> - </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">EDAMErrorCode</span><span class="o">.</span><span class="n">_VALUES_TO_NAMES</span><span class="p">[</span><span class="n">err</span><span class="p">],</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Authenticated to evernote as user </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Authenticated to evernote as user </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">True</span>
 
-    <span class="k">def</span> <span class="nf">add_folder_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">keywords</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">add_folder_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">keywords</span><span class="p">):</span></div>
 <div class="viewcode-block" id="PyFilerEvernote.add_folder_target"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.add_folder_target">[docs]</a>        <span class="k">assert</span> <span class="n">folder</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder_targets</span><span class="p">,</span> <span class="s">&quot;Target folder already defined! (</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">folder</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">folder_targets</span><span class="p">[</span><span class="n">folder</span><span class="p">]</span> <span class="o">=</span> <span class="n">keywords</span>
 
@@ -225,32 +230,53 @@
         <span class="k">return</span> <span class="n">tgtfilename</span>
 
     <span class="nd">@en_handle</span></div>
+    <span class="k">def</span> <span class="nf">_get_notebooks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PyFilerEvernote._get_notebooks"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._get_notebooks">[docs]</a>        <span class="n">note_store</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get_note_store</span><span class="p">()</span>
+        <span class="n">notebooks</span> <span class="o">=</span> <span class="n">note_store</span><span class="o">.</span><span class="n">listNotebooks</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">n</span><span class="o">.</span><span class="n">name</span><span class="p">:</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">notebooks</span><span class="p">}</span>
+
+    <span class="nd">@en_handle</span></div>
+    <span class="k">def</span> <span class="nf">_create_notebook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">notebook</span><span class="p">):</span>
+<div class="viewcode-block" id="PyFilerEvernote._create_notebook"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._create_notebook">[docs]</a>        <span class="n">note_store</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get_note_store</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">note_store</span><span class="o">.</span><span class="n">createNotebook</span><span class="p">(</span><span class="n">notebook</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_update_notebook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">notebook</span><span class="p">):</span></div>
+<div class="viewcode-block" id="PyFilerEvernote._update_notebook"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._update_notebook">[docs]</a>        <span class="n">note_store</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get_note_store</span><span class="p">()</span>
+        <span class="n">note_store</span><span class="o">.</span><span class="n">updateNotebook</span><span class="p">(</span><span class="n">notebook</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="nd">@en_handle</span></div>
     <span class="k">def</span> <span class="nf">_check_and_make_notebook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">notebook_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PyFilerEvernote._check_and_make_notebook"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._check_and_make_notebook">[docs]</a>        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Weird.</span>
 <span class="sd">            :returns notebook: New or existing notebook object</span>
 <span class="sd">            :rtype Types.Notebook:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Get the noteStore</span>
-        <span class="n">note_store</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get_note_store</span><span class="p">()</span>
-        <span class="n">notebooks</span> <span class="o">=</span> <span class="n">note_store</span><span class="o">.</span><span class="n">listNotebooks</span><span class="p">()</span>
-        <span class="n">notebooks</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="o">.</span><span class="n">name</span><span class="p">:</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">notebooks</span><span class="p">}</span>
+        <span class="c">#note_store = self.client.get_note_store()</span>
+        <span class="c">#notebooks = note_store.listNotebooks()</span>
+        <span class="c">#notebooks = {n.name:n for n in notebooks}</span>
+        <span class="n">notebooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_notebooks</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">notebook_name</span> <span class="ow">in</span> <span class="n">notebooks</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;existing note&quot;</span><span class="p">)</span>
             <span class="n">notebook</span> <span class="o">=</span> <span class="n">notebooks</span><span class="p">[</span><span class="n">notebook_name</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">notebook</span><span class="o">.</span><span class="n">stack</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_folder</span><span class="p">:</span>
                 <span class="n">notebook</span><span class="o">.</span><span class="n">stack</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_folder</span>
-                <span class="n">note_store</span><span class="o">.</span><span class="n">updateNotebook</span><span class="p">(</span><span class="n">notebook</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_update_notebook</span><span class="p">(</span><span class="n">notebook</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">notebook</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c"># Need to create a new notebook</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;creating notebook&quot;</span><span class="p">)</span>
             <span class="n">notebook</span> <span class="o">=</span> <span class="n">Types</span><span class="o">.</span><span class="n">Notebook</span><span class="p">()</span>
             <span class="n">notebook</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">notebook_name</span>
             <span class="n">notebook</span><span class="o">.</span><span class="n">stack</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_folder</span>
-            <span class="n">notebook</span> <span class="o">=</span> <span class="n">note_store</span><span class="o">.</span><span class="n">createNotebook</span><span class="p">(</span><span class="n">notebook</span><span class="p">)</span>
+            <span class="n">notebook</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_notebook</span><span class="p">(</span><span class="n">notebook</span><span class="p">)</span>
+            <span class="c">#notebook = note_store.createNotebook(notebook)</span>
             <span class="k">return</span> <span class="n">notebook</span>
 
-    <span class="nd">@en_handle</span>
+    <span class="nd">@en_handle</span></div>
     <span class="k">def</span> <span class="nf">_create_evernote_note</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">notebook</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="c"># Create the new note</span>
+<div class="viewcode-block" id="PyFilerEvernote._create_evernote_note"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._create_evernote_note">[docs]</a>        <span class="c"># Create the new note</span>
         <span class="n">note</span> <span class="o">=</span> <span class="n">Types</span><span class="o">.</span><span class="n">Note</span><span class="p">()</span>
         <span class="n">note</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="n">note</span><span class="o">.</span><span class="n">notebookGuid</span> <span class="o">=</span> <span class="n">notebook</span><span class="o">.</span><span class="n">guid</span>
@@ -292,7 +318,7 @@
         <span class="k">return</span> <span class="n">note</span>
 
         
-    <span class="k">def</span> <span class="nf">move_to_matching_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">foldername</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">move_to_matching_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">foldername</span><span class="p">):</span></div>
 <div class="viewcode-block" id="PyFilerEvernote.move_to_matching_folder"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.move_to_matching_folder">[docs]</a>        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Use the evernote API to create a new note:</span>
 
@@ -324,30 +350,8 @@
 
         <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">notebook</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_unique_filename_by_appending_version_integer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tgtfilename</span><span class="p">):</span></div>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tgtfilename</span><span class="p">):</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;File </span><span class="si">%s</span><span class="s"> already exists in target directory </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">tgtfilename</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">tgtfilename</span><span class="p">)))</span>
-            <span class="c"># First, try appending a _v1 to it</span>
-            <span class="n">num</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="n">dr</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_filename_dir_filename_ext</span><span class="p">(</span><span class="n">tgtfilename</span><span class="p">)</span>
-            <span class="n">tgtfilename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dr</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">_</span><span class="si">%d</span><span class="s">.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">ext</span><span class="p">))</span>
-            <span class="k">while</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tgtfilename</span><span class="p">):</span>
-                <span class="c"># Add an incrementing integer to the end of the filename and Loop until we find a new filename</span>
-                <span class="n">num</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">tgtfilename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dr</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">_</span><span class="si">%d</span><span class="s">.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">ext</span><span class="p">))</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Trying </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">tgtfilename</span><span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Using name </span><span class="si">%s</span><span class="s"> instead for copying to target directory </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">tgtfilename</span><span class="p">),</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">tgtfilename</span> <span class="p">)))</span>
-        <span class="k">return</span> <span class="n">tgtfilename</span>
 
-    <span class="k">def</span> <span class="nf">_split_filename_dir_filename_ext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="n">dr</span><span class="p">,</span> <span class="n">fn</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="c"># Get directory and filename</span>
-        <span class="n">fn_no_ext</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c"># Get the filename without ending extension</span>
-        <span class="n">fn_no_ext</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fn_no_ext</span><span class="p">)</span>
-        <span class="n">ext</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">dr</span><span class="p">,</span> <span class="n">fn_no_ext</span><span class="p">,</span> <span class="n">ext</span>
-
-
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span> <span class="c"># pragma: no cover</span></div></div>
     <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">)</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">PyFilerEvernote</span><span class="p">()</span>

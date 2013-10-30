@@ -109,7 +109,7 @@
             <span class="k">yield</span> <span class="n">text</span>
 
     <span class="k">def</span> <span class="nf">_get_matching_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdfText</span><span class="p">):</span></div>
-        <span class="n">searchText</span> <span class="o">=</span> <span class="n">pdfText</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+<div class="viewcode-block" id="PyPdfFiler._get_matching_folder"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdffiler.PyPdfFiler._get_matching_folder">[docs]</a>        <span class="n">searchText</span> <span class="o">=</span> <span class="n">pdfText</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">folder</span><span class="p">,</span><span class="n">strings</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filer</span><span class="o">.</span><span class="n">folder_targets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">strings</span><span class="p">:</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Checking string </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">s</span><span class="p">)</span>
@@ -119,7 +119,7 @@
         <span class="c"># No match found, so return </span>
         <span class="k">return</span> <span class="bp">None</span>
 
-    <span class="k">def</span> <span class="nf">file_original</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_filename</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">file_original</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_filename</span><span class="p">):</span></div>
 <div class="viewcode-block" id="PyPdfFiler.file_original"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdffiler.PyPdfFiler.file_original">[docs]</a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">filer</span><span class="o">.</span><span class="n">file_original</span><span class="p">(</span><span class="n">original_filename</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">move_to_matching_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span></div>

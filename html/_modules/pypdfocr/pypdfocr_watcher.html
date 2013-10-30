@@ -120,6 +120,15 @@
 
         </div>
 <div class="viewcode-block" id="PyPdfWatcher.rename_file_with_spaces"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.rename_file_with_spaces">[docs]</a>    <span class="k">def</span> <span class="nf">rename_file_with_spaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Rename any portion of a filename that has spaces in the basename with underscores.</span>
+<span class="sd">            Does not affect spaces in the directory path.</span>
+
+<span class="sd">            :param pdf_filename: Filename to remove spaces</span>
+<span class="sd">            :type pdf_filename: string</span>
+<span class="sd">            :returns: Modified filename</span>
+<span class="sd">            :rtype: string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">filepath</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span>
         <span class="k">if</span> <span class="s">&#39; &#39;</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
             <span class="n">newFilename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">,</span><span class="s">&#39;_&#39;</span><span class="p">))</span>
@@ -131,6 +140,24 @@
             <span class="k">return</span> <span class="n">pdf_filename</span>
 </div>
 <div class="viewcode-block" id="PyPdfWatcher.check_for_new_pdf"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_for_new_pdf">[docs]</a>    <span class="k">def</span> <span class="nf">check_for_new_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ev_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Called by the file watching api on any file creations/modifications.</span>
+<span class="sd">            For any file ending with &quot;.pdf&quot;, but not &quot;_ocr.pdf&quot;, it adds new files</span>
+<span class="sd">            to the event queue with the current time stamp, or it updates existing files in</span>
+<span class="sd">            the queue with the current timestamp.  This queue is used to track files and</span>
+<span class="sd">            keep track of their last &quot;touched&quot; time, so we can start processing a file if</span>
+<span class="sd">            :func:`check_queue` finds a file that hasn&#39;t been touched in a while.</span>
+
+<span class="sd">            If the file does note exist in the events dict:</span>
+
+<span class="sd">                - Add it with the current time</span>
+
+<span class="sd">            Otherwise:</span>
+<span class="sd">                </span>
+<span class="sd">                - If the file time is marked as -1, delete it from the dict</span>
+<span class="sd">                - Else, update the time in the dict to the current time</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">ev_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.pdf&quot;</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ev_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;_ocr.pdf&quot;</span><span class="p">):</span>
                 <span class="n">PyPdfWatcher</span><span class="o">.</span><span class="n">events_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
@@ -166,6 +193,9 @@
         <span class="k">pass</span> 
 </div>
 <div class="viewcode-block" id="PyPdfWatcher.check_queue"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_queue">[docs]</a>    <span class="k">def</span> <span class="nf">check_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            This function is called at regular intervals by :func:`start`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># Called at regular time intervals</span>
         <span class="c"># Chech the events queue for events that have been there longer</span>
         <span class="c"># than given time period</span>

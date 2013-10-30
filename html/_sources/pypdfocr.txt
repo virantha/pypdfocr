@@ -20,6 +20,7 @@ pypdfocr.pypdfocr_gs module
     :members:
     :undoc-members:
     :show-inheritance:
+    :private-members:
 
 pypdfocr.pypdfocr_pdf module
 ----------------------------
@@ -28,6 +29,7 @@ pypdfocr.pypdfocr_pdf module
     :members:
     :undoc-members:
     :show-inheritance:
+    :private-members:
 
 pypdfocr.pypdfocr_pdffiler module
 ---------------------------------
@@ -36,6 +38,7 @@ pypdfocr.pypdfocr_pdffiler module
     :members:
     :undoc-members:
     :show-inheritance:
+    :private-members:
 
 pypdfocr.pypdfocr_tesseract module
 ----------------------------------
@@ -44,6 +47,7 @@ pypdfocr.pypdfocr_tesseract module
     :members:
     :undoc-members:
     :show-inheritance:
+    :private-members:
 
 pypdfocr.pypdfocr_watcher module
 --------------------------------
@@ -52,6 +56,7 @@ pypdfocr.pypdfocr_watcher module
     :members:
     :undoc-members:
     :show-inheritance:
+    :private-members:
 
 pypdfocr.pypdfocr_filer module
 --------------------------------
@@ -60,6 +65,7 @@ pypdfocr.pypdfocr_filer module
     :members:
     :undoc-members:
     :show-inheritance:
+    :private-members:
 
 pypdfocr.pypdfocr_filer_dirs module
 ------------------------------------
@@ -68,6 +74,7 @@ pypdfocr.pypdfocr_filer_dirs module
     :members:
     :undoc-members:
     :show-inheritance:
+    :private-members:
 
 pypdfocr.pypdfocr_filer_evernote module
 ----------------------------------------
@@ -76,6 +83,9 @@ pypdfocr.pypdfocr_filer_evernote module
     :members:
     :undoc-members:
     :show-inheritance:
+    :private-members:
+
+    .. automethod:: _check_and_make_notebook(self,notebook_name)
 
 Module contents
 ---------------
@@ -84,3 +94,4 @@ Module contents
     :members:
     :undoc-members:
     :show-inheritance:
+    :private-members:

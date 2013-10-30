@@ -352,6 +352,11 @@ on keywords</p>
 <em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_pdffiler.</tt><tt class="descname">PyPdfFiler</tt><big>(</big><em>filer</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_pdffiler.html#PyPdfFiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_pdffiler.PyPdfFiler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <dl class="method">
+<dt id="pypdfocr.pypdfocr_pdffiler.PyPdfFiler._get_matching_folder">
+<tt class="descname">_get_matching_folder</tt><big>(</big><em>pdfText</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_pdffiler.html#PyPdfFiler._get_matching_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_pdffiler.PyPdfFiler._get_matching_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="pypdfocr.pypdfocr_pdffiler.PyPdfFiler.file_original">
 <tt class="descname">file_original</tt><big>(</big><em>original_filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_pdffiler.html#PyPdfFiler.file_original"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_pdffiler.PyPdfFiler.file_original" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -406,12 +411,32 @@ else, push it back onto queue</p>
 <dl class="method">
 <dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_for_new_pdf">
 <tt class="descname">check_for_new_pdf</tt><big>(</big><em>ev_path</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_watcher.html#PyPdfWatcher.check_for_new_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_for_new_pdf" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Called by the file watching api on any file creations/modifications.
+For any file ending with &#8221;.pdf&#8221;, but not &#8220;_ocr.pdf&#8221;, it adds new files
+to the event queue with the current time stamp, or it updates existing files in
+the queue with the current timestamp.  This queue is used to track files and
+keep track of their last &#8220;touched&#8221; time, so we can start processing a file if
+<a class="reference internal" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_queue" title="pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_queue"><tt class="xref py py-func docutils literal"><span class="pre">check_queue()</span></tt></a> finds a file that hasn&#8217;t been touched in a while.</p>
+<p>If the file does note exist in the events dict:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Add it with the current time</li>
+</ul>
+</div></blockquote>
+<p>Otherwise:</p>
+<blockquote>
+<div><ul class="simple">
+<li>If the file time is marked as -1, delete it from the dict</li>
+<li>Else, update the time in the dict to the current time</li>
+</ul>
+</div></blockquote>
+</dd></dl>
 
 <dl class="method">
 <dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_queue">
 <tt class="descname">check_queue</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_watcher.html#PyPdfWatcher.check_queue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_queue" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>This function is called at regular intervals by <a class="reference internal" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.start" title="pypdfocr.pypdfocr_watcher.PyPdfWatcher.start"><tt class="xref py py-func docutils literal"><span class="pre">start()</span></tt></a></p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.events">
@@ -420,7 +445,7 @@ else, push it back onto queue</p>
 
 <dl class="attribute">
 <dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.events_lock">
-<tt class="descname">events_lock</tt><em class="property"> = &lt;thread.lock object at 0x1100dab50&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.events_lock" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">events_lock</tt><em class="property"> = &lt;thread.lock object at 0x10ae02b50&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.events_lock" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -446,7 +471,21 @@ else, push it back onto queue</p>
 <dl class="method">
 <dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.rename_file_with_spaces">
 <tt class="descname">rename_file_with_spaces</tt><big>(</big><em>pdf_filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_watcher.html#PyPdfWatcher.rename_file_with_spaces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.rename_file_with_spaces" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Rename any portion of a filename that has spaces in the basename with underscores.
+Does not affect spaces in the directory path.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pdf_filename</strong> (<em>string</em>) &#8211; Filename to remove spaces</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Modified filename</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.start">
@@ -464,6 +503,36 @@ else, push it back onto queue</p>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Abstract base class for defining filing objects, whether you want to 
 save to a file-system/directory structure or to something like Evernote</p>
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler._abc_cache">
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10b76d450&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler._abc_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler._abc_negative_cache">
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10b76d4d0&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler._abc_negative_cache_version">
+<tt class="descname">_abc_negative_cache_version</tt><em class="property"> = 25</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler._abc_negative_cache_version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler._abc_registry">
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10b76d390&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler._abc_registry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler._get_unique_filename_by_appending_version_integer">
+<tt class="descname">_get_unique_filename_by_appending_version_integer</tt><big>(</big><em>tgtfilename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer.html#PyFiler._get_unique_filename_by_appending_version_integer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler._get_unique_filename_by_appending_version_integer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer.PyFiler._split_filename_dir_filename_ext">
+<tt class="descname">_split_filename_dir_filename_ext</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer.html#PyFiler._split_filename_dir_filename_ext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler._split_filename_dir_filename_ext" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pypdfocr.pypdfocr_filer.PyFiler.add_folder_target">
 <tt class="descname">add_folder_target</tt><big>(</big><em>folder</em>, <em>keywords</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer.html#PyFiler.add_folder_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler.add_folder_target" title="Permalink to this definition">¶</a></dt>
@@ -581,6 +650,26 @@ then use <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler.de
 <dt id="pypdfocr.pypdfocr_filer_dirs.PyFilerDirs">
 <em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_filer_dirs.</tt><tt class="descname">PyFilerDirs</tt><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_dirs.html#PyFilerDirs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler" title="pypdfocr.pypdfocr_filer.PyFiler"><tt class="xref py py-class docutils literal"><span class="pre">pypdfocr.pypdfocr_filer.PyFiler</span></tt></a></p>
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_cache">
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10b76d6d0&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_negative_cache">
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10b76d750&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_negative_cache_version">
+<tt class="descname">_abc_negative_cache_version</tt><em class="property"> = 25</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_negative_cache_version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_registry">
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10b76d610&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_registry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pypdfocr.pypdfocr_filer_dirs.PyFilerDirs.add_folder_target">
 <tt class="descname">add_folder_target</tt><big>(</big><em>folder</em>, <em>keywords</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_dirs.html#PyFilerDirs.add_folder_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs.add_folder_target" title="Permalink to this definition">¶</a></dt>
@@ -605,6 +694,70 @@ then use <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler.de
 <dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote">
 <em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_filer_evernote.</tt><tt class="descname">PyFilerEvernote</tt><big>(</big><em>dev_token</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler" title="pypdfocr.pypdfocr_filer.PyFiler"><tt class="xref py py-class docutils literal"><span class="pre">pypdfocr.pypdfocr_filer.PyFiler</span></tt></a></p>
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_cache">
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10b41c910&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_negative_cache">
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10b41cc50&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_negative_cache_version">
+<tt class="descname">_abc_negative_cache_version</tt><em class="property"> = 25</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_negative_cache_version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_registry">
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10b41c750&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_registry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._check_and_make_notebook">
+<em class="property">classmethod </em><tt class="descname">_check_and_make_notebook</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote._check_and_make_notebook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._check_and_make_notebook" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._connect_to_evernote">
+<tt class="descname">_connect_to_evernote</tt><big>(</big><em>dictUserInfo</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote._connect_to_evernote"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._connect_to_evernote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Establish a connection to evernote and authenticate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dictUserInfo</strong> &#8211; Dict of user info like user/passwrod.  For now, just the dev token</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Returns success:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">Return wheter connection succeeded</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Rtype bool:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._create_evernote_note">
+<em class="property">classmethod </em><tt class="descname">_create_evernote_note</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote._create_evernote_note"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._create_evernote_note" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._create_notebook">
+<em class="property">classmethod </em><tt class="descname">_create_notebook</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote._create_notebook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._create_notebook" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._get_notebooks">
+<em class="property">classmethod </em><tt class="descname">_get_notebooks</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote._get_notebooks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._get_notebooks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._update_notebook">
+<tt class="descname">_update_notebook</tt><big>(</big><em>notebook</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote._update_notebook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._update_notebook" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.add_folder_target">
 <tt class="descname">add_folder_target</tt><big>(</big><em>folder</em>, <em>keywords</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote.add_folder_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.add_folder_target" title="Permalink to this definition">¶</a></dt>
@@ -638,8 +791,8 @@ then use <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler.de
 <tt class="descname">move_to_matching_folder</tt><big>(</big><em>filename</em>, <em>foldername</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_filer_evernote.html#PyFilerEvernote.move_to_matching_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote.move_to_matching_folder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use the evernote API to create a new note:</p>
 <ol class="arabic simple">
-<li>Make the notebook if it doesn&#8217;t exist (<tt class="xref py py-func docutils literal"><span class="pre">_check_and_make_notebook()</span></tt>)</li>
-<li>Create the note (<tt class="xref py py-func docutils literal"><span class="pre">_create_evernote_note()</span></tt>)</li>
+<li>Make the notebook if it doesn&#8217;t exist (<a class="reference internal" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._check_and_make_notebook" title="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._check_and_make_notebook"><tt class="xref py py-func docutils literal"><span class="pre">_check_and_make_notebook()</span></tt></a>)</li>
+<li>Create the note (<a class="reference internal" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._create_evernote_note" title="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._create_evernote_note"><tt class="xref py py-func docutils literal"><span class="pre">_create_evernote_note()</span></tt></a>)</li>
 <li>Upload note using API</li>
 </ol>
 </dd></dl>
