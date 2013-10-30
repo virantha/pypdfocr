@@ -14,17 +14,15 @@ Contents:
    pypdfocr
 
 Changelog
----------
+=========
 .. include:: ../CHANGES.rst
-Todo
-----
-.. include:: ../TODO.rst
-Testing coverage
-----------------
-.. include:: ../tests/COVERAGE.rst
 
-Readme
-======
+.. include:: ../TODO.rst
+
+Testing coverage
+================
+.. include:: ../test/COVERAGE.rst
+
 .. include:: ../README.rst
 
 Indices and tables
