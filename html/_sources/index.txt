@@ -19,9 +19,9 @@ Changelog
 
 .. include:: ../TODO.rst
 
-Testing coverage
+Testing
 ================
-`testing/index.html`
+`Coverage <http://virantha.github.io/pypdfocr/html/testing/index.html>`
 
 .. include:: ../README.rst
 
