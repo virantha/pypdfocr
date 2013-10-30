@@ -21,7 +21,7 @@ Changelog
 
 Testing coverage
 ================
-.. include:: ../test/COVERAGE.rst
+`testing/index.html`
 
 .. include:: ../README.rst
 
