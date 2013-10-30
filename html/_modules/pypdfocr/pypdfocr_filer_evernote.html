@@ -258,7 +258,6 @@
         <span class="c">#notebooks = {n.name:n for n in notebooks}</span>
         <span class="n">notebooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_notebooks</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">notebook_name</span> <span class="ow">in</span> <span class="n">notebooks</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;existing note&quot;</span><span class="p">)</span>
             <span class="n">notebook</span> <span class="o">=</span> <span class="n">notebooks</span><span class="p">[</span><span class="n">notebook_name</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">notebook</span><span class="o">.</span><span class="n">stack</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_folder</span><span class="p">:</span>
                 <span class="n">notebook</span><span class="o">.</span><span class="n">stack</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_folder</span>
@@ -266,7 +265,6 @@
             <span class="k">return</span> <span class="n">notebook</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c"># Need to create a new notebook</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;creating notebook&quot;</span><span class="p">)</span>
             <span class="n">notebook</span> <span class="o">=</span> <span class="n">Types</span><span class="o">.</span><span class="n">Notebook</span><span class="p">()</span>
             <span class="n">notebook</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">notebook_name</span>
             <span class="n">notebook</span><span class="o">.</span><span class="n">stack</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_folder</span>

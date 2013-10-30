@@ -187,10 +187,6 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span> <span class="p">(</span><span class="s">&quot;on_modified: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_for_new_pdf</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="PyPdfWatcher.on_deleted"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.on_deleted">[docs]</a>    <span class="k">def</span> <span class="nf">on_deleted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">event</span><span class="p">):</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span> <span class="p">(</span><span class="s">&quot;on_deleted: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">)</span>
-        <span class="k">pass</span> 
-</div>
 <div class="viewcode-block" id="PyPdfWatcher.check_queue"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.check_queue">[docs]</a>    <span class="k">def</span> <span class="nf">check_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            This function is called at regular intervals by :func:`start`.</span>
