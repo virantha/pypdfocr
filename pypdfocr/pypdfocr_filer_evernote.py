@@ -21,6 +21,8 @@ import sys
 
 from pypdfocr_filer import PyFiler
 
+import functools
+
 from evernote.api.client import EvernoteClient
 import evernote.edam.type.ttypes as Types
 import evernote.edam.userstore.constants as UserStoreConstants
@@ -40,6 +42,7 @@ class en_handle(object):
     def __init__(self, f):
         # f is the method being decorated, so save it so we can call it later!
         self.f = f
+        functools.update_wrapper(self, f)
 
     def __get__(self, instance, owner):
         # Save a ptr to the object being decorated
@@ -115,7 +118,8 @@ class PyFilerEvernote(PyFiler):
 
     def _connect_to_evernote(self, dictUserInfo):
         """
-            Establish a connection to evernote and authenticate
+            Establish a connection to evernote and authenticate.
+
             :param dictUserInfo: Dict of user info like user/passwrod.  For now, just the dev token
             :returns success: Return wheter connection succeeded
             :rtype bool:
@@ -123,6 +127,7 @@ class PyFilerEvernote(PyFiler):
         print("Authenticating to Evernote")
         dev_token = dictUserInfo['dev_token']
         logging.debug("Authenticating using token %s" % dev_token)
+        user = None
         try:
             self.client = EvernoteClient(token=dev_token)
             self.user_store = self.client.get_user_store()
@@ -135,8 +140,8 @@ class PyFilerEvernote(PyFiler):
             print("Error attempting to authenticate to Evernote: %s - %s" % (EDAMErrorCode._VALUES_TO_NAMES[err], e.message))
             sys.exit(-1)
 
-
-        print("Authenticated to evernote as user %s" % user.username)
+        if user:
+            print("Authenticated to evernote as user %s" % user.username)
         return True
 
     def add_folder_target(self, folder, keywords):
@@ -160,27 +165,48 @@ class PyFilerEvernote(PyFiler):
         return tgtfilename
 
     @en_handle
+    def _get_notebooks(self):
+        note_store = self.client.get_note_store()
+        notebooks = note_store.listNotebooks()
+        return {n.name:n for n in notebooks}
+
+    @en_handle
+    def _create_notebook(self, notebook):
+        note_store = self.client.get_note_store()
+        return note_store.createNotebook(notebook)
+
+    def _update_notebook(self, notebook):
+        note_store = self.client.get_note_store()
+        note_store.updateNotebook(notebook)
+        return
+
+    @en_handle
     def _check_and_make_notebook(self, notebook_name):
         """
+            Weird.
             :returns notebook: New or existing notebook object
             :rtype Types.Notebook:
         """
         # Get the noteStore
-        note_store = self.client.get_note_store()
-        notebooks = note_store.listNotebooks()
-        notebooks = {n.name:n for n in notebooks}
+        #note_store = self.client.get_note_store()
+        #notebooks = note_store.listNotebooks()
+        #notebooks = {n.name:n for n in notebooks}
+        notebooks = self._get_notebooks()
         if notebook_name in notebooks:
+            print("existing note")
             notebook = notebooks[notebook_name]
             if notebook.stack != self.target_folder:
                 notebook.stack = self.target_folder
-                note_store.updateNotebook(notebook)
+                self._update_notebook(notebook)
             return notebook
         else:
             # Need to create a new notebook
+            print("creating notebook")
             notebook = Types.Notebook()
             notebook.name = notebook_name
             notebook.stack = self.target_folder
-            notebook = note_store.createNotebook(notebook)
+            notebook = self._create_notebook(notebook)
+            #notebook = note_store.createNotebook(notebook)
             return notebook
 
     @en_handle
@@ -228,6 +254,14 @@ class PyFilerEvernote(PyFiler):
 
         
     def move_to_matching_folder(self, filename, foldername):
+        """
+            Use the evernote API to create a new note:
+
+            #. Make the notebook if it doesn't exist (:func:`_check_and_make_notebook`)
+            #. Create the note (:func:`_create_evernote_note`)
+            #. Upload note using API
+
+        """
         assert self.target_folder != None
         assert self.default_folder != None
 
@@ -251,30 +285,8 @@ class PyFilerEvernote(PyFiler):
 
         return "%s/%s" % (notebook.name, note.title)
 
-    def _get_unique_filename_by_appending_version_integer(self, tgtfilename):
-        if os.path.exists(tgtfilename):
-            logging.info("File %s already exists in target directory %s" % (os.path.basename(tgtfilename), os.path.dirname(tgtfilename)))
-            # First, try appending a _v1 to it
-            num = 1
-            dr, fn, ext = self._split_filename_dir_filename_ext(tgtfilename)
-            tgtfilename = os.path.join(dr, "%s_%d.%s" % (fn, num, ext))
-            while os.path.exists(tgtfilename):
-                # Add an incrementing integer to the end of the filename and Loop until we find a new filename
-                num += 1
-                tgtfilename = os.path.join(dr, "%s_%d.%s" % (fn, num, ext))
-                logging.info("Trying %s" % tgtfilename)
-            logging.info("Using name %s instead for copying to target directory %s" % (os.path.basename(tgtfilename),os.path.dirname(tgtfilename )))
-        return tgtfilename
 
-    def _split_filename_dir_filename_ext(self, filename):
-        dr, fn = os.path.split(filename) # Get directory and filename
-        fn_no_ext = fn.split('.')[0:-1] # Get the filename without ending extension
-        fn_no_ext = ''.join(fn_no_ext)
-        ext = fn.split('.')[-1]
-        return dr, fn_no_ext, ext
-
-
-if __name__ == '__main__':
+if __name__ == '__main__': # pragma: no cover
     logging.basicConfig(level=logging.DEBUG, format='%(message)s')
     logging.basicConfig(level=logging.INFO, format='%(message)s')
     p = PyFilerEvernote()

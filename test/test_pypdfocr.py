@@ -41,6 +41,11 @@ class TestPydfocr:
     @pytest.mark.parametrize("dirname, tgt_folder, filename, expected", pdf_tests)
     def test_standalone(self, dirname, tgt_folder, filename, expected):
         """
+            Test the single file conversion with no filing.  
+            Tests relative paths (".."), files in subirs, and files in current dir
+            Checks for that _ocr file is created and keywords found in pdf.
+            Modify :attribute:`pdf_tests` for changing keywords, etc
+
             :param expected: List of keywords lists per page.  expected[0][1] is the second keyword to assert on page 1
         """
         # Run a single file conversion
@@ -63,11 +68,13 @@ class TestPydfocr:
     #@pytest.mark.skipif(True, reason="just testing")
     @pytest.mark.parametrize("dirname, tgt_folder, filename, expected", [pdf_tests[0]])
     def test_standalone_email(self, dirname, tgt_folder, filename, expected):
+        """
+            Get coverage on the email after conversion of a single file.
+            Use mock to stub out the smtpllib
+        """
         # Run a single file conversion
 
         # Mock the smtplib to test the email functions
-        #smtplib.SMTP = Mock('smtplib.SMTP')
-        #smtplib.SMTP.mock_returns = Mock('smtp_connection')
         with patch("smtplib.SMTP") as mock_smtp:
             cwd = os.getcwd()
             os.chdir(dirname)
@@ -95,7 +102,11 @@ class TestPydfocr:
     @pytest.mark.parametrize("config", [("test_pypdfocr_config.yaml"), ("test_pypdfocr_config_no_move_original.yaml")])
     @pytest.mark.parametrize("dirname, tgt_folder, filename, expected", pdf_tests[0:3])
     def test_standalone_filing(self, mock_move, config, dirname, tgt_folder, filename, expected):
-        # Run a single file conversion
+        """
+            Test filing of single pdf.  Also test moving of original file.
+
+            Kind of hacked up right now, but it tries to test a lot of things (maybe too many)
+        """
 
         # Mock the move function so we don't actually end up filing
         cwd = os.getcwd()
@@ -130,7 +141,3 @@ class TestPydfocr:
             calls.append(call(filename,
                                 os.path.abspath(os.path.join("temp/original", new_file_name))))
         mock_move.assert_has_calls(calls)
-            #assert(instance.starttls.called)
-            #instance.login.assert_called_once_with("someone@gmail.com", "blah")
-            #assert(instance.sendmail.called)
-

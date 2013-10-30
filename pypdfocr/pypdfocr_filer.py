@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import abc
+import os, logging
 
 class PyFiler(object):
     """ Abstract base class for defining filing objects, whether you want to 
@@ -47,6 +48,28 @@ class PyFiler(object):
     @abc.abstractmethod
     def add_folder_target(self, folder, keywords):
         """ Add a target folder for a list of keywords """
+
+    def _get_unique_filename_by_appending_version_integer(self, tgtfilename):
+        if os.path.exists(tgtfilename):
+            logging.info("File %s already exists in target directory %s" % (os.path.basename(tgtfilename), os.path.dirname(tgtfilename)))
+            # First, try appending a _v1 to it
+            num = 1
+            dr, fn, ext = self._split_filename_dir_filename_ext(tgtfilename)
+            tgtfilename = os.path.join(dr, "%s_%d.%s" % (fn, num, ext))
+            while os.path.exists(tgtfilename):
+                # Add an incrementing integer to the end of the filename and Loop until we find a new filename
+                num += 1
+                tgtfilename = os.path.join(dr, "%s_%d.%s" % (fn, num, ext))
+                logging.info("Trying %s" % tgtfilename)
+            logging.info("Using name %s instead for copying to target directory %s" % (os.path.basename(tgtfilename),os.path.dirname(tgtfilename )))
+        return tgtfilename
+
+    def _split_filename_dir_filename_ext(self, filename):
+        dr, fn = os.path.split(filename) # Get directory and filename
+        fn_no_ext = fn.split('.')[0:-1] # Get the filename without ending extension
+        fn_no_ext = ''.join(fn_no_ext)
+        ext = fn.split('.')[-1]
+        return dr, fn_no_ext, ext
 
     def get_target_folder(self):
         return self._target_folder

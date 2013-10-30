@@ -15,7 +15,7 @@ def prep_release():
 def run_tests():
     test_dir = "test"
     with lcd(test_dir):
-        local("py.test -v --cov=pypdfocr --cov-report=term --cov-report=html")
+        local("py.test -v --cov-config .coveragerc --cov=pypdfocr --cov-report=term --cov-report=html")
 
 def push_docs():
     """ Build the sphinx docs from develop
