@@ -32,7 +32,6 @@ class PyFiler(object):
             :returns: Full path+filename of destination
             :rtype: string
         """
-        return
 
     @abc.abstractmethod
     def file_original(self, original_filename):
