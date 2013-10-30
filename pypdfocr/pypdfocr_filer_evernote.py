@@ -193,7 +193,6 @@ class PyFilerEvernote(PyFiler):
         #notebooks = {n.name:n for n in notebooks}
         notebooks = self._get_notebooks()
         if notebook_name in notebooks:
-            print("existing note")
             notebook = notebooks[notebook_name]
             if notebook.stack != self.target_folder:
                 notebook.stack = self.target_folder
@@ -201,7 +200,6 @@ class PyFilerEvernote(PyFiler):
             return notebook
         else:
             # Need to create a new notebook
-            print("creating notebook")
             notebook = Types.Notebook()
             notebook.name = notebook_name
             notebook.stack = self.target_folder

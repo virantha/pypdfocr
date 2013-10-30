@@ -15,7 +15,11 @@ def prep_release():
 def run_tests():
     test_dir = "test"
     with lcd(test_dir):
-        local("py.test -v --cov-config .coveragerc --cov=pypdfocr --cov-report=term --cov-report=html")
+        t = local("py.test --cov-config .coveragerc --cov=pypdfocr --cov-report=term --cov-report=html", capture=True)
+
+        with open("test/COVERAGE.rst", "w") as f:
+            f.write(t)
+
 
 def push_docs():
     """ Build the sphinx docs from develop
@@ -29,6 +33,7 @@ def push_docs():
         print("Running sphinx in docs/ and building to ~/dev/githubpages/pypdfocr")
         local("make clean")
         local("make html")
+        local("cp -R ../test/htmlcov %s/html/testing" % githubpages)
     with lcd(githubpages):
         local("git add .")
         local('git commit -am "doc update"')
