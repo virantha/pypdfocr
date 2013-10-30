@@ -21,7 +21,7 @@ Changelog
 
 Testing
 ================
-    `Coverage <http://virantha.github.io/pypdfocr/html/testing/index.html>`
+    `Coverage <http://virantha.github.io/pypdfocr/html/testing/index.html>`_
 
 .. include:: ../README.rst
 
