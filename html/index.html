@@ -52,7 +52,7 @@
 <li><a class="reference internal" href="#changelog">Changelog</a></li>
 <li><a class="reference internal" href="#todo-list">Todo list</a></li>
 <li><a class="reference internal" href="#testing">Testing</a></li>
-<li><a class="reference internal" href="#pypdfocr">PyPDFOCR</a><ul>
+<li><a class="reference internal" href="#pypdfocr-tesseract-ocr-based-pdf-filing">PyPDFOCR - Tesseract-OCR based PDF filing</a><ul>
 <li><a class="reference internal" href="#usage">Usage:</a><ul>
 <li><a class="reference internal" href="#single-conversion">Single conversion:</a></li>
 <li><a class="reference internal" href="#folder-monitoring">Folder monitoring:</a></li>
@@ -60,15 +60,17 @@
 <li><a class="reference internal" href="#configuration-file-for-automatic-pdf-filing">Configuration file for automatic PDF filing</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#evernote-upload-new">Evernote upload(new!):</a><ul>
+<li><a class="reference internal" href="#evernote-upload">Evernote upload:</a><ul>
 <li><a class="reference internal" href="#evernote-authentication-token">Evernote authentication token</a></li>
 <li><a class="reference internal" href="#evernote-filing-usage">Evernote filing usage</a></li>
 <li><a class="reference internal" href="#evernote-filing-configuration-file">Evernote filing configuration file</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#auto-email">Auto email</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#caveats">Caveats</a></li>
+<li><a class="reference internal" href="#fine-tuning-tesseract-ghostscript">Fine-tuning Tesseract/Ghostscript</a></li>
+<li><a class="reference internal" href="#disclaimer">Disclaimer</a></li>
 <li><a class="reference internal" href="#installation">Installation</a><ul>
 <li><a class="reference internal" href="#using-pip">Using pip</a></li>
 <li><a class="reference internal" href="#manual-install">Manual install</a></li>
@@ -191,17 +193,18 @@
 <blockquote>
 <div><a class="reference external" href="http://virantha.github.io/pypdfocr/html/testing/index.html">Coverage</a></div></blockquote>
 </div>
-<div class="section" id="pypdfocr">
-<h1>PyPDFOCR<a class="headerlink" href="#pypdfocr" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="pypdfocr-tesseract-ocr-based-pdf-filing">
+<h1>PyPDFOCR - Tesseract-OCR based PDF filing<a class="headerlink" href="#pypdfocr-tesseract-ocr-based-pdf-filing" title="Permalink to this headline">¶</a></h1>
 <p>This program will help manage your scanned PDFs by doing the following:</p>
 <ul class="simple">
-<li>Take a scanned PDF file and run OCR on it (using free OCR tools),
-generating a searchable PDF</li>
+<li>Take a scanned PDF file and run OCR on it (using the Tesseract OCR
+software from Google), generating a searchable PDF</li>
 <li>Optionally, watch a folder for incoming scanned PDFs and
 automatically run OCR on them</li>
 <li>Optionally, file the scanned PDFs into directories based on simple
 keyword matching that you specify</li>
-<li><strong>New:</strong> Evernote auto-upload and filing based on keyword search</li>
+<li>Evernote auto-upload and filing based on keyword search</li>
+<li>Email status when it files your PDF</li>
 </ul>
 <p>More links:</p>
 <ul class="simple">
@@ -210,6 +213,7 @@ virantha.com</a></li>
 <li><a class="reference external" href="http://documentup.com/virantha/pypdfocr">Documentation &#64;
 documentup.com</a></li>
 <li><a class="reference external" href="https://www.github.com/virantha/pypdfocr">Source &#64; github</a></li>
+<li><a class="reference external" href="http://virantha.github.com/pypdfocr/html">API docs &#64; gitpages</a></li>
 </ul>
 <div class="section" id="usage">
 <h2>Usage:<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
@@ -278,8 +282,8 @@ underscore followed by a number to each filename, in order to avoid
 overwriting files that may already be present.</p>
 </div>
 </div>
-<div class="section" id="evernote-upload-new">
-<h3>Evernote upload(new!):<a class="headerlink" href="#evernote-upload-new" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="evernote-upload">
+<h3>Evernote upload:<a class="headerlink" href="#evernote-upload" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="evernote-authentication-token">
 <h4>Evernote authentication token<a class="headerlink" href="#evernote-authentication-token" title="Permalink to this headline">¶</a></h4>
 <p>To enable Evernote support, you will need to <a class="reference external" href="https://www.evernote.com/api/DeveloperToken.action">get a developer token for
@@ -326,14 +330,38 @@ folders:
 </div>
 </div>
 </div>
+<div class="section" id="auto-email">
+<h3>Auto email<a class="headerlink" href="#auto-email" title="Permalink to this headline">¶</a></h3>
+<p>You can have PyPDFOCR email you everytime it converts a file and files
+it. You need to first specify the following lines in the configuration
+file and then use the <tt class="docutils literal"><span class="pre">-m</span></tt> option when invoking <tt class="docutils literal"><span class="pre">pypdfocr</span></tt>:</p>
+<div class="highlight-python"><pre>mail_smtp_server: "smtp.gmail.com:587"
+mail_smtp_login: "virantha@gmail.com"
+mail_smtp_password: "PASSWORD"
+mail_from_addr: "virantha@gmail.com"
+mail_to_list:
+    - "virantha@gmail.com"
+    - "person2@gmail.com"</pre>
 </div>
-<div class="section" id="caveats">
-<h2>Caveats<a class="headerlink" href="#caveats" title="Permalink to this headline">¶</a></h2>
-<p>This code is brand-new, and incorporation of unit-testing is just
-starting. I plan to improve things as time allows in the near-future.
-Sphinx code generation is on my TODO list. The software is distributed
-on an &#8220;AS IS&#8221; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-either express or implied.</p>
+</div>
+</div>
+<div class="section" id="fine-tuning-tesseract-ghostscript">
+<h2>Fine-tuning Tesseract/Ghostscript<a class="headerlink" href="#fine-tuning-tesseract-ghostscript" title="Permalink to this headline">¶</a></h2>
+<p>At the moment, the only options allowed for Tesseract and Ghostscript
+are specifying their executable locations manually. Use the following in
+your configuration file:</p>
+<div class="highlight-python"><pre>tesseract:
+    binary: "/usr/bin/tesseract"
+
+ghostscript:
+    binary: "/usr/local/bin/gs"</pre>
+</div>
+</div>
+<div class="section" id="disclaimer">
+<h2>Disclaimer<a class="headerlink" href="#disclaimer" title="Permalink to this headline">¶</a></h2>
+<p>While test coverage is at 90% right now, Sphinx docs generation is at an
+early stage. The software is distributed on an &#8220;AS IS&#8221; BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</p>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
