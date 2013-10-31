@@ -2,6 +2,7 @@
 Version  Date       Changes
 -------  --------   ------
 
+v0.5.0   10/30/13   Email status added, 90% test coverage
 v0.4.1   10/28/13   Made HOCR parsing more robust
 v0.4.0   10/28/13   Added early Evernote upload support
 v0.3.1   10/24/13   Path fix on windows
