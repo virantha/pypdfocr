@@ -7,6 +7,8 @@ from PyPDF2 import PdfFileReader
 import smtplib
 from mock import Mock
 from mock import patch, call
+from mock import MagicMock
+from mock import PropertyMock
 
 
 class TestPydfocr:
@@ -141,3 +143,19 @@ class TestPydfocr:
             calls.append(call(filename,
                                 os.path.abspath(os.path.join("temp/original", new_file_name))))
         mock_move.assert_has_calls(calls)
+
+    def test_set_binaries(self):
+        """ Test the setup_exteral_tools
+        """
+        self.p.config = {}
+        self.p.config["tesseract"] = {"binary":"/usr/bin/tesseract"}
+        self.p.config["ghostscript"] = {"binary":"/usr/bin/ghostscript"}
+        self.p._setup_external_tools()
+        assert(self.p.ts.binary == "/usr/bin/tesseract")
+        assert(self.p.gs.binary == "/usr/bin/ghostscript")
+
+        os.name = 'nt'
+        self.p.config["tesseract"] = {"binary":"/usr/bin/tesseract"}
+        self.p._setup_external_tools()
+        assert(self.p.ts.binary == '"/usr/bin/tesseract"')
+

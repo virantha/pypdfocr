@@ -22,8 +22,7 @@ class TestOptions:
         assert(self.p.verbose)
 
         assert(not self.p.enable_filing)
-        with pytest.raises(AttributeError):
-            self.p.config
+        assert(self.p.config == None)
 
     def test_standalone_filing(self):
         opts = ["blah.pdf"]

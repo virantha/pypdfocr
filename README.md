@@ -1,10 +1,11 @@
-# PyPDFOCR
+# PyPDFOCR - Tesseract-OCR based PDF filing
 This program will help manage your scanned PDFs by doing the following:
 
-- Take a scanned PDF file and run OCR on it (using free OCR tools), generating a searchable PDF
+- Take a scanned PDF file and run OCR on it (using the Tesseract OCR software from Google), generating a searchable PDF
 - Optionally, watch a folder for incoming scanned PDFs and automatically run OCR on them
 - Optionally, file the scanned PDFs into directories based on simple keyword matching that you specify
-- **New:** Evernote auto-upload and filing based on keyword search
+- Evernote auto-upload and filing based on keyword search
+- Email status when it files your PDF
 
 More links:
 
@@ -76,7 +77,7 @@ commented out, your original PDF will stay where it was found.
 If there is any naming conflict during filing, the program will add an underscore followed by a
 number to each filename, in order to avoid overwriting files that may already be present.
 
-### Evernote upload(new!):
+### Evernote upload:
 #### Evernote authentication token
 To enable Evernote support, you will need to [get a developer token for your 
 Evernote account.](https://www.evernote.com/api/DeveloperToken.action).  You
@@ -118,11 +119,35 @@ default Evernote upload notebook name.
             - orbitz
         receipts:
             - receipt
-## Caveats
-This code is brand-new, and incorporation of unit-testing is just starting.  I
-plan to improve things as time allows in the near-future.  Sphinx code
-generation is on my TODO list.  The software is distributed on an "AS IS"
-BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+### Auto email
+You can have PyPDFOCR email you everytime it converts a file and files it.  You
+need to first specify the following lines in the configuration file and then use the
+``-m`` option when invoking ``pypdfocr``:
+
+    mail_smtp_server: "smtp.gmail.com:587"
+    mail_smtp_login: "virantha@gmail.com"
+    mail_smtp_password: "PASSWORD"
+    mail_from_addr: "virantha@gmail.com"
+    mail_to_list: 
+        - "virantha@gmail.com"
+        - "person2@gmail.com"
+
+## Fine-tuning Tesseract/Ghostscript
+At the moment, the only options allowed for Tesseract and Ghostscript are 
+specifying their executable locations manually.  Use the following in your configuration
+file:
+
+    tesseract:
+        binary: "/usr/bin/tesseract"
+
+    ghostscript:
+        binary: "/usr/local/bin/gs"
+    
+## Disclaimer
+While test coverage is at 90% right now, Sphinx docs generation is at an early
+stage.  The software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied.
 
 ## Installation
 ### Using pip

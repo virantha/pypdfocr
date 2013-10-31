@@ -15,10 +15,10 @@ def prep_release():
 def run_tests():
     test_dir = "test"
     with lcd(test_dir):
-        t = local("py.test --cov-config .coveragerc --cov=pypdfocr --cov-report=term --cov-report=html", capture=True)
+        t = local("py.test --cov-config .coveragerc --cov=pypdfocr --cov-report=term --cov-report=html", capture=False)
 
-        with open("test/COVERAGE.rst", "w") as f:
-            f.write(t)
+        #with open("test/COVERAGE.rst", "w") as f:
+            #f.write(t)
 
 
 def push_docs():

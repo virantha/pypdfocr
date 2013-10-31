@@ -1,5 +1,5 @@
 Todo list
 =========
 
-- Add smtp emailing option after OCR
-- Complete unit tests
+- Add more docstrings
+- Add more option specifiers to tesseract and ghostscript

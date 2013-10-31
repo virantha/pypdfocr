@@ -61,6 +61,7 @@ class PyPDFOCR(object):
     def __init__ (self):
         """ Initializes the GhostScript, Tesseract, and PDF helper classes.
         """
+        self.config = None
         self.gs = PyGs()
         self.ts = PyTesseract()
         self.pdf = PyPdf()
@@ -256,6 +257,22 @@ class PyPDFOCR(object):
         print (" - %d keywords" % (keyword_count))
 
     
+    def _setup_external_tools(self):
+        """
+            Override the Tesseract and Ghostscript binary locations if
+            the user specified them in the config file
+        """
+        if not self.config: return 
+        programs = [("tesseract", self.ts), ("ghostscript", self.gs)]
+        for (program, obj) in programs:
+            if program in self.config and "binary" in self.config[program]:
+                binary = self.config[program]["binary"]
+                if os.name == 'nt':
+                    binary = '"%s"' % binary
+                    binary = binary.replace("\\", "\\\\")
+                logging.info("Setting location for %s executable to %s" % (program, binary))
+                obj.binary = binary
+
     def run_conversion(self, pdf_filename):
         """
             Does the following:
@@ -349,6 +366,8 @@ class PyPDFOCR(object):
         # Read the command line options
         self.get_options(argv)
 
+        # Setup tesseract and ghostscript
+        self._setup_external_tools()
 
         # Setup the pdf filing if enabled
         if self.enable_filing:
