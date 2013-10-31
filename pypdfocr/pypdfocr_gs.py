@@ -33,10 +33,10 @@ class PyGs(object):
     def __init__(self):
         # Detect windows gs binary (make this smarter in the future)
         if os.name == 'nt':
-            #self.gs_binary = 'start /wait "gs" "c:\\Program Files (x86)\\gs\\gs9.07\\bin\\gswin32c.exe"'
-            self.gs_binary = '"c:\\Program Files (x86)\\gs\\gs9.07\\bin\\gswin32c.exe"'
+            #self.binary = 'start /wait "gs" "c:\\Program Files (x86)\\gs\\gs9.07\\bin\\gswin32c.exe"'
+            self.binary = '"c:\\Program Files (x86)\\gs\\gs9.07\\bin\\gswin32c.exe"'
         else:
-            self.gs_binary = "gs"
+            self.binary = "gs"
         self.tiff_dpi = 300
         self.gs_options = {'tiff': ['-sDEVICE=tiff24nc','-r%d' % (self.tiff_dpi)],
                             'jpg': ['-sDEVICE=jpeg','-dJPEGQ=75', '-r200']
@@ -54,11 +54,11 @@ class PyGs(object):
 
         options = ' '.join(self.gs_options[output_format])
         if os.name=='nt':
-            cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s" "%s" -c quit' % (self.gs_binary, options, output_filename, pdf_filename)
+            cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s" "%s" -c quit' % (self.binary, options, output_filename, pdf_filename)
             logging.info(cmd)        
             ret = subprocess.call(cmd)
         else:
-            cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s" "%s" -c quit' % (self.gs_binary, options, output_filename, pdf_filename)
+            cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s" "%s" -c quit' % (self.binary, options, output_filename, pdf_filename)
             logging.debug(cmd)
             ret = os.system(cmd)
 
@@ -71,11 +71,11 @@ class PyGs(object):
         # Instead, we insert the jpeg directly per page
         options = ' '.join(self.gs_options['jpg'])
         if os.name == 'nt':
-            cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s%%d.jpg" "%s" -c quit' % (self.gs_binary, options, filename, pdf_filename)
+            cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s%%d.jpg" "%s" -c quit' % (self.binary, options, filename, pdf_filename)
             logging.info(cmd)        
             ret = subprocess.call(cmd)
         else:
-            cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s%%d.jpg" "%s" -c quit' % (self.gs_binary, options, filename, pdf_filename)
+            cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s%%d.jpg" "%s" -c quit' % (self.binary, options, filename, pdf_filename)
             logging.info(cmd)        
             ret = os.system(cmd)
             

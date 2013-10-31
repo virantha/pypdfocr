@@ -32,9 +32,9 @@ class PyTesseract(object):
     def __init__(self):
         # Detect windows tesseract location
         if os.name == 'nt':
-            self.ts_binary = '"c:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe"'
+            self.binary = '"c:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe"'
         else:
-            self.ts_binary = "tesseract"
+            self.binary = "tesseract"
 
     def make_hocr_from_tiff(self, tiff_filename):
         basename,filext = os.path.splitext(tiff_filename)
@@ -45,11 +45,11 @@ class PyTesseract(object):
 
         logging.info("Running OCR on %s to create %s.html" % (tiff_filename, basename))
         if os.name == 'nt':
-            cmd = '%s "%s" "%s" hocr' % (self.ts_binary, tiff_filename, basename)
+            cmd = '%s "%s" "%s" hocr' % (self.binary, tiff_filename, basename)
             logging.info(cmd)        
             ret = subprocess.call(cmd)
         else:
-            cmd = '%s "%s" "%s" hocr' % (self.ts_binary, tiff_filename, basename)
+            cmd = '%s "%s" "%s" hocr' % (self.binary, tiff_filename, basename)
             logging.info(cmd)        
             ret = os.system(cmd)
                 

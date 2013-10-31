@@ -61,6 +61,7 @@ class PyPDFOCR(object):
     def __init__ (self):
         """ Initializes the GhostScript, Tesseract, and PDF helper classes.
         """
+        self.config = None
         self.gs = PyGs()
         self.ts = PyTesseract()
         self.pdf = PyPdf()
@@ -109,6 +110,9 @@ class PyPDFOCR(object):
         p.add_argument('-v', '--verbose', action='store_true',
             default=False, dest='verbose', help='Turn on verbose mode')
 
+        p.add_argument('-m', '--mail', action='store_true',
+            default=False, dest='mail', help='Send email after conversion')
+
         #---------
         # Single or watch mode
         #--------
@@ -137,6 +141,7 @@ class PyPDFOCR(object):
         self.verbose = args.verbose
         self.pdf_filename = args.pdf_filename
         self.watch_dir = args.watch_dir
+        self.enable_email = args.mail
 
         if self.debug:
             logging.basicConfig(level=logging.DEBUG, format='%(message)s')
@@ -167,6 +172,10 @@ class PyPDFOCR(object):
         if args.watch_dir:
             logging.debug("Starting to watch")
             self.watch = True
+
+        if self.enable_email:
+            if not args.configfile:
+                p.error("Please specify a configuration file(CONFIGFILE) to enable email")
 
     def _clean_up_files(self, files):
         """
@@ -248,6 +257,22 @@ class PyPDFOCR(object):
         print (" - %d keywords" % (keyword_count))
 
     
+    def _setup_external_tools(self):
+        """
+            Override the Tesseract and Ghostscript binary locations if
+            the user specified them in the config file
+        """
+        if not self.config: return 
+        programs = [("tesseract", self.ts), ("ghostscript", self.gs)]
+        for (program, obj) in programs:
+            if program in self.config and "binary" in self.config[program]:
+                binary = self.config[program]["binary"]
+                if os.name == 'nt':
+                    binary = '"%s"' % binary
+                    binary = binary.replace("\\", "\\\\")
+                logging.info("Setting location for %s executable to %s" % (program, binary))
+                obj.binary = binary
+
     def run_conversion(self, pdf_filename):
         """
             Does the following:
@@ -279,34 +304,47 @@ class PyPDFOCR(object):
         return ocr_pdf_filename
 
     def file_converted_file(self, ocr_pdffilename, original_pdffilename):
-        """ Call :method:`filer` to move the converted filename to its destiantion directory.  Optionally also
+        """ move the converted filename to its destiantion directory.  Optionally also
             moves the original PDF.
 
             :param ocr_pdffilename: Converted PDF file
             :type ocr_pdffilename: filename string
             :param original_pdffilename: Original scanned PDF file
             :type original_pdffilename: filename string
-            :returns: Nothing
+            :returns: Target folder name
+            "rtype: string
         """
-        tgt_path = self.pdf_filer.move_to_matching_folder(ocr_pdffilename)  
-        print("Filed %s to %s as %s" % (ocr_pdffilename, os.path.dirname(tgt_path), os.path.basename(tgt_path)))
+        filed_path = self.pdf_filer.move_to_matching_folder(ocr_pdffilename)  
+        print("Filed %s to %s as %s" % (ocr_pdffilename, os.path.dirname(filed_path), os.path.basename(filed_path)))
 
         tgt_path = self.pdf_filer.file_original(original_pdffilename)
         if tgt_path != original_pdffilename:
             print("Filed original file %s to %s as %s" % (original_pdffilename, os.path.dirname(tgt_path), os.path.basename(tgt_path)))
+        return os.path.dirname(filed_path)
 
   
-    def _send_email(self, from_addr, to_addr_list, cc_addr_list,
-                  subject, message,
-                  login, password,
-                  smtpserver):
+    def _send_email(self, infilename, outfilename, filing ):
         """
             Send email using smtp
         """
-        header  = 'From: %s\n' % from_addr
+        print("Sending email status")
+        from_addr = self.config["mail_from_addr"]
+        to_addr_list = self.config["mail_to_list"]
+        smtpserver = self.config["mail_smtp_server"]
+        login = self.config["mail_smtp_login"]
+        password = self.config["mail_smtp_password"]
+
+        subject = "PyPDFOCR converted: %s" % (os.path.basename(outfilename))
+        header  = 'From: %s\n' % login
         header += 'To: %s\n' % ','.join(to_addr_list)
-        header += 'Cc: %s\n' % ','.join(cc_addr_list)
         header += 'Subject: %s\n\n' % subject
+        message = """
+        PyPDFOCR Conversion:
+        --------------------
+        Original file: %s
+        Converted file: %s
+        Filing: %s
+        """ % (infilename, outfilename, filing)
         message = header + message
       
         server = smtplib.SMTP(smtpserver)
@@ -328,17 +366,8 @@ class PyPDFOCR(object):
         # Read the command line options
         self.get_options(argv)
 
-        # 
-        #self._send_email(
-                        #from_addr="virantha@gmail.com",
-                        #to_addr_list=["virantha@gmail.com"],
-                        #cc_addr_list = [],
-                        #subject = "PyPDFOCR upload",
-                        #message = "Uploaded email\n\n-Virantha", 
-                        #login = "virantha@gmail.com",
-                        #password = "cctahvuntxbuwmox",
-                        #smtpserver = "smtp.gmail.com:587",
-                        #)
+        # Setup tesseract and ghostscript
+        self._setup_external_tools()
 
         # Setup the pdf filing if enabled
         if self.enable_filing:
@@ -348,12 +377,20 @@ class PyPDFOCR(object):
             py_watcher = PyPdfWatcher(self.watch_dir)
             for pdf_filename in py_watcher.start():
                 ocr_pdffilename = self.run_conversion(pdf_filename)
+                filing = "None"
                 if self.enable_filing:
-                    self.file_converted_file(ocr_pdffilename, pdf_filename)
+                    filing = self.file_converted_file(ocr_pdffilename, pdf_filename)
+
+                if self.enable_email:
+                    self._send_email(pdf_filename, ocr_pdffilename, filing)
         else:
             ocr_pdffilename = self.run_conversion(self.pdf_filename)
+            filing = "None"
             if self.enable_filing:
-                self.file_converted_file(ocr_pdffilename, self.pdf_filename)
+                filing = self.file_converted_file(ocr_pdffilename, self.pdf_filename)
+
+            if self.enable_email:
+                self._send_email(self.pdf_filename, ocr_pdffilename, filing)
 
 def main():
     script = PyPDFOCR()
