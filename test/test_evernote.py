@@ -1,6 +1,7 @@
 #from pypdfocr import PyPDFOCR as P
 import pypdfocr.pypdfocr_filer_evernote as P
 import pytest
+import os
 
 import evernote.api.client
 import evernote.edam.type.ttypes as Types
@@ -21,22 +22,22 @@ class TestEvernote:
     def test_file_original(self, mock_move):
         with patch("pypdfocr.pypdfocr_filer_evernote.EvernoteClient") as mock_evernote_client:
             p = P.PyFilerEvernote("TOKEN")
-            filename = "pdfs/test_recipe.pdf"
+            filename = os.path.join("pdfs","test_recipe.pdf")
 
             # First, test code that does not move original
             p.file_original(filename)
             assert (not mock_move.called)
 
             # Now test moving
-            p.set_original_move_folder("temp/original")
+            p.set_original_move_folder(os.path.join("temp", "original"))
             p.file_original(filename)
-            mock_move.assert_called_with(filename, "temp/original/test_recipe_2.pdf")
+            mock_move.assert_called_with(filename, os.path.join("temp","original", "test_recipe_2.pdf"))
 
     @patch('os.remove')
     def test_move_to_folder(self, mock_remove):
         with patch("pypdfocr.pypdfocr_filer_evernote.EvernoteClient") as mock_evernote_client:
             p = P.PyFilerEvernote("TOKEN")
-            filename = 'pdfs/test_recipe.pdf'
+	    filename = os.path.join("pdfs", "test_recipe.pdf")
             foldername = 'recipe'
             with pytest.raises(AssertionError):
                 p.move_to_matching_folder(filename, foldername)

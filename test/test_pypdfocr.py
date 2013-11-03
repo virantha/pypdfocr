@@ -2,6 +2,7 @@
 import pypdfocr.pypdfocr as P
 import pytest
 import os
+import logging
 
 from PyPDF2 import PdfFileReader
 import smtplib
@@ -17,12 +18,14 @@ class TestPydfocr:
         self.p = P.PyPDFOCR()
 
     def _iter_pdf(self, filename):
-        reader = PdfFileReader(filename)
-        for pgnum in range(reader.getNumPages()):
-            text = reader.getPage(pgnum).extractText()
-            text = text.encode('ascii', 'ignore')
-            text = text.replace('\n', ' ')
-            yield text
+	with open(filename, 'rb') as f:
+		reader = PdfFileReader(f)
+		logging.debug("pdf scanner found %d pages in %s" % (reader.getNumPages(), filename))
+		for pgnum in range(reader.getNumPages()):
+		    text = reader.getPage(pgnum).extractText()
+		    text = text.encode('ascii', 'ignore')
+		    text = text.replace('\n', ' ')
+		    yield text
     
     pdf_tests = [
             (".", "temp/target/recipe", "../test/pdfs/test_recipe.pdf", [ ["Spinach Recipe","Drain any excess"],
@@ -51,6 +54,14 @@ class TestPydfocr:
             :param expected: List of keywords lists per page.  expected[0][1] is the second keyword to assert on page 1
         """
         # Run a single file conversion
+
+	# First redo the unix-style paths, in case we're running on windows
+	# Assume paths in unix-style
+	dirname = os.path.join(*(dirname.split("/")))
+	tgt_folder = os.path.join(*(tgt_folder.split("/")))
+	filename = os.path.join(*(filename.split("/")))
+
+
         cwd = os.getcwd()
         os.chdir(dirname)
         opts = [filename]
