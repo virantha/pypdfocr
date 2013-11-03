@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.5 documentation</title>
+    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.5.1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.5',
+        VERSION:     '0.5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.5 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.5.1 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.5 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.5.1 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -126,7 +126,7 @@
         <span class="k">if</span> <span class="n">hocr_dir</span> <span class="o">!=</span> <span class="s">&quot;&quot;</span><span class="p">:</span>
             <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">hocr_dir</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="s">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Overlaying hocr and creating final </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pdf_filename</span><span class="p">)</span>
             <span class="n">pdf</span> <span class="o">=</span> <span class="n">Canvas</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">pageCompression</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">pdf</span><span class="o">.</span><span class="n">setCreator</span><span class="p">(</span><span class="s">&#39;pyocr&#39;</span><span class="p">)</span>
@@ -158,6 +158,17 @@
 
             <span class="n">pdf</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Created OCR&#39;ed pdf as </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pdf_filename</span><span class="p">))</span>
+
+	<span class="c"># Now we have to fix up stuff on windows because of reportlab</span>
+	<span class="c"># adding \r\r\n on each line (instead of \r\n)</span>
+	<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">)</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+	<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+	<span class="c">#s = s.replace(&#39;\r\r\n&#39;, &#39;\r\n&#39;)</span>
+	<span class="c">#s = re.sub(&quot;\r\r\n&quot;, &quot;\r\n&quot;, s)</span>
+	<span class="c">#f = open(pdf_filename, &quot;wb&quot;)</span>
+	<span class="c">#f.write(s)</span>
+	<span class="c">#f.close()</span>
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hocr_dir</span><span class="p">,</span><span class="n">pdf_filename</span><span class="p">)</span>
 </div>
@@ -264,7 +275,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.5 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.5.1 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>

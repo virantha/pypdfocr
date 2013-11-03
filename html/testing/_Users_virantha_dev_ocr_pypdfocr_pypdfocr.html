@@ -5,7 +5,7 @@
     
     
     <meta http-equiv='X-UA-Compatible' content='IE=emulateIE7' />
-    <title>Coverage for /Users/virantha/dev/ocr/pypdfocr/pypdfocr: 90%</title>
+    <title>Coverage for /Users/virantha/dev/ocr/pypdfocr/pypdfocr: 89%</title>
     <link rel='stylesheet' href='style.css' type='text/css'>
     
     <script type='text/javascript' src='jquery.min.js'></script>
@@ -21,13 +21,13 @@
 <div id='header'>
     <div class='content'>
         <h1>Coverage for <b>/Users/virantha/dev/ocr/pypdfocr/pypdfocr</b> :
-            <span class='pc_cov'>90%</span>
+            <span class='pc_cov'>89%</span>
         </h1>
         <img id='keyboard_icon' src='keybd_closed.png'>
         <h2 class='stats'>
             174 statements &nbsp;
-            <span class='run hide_run shortkey_r button_toggle_run'>156 run</span>
-            <span class='mis shortkey_m button_toggle_mis'>18 missing</span>
+            <span class='run hide_run shortkey_r button_toggle_run'>154 run</span>
+            <span class='mis shortkey_m button_toggle_mis'>20 missing</span>
             <span class='exc shortkey_x button_toggle_exc'>2 excluded</span>
             
         </h2>
@@ -331,8 +331,8 @@
 <p id='n268' class='stm run hide_run'><a href='#n268'>268</a></p>
 <p id='n269' class='stm run hide_run'><a href='#n269'>269</a></p>
 <p id='n270' class='stm run hide_run'><a href='#n270'>270</a></p>
-<p id='n271' class='stm run hide_run'><a href='#n271'>271</a></p>
-<p id='n272' class='stm run hide_run'><a href='#n272'>272</a></p>
+<p id='n271' class='stm mis'><a href='#n271'>271</a></p>
+<p id='n272' class='stm mis'><a href='#n272'>272</a></p>
 <p id='n273' class='stm run hide_run'><a href='#n273'>273</a></p>
 <p id='n274' class='stm run hide_run'><a href='#n274'>274</a></p>
 <p id='n275' class='pln'><a href='#n275'>275</a></p>
@@ -736,8 +736,8 @@
 <p id='t268' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>program</span> <span class='key'>in</span> <span class='nam'>self</span><span class='op'>.</span><span class='nam'>config</span> <span class='key'>and</span> <span class='str'>&quot;binary&quot;</span> <span class='key'>in</span> <span class='nam'>self</span><span class='op'>.</span><span class='nam'>config</span><span class='op'>[</span><span class='nam'>program</span><span class='op'>]</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t269' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>binary</span> <span class='op'>=</span> <span class='nam'>self</span><span class='op'>.</span><span class='nam'>config</span><span class='op'>[</span><span class='nam'>program</span><span class='op'>]</span><span class='op'>[</span><span class='str'>&quot;binary&quot;</span><span class='op'>]</span><span class='strut'>&nbsp;</span></p>
 <p id='t270' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>os</span><span class='op'>.</span><span class='nam'>name</span> <span class='op'>==</span> <span class='str'>&#39;nt&#39;</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
-<p id='t271' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>binary</span> <span class='op'>=</span> <span class='str'>&#39;&quot;%s&quot;&#39;</span> <span class='op'>%</span> <span class='nam'>binary</span><span class='strut'>&nbsp;</span></p>
-<p id='t272' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>binary</span> <span class='op'>=</span> <span class='nam'>binary</span><span class='op'>.</span><span class='nam'>replace</span><span class='op'>(</span><span class='str'>&quot;\\&quot;</span><span class='op'>,</span> <span class='str'>&quot;\\\\&quot;</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
+<p id='t271' class='stm mis'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>binary</span> <span class='op'>=</span> <span class='str'>&#39;&quot;%s&quot;&#39;</span> <span class='op'>%</span> <span class='nam'>binary</span><span class='strut'>&nbsp;</span></p>
+<p id='t272' class='stm mis'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>binary</span> <span class='op'>=</span> <span class='nam'>binary</span><span class='op'>.</span><span class='nam'>replace</span><span class='op'>(</span><span class='str'>&quot;\\&quot;</span><span class='op'>,</span> <span class='str'>&quot;\\\\&quot;</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t273' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>logging</span><span class='op'>.</span><span class='nam'>info</span><span class='op'>(</span><span class='str'>&quot;Setting location for %s executable to %s&quot;</span> <span class='op'>%</span> <span class='op'>(</span><span class='nam'>program</span><span class='op'>,</span> <span class='nam'>binary</span><span class='op'>)</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t274' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>obj</span><span class='op'>.</span><span class='nam'>binary</span> <span class='op'>=</span> <span class='nam'>binary</span><span class='strut'>&nbsp;</span></p>
 <p id='t275' class='pln'><span class='strut'>&nbsp;</span></p>
