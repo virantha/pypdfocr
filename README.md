@@ -133,7 +133,7 @@ need to first specify the following lines in the configuration file and then use
         - "virantha@gmail.com"
         - "person2@gmail.com"
 
-## Fine-tuning Tesseract/Ghostscript
+### Fine-tuning Tesseract/Ghostscript
 At the moment, the only options allowed for Tesseract and Ghostscript are 
 specifying their executable locations manually.  Use the following in your configuration
 file:

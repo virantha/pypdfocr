@@ -183,7 +183,7 @@ file and then use the ``-m`` option when invoking ``pypdfocr``:
         - "person2@gmail.com"
 
 Fine-tuning Tesseract/Ghostscript
----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 At the moment, the only options allowed for Tesseract and Ghostscript
 are specifying their executable locations manually. Use the following in
