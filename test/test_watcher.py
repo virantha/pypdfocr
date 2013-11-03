@@ -6,6 +6,7 @@ import evernote.api.client
 import evernote.edam.type.ttypes as Types
 import hashlib
 import time
+import os
 from collections import namedtuple
 
 from mock import patch, call
@@ -14,10 +15,10 @@ class TestWatching:
 
 
     filenames = [   ("test_recipe.pdf", "test_recipe.pdf"),
-                    ("../test_recipe.pdf", "../test_recipe.pdf"),
-                    ("/Volumes/Media/test_recipe.pdf", "/Volumes/Media/test_recipe.pdf"),
-                    ("/Volumes/Media/test recipe.pdf", "/Volumes/Media/test_recipe.pdf"),
-                    ("../V olumes/Media/test recipe.pdf", "../V olumes/Media/test_recipe.pdf"),
+                    (os.path.join("..","test_recipe.pdf"), os.path.join("..","test_recipe.pdf")),
+                    (os.path.join("/", "Volumes","Media", "test_recipe.pdf"), os.path.join("/","Volumes", "Media", "test_recipe.pdf")),
+                    (os.path.join("/", "Volumes", "Media", "test recipe.pdf"), os.path.join("/","Volumes","Media","test_recipe.pdf")),
+                    (os.path.join("..","V olumes","Media", "test recipe.pdf"), os.path.join("..", "V olumes","Media", "test_recipe.pdf")),
                 ]
 
     @patch('shutil.move')
