@@ -2,6 +2,7 @@
 import pypdfocr.pypdfocr as P
 import pytest
 import os
+import logging
 
 from PyPDF2 import PdfFileReader
 import smtplib
@@ -17,24 +18,26 @@ class TestPydfocr:
         self.p = P.PyPDFOCR()
 
     def _iter_pdf(self, filename):
-        reader = PdfFileReader(filename)
-        for pgnum in range(reader.getNumPages()):
-            text = reader.getPage(pgnum).extractText()
-            text = text.encode('ascii', 'ignore')
-            text = text.replace('\n', ' ')
-            yield text
+	with open(filename, 'rb') as f:
+		reader = PdfFileReader(f)
+		logging.debug("pdf scanner found %d pages in %s" % (reader.getNumPages(), filename))
+		for pgnum in range(reader.getNumPages()):
+		    text = reader.getPage(pgnum).extractText()
+		    text = text.encode('ascii', 'ignore')
+		    text = text.replace('\n', ' ')
+		    yield text
     
     pdf_tests = [
-            (".", "temp/target/recipe", "../test/pdfs/test_recipe.pdf", [ ["Spinach Recipe","Drain any excess"],
+            (".", os.path.join("temp","target","recipe"), os.path.join("..","test", "pdfs", "test_recipe.pdf"), [ ["Spinach Recipe","Drain any excess"],
                                  ]),
-        (".", "temp/target/patents", "pdfs/test_patent.pdf", [ 
+        (".", os.path.join("temp","target","patents"), os.path.join("pdfs","test_patent.pdf"), [ 
                            ["ASYNCHRONOUS", "subject to a", "20 Claims"], # Page 1
                            ["FOREIGN PATENT" ], # Page 2
                             ]),
-        (".", "temp/target/default", "pdfs/test_sherlock.pdf", [ ["Bohemia", "Trincomalee"], # Page 1
+        (".", os.path.join("temp","target", "default"), os.path.join("pdfs","test_sherlock.pdf"), [ ["Bohemia", "Trincomalee"], # Page 1
                            ["hundreds of times" ], # Page 2
                            ]),
-        ("pdfs", "temp/target/default", "test_sherlock.pdf", [ ["Bohemia", "Trincomalee"], # Page 1
+        ("pdfs", os.path.join("temp","target","default"), "test_sherlock.pdf", [ ["Bohemia", "Trincomalee"], # Page 1
                            ["hundreds of times" ], # Page 2
                            ]),
         ]
@@ -51,6 +54,14 @@ class TestPydfocr:
             :param expected: List of keywords lists per page.  expected[0][1] is the second keyword to assert on page 1
         """
         # Run a single file conversion
+
+	# First redo the unix-style paths, in case we're running on windows
+	# Assume paths in unix-style
+	dirname = os.path.join(*(dirname.split("/")))
+	tgt_folder = os.path.join(*(tgt_folder.split("/")))
+	filename = os.path.join(*(filename.split("/")))
+
+
         cwd = os.getcwd()
         os.chdir(dirname)
         opts = [filename]
@@ -114,12 +125,13 @@ class TestPydfocr:
         cwd = os.getcwd()
         if os.path.exists("temp"):
             os.chdir("temp")
-            for d in ['target/patents', 'target/recipe']:
+            for d in [os.path.join('target', 'patents'), os.path.join('target','recipe')]:
                 if os.path.exists(d):
                     os.removedirs(d)
             os.chdir(cwd)
 
         os.chdir(dirname)
+	print("Current direcxtory: %s" % os.getcwd())
         #opts = [filename, "--config=test_pypdfocr_config.yaml", "-f"]
         opts = [filename, "--config=%s" % config, "-f"]
         self.p.go(opts)
@@ -141,7 +153,7 @@ class TestPydfocr:
         if not "no_move_original" in config:
             new_file_name = os.path.basename(filename).replace(".pdf", "_2.pdf")
             calls.append(call(filename,
-                                os.path.abspath(os.path.join("temp/original", new_file_name))))
+                                os.path.abspath(os.path.join("temp","original", new_file_name))))
         mock_move.assert_has_calls(calls)
 
     def test_set_binaries(self):
@@ -151,11 +163,11 @@ class TestPydfocr:
         self.p.config["tesseract"] = {"binary":"/usr/bin/tesseract"}
         self.p.config["ghostscript"] = {"binary":"/usr/bin/ghostscript"}
         self.p._setup_external_tools()
-        assert(self.p.ts.binary == "/usr/bin/tesseract")
-        assert(self.p.gs.binary == "/usr/bin/ghostscript")
+        if not os.name == 'nt':
+            assert(self.p.ts.binary == "/usr/bin/tesseract")
+            assert(self.p.gs.binary == "/usr/bin/ghostscript")
+        else:
+            assert(self.p.ts.binary == '"/usr/bin/tesseract"')
+            assert(self.p.gs.binary == '"/usr/bin/ghostscript"')
 
-        os.name = 'nt'
-        self.p.config["tesseract"] = {"binary":"/usr/bin/tesseract"}
-        self.p._setup_external_tools()
-        assert(self.p.ts.binary == '"/usr/bin/tesseract"')
 

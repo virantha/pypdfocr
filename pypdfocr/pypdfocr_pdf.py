@@ -60,7 +60,7 @@ class PyPdf(object):
         if hocr_dir != "":
             os.chdir(hocr_dir)
 
-        with open(pdf_filename, "w") as f:
+        with open(pdf_filename, "wb") as f:
             logging.info("Overlaying hocr and creating final %s" % pdf_filename)
             pdf = Canvas(f, pageCompression=1)
             pdf.setCreator('pyocr')
@@ -92,6 +92,17 @@ class PyPdf(object):
 
             pdf.save()
         logging.info("Created OCR'ed pdf as %s" % (pdf_filename))
+
+	# Now we have to fix up stuff on windows because of reportlab
+	# adding \r\r\n on each line (instead of \r\n)
+	f = open(pdf_filename, "rb")
+	s = str(f.read())
+	f.close()
+	#s = s.replace('\r\r\n', '\r\n')
+	#s = re.sub("\r\r\n", "\r\n", s)
+	#f = open(pdf_filename, "wb")
+	#f.write(s)
+	#f.close()
         os.chdir(cwd)
         return os.path.join(hocr_dir,pdf_filename)
 
