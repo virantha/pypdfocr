@@ -67,9 +67,9 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#auto-email">Auto email</a></li>
+<li><a class="reference internal" href="#fine-tuning-tesseract-ghostscript">Fine-tuning Tesseract/Ghostscript</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#fine-tuning-tesseract-ghostscript">Fine-tuning Tesseract/Ghostscript</a></li>
 <li><a class="reference internal" href="#disclaimer">Disclaimer</a></li>
 <li><a class="reference internal" href="#installation">Installation</a><ul>
 <li><a class="reference internal" href="#using-pip">Using pip</a></li>
@@ -188,6 +188,7 @@
 <div class="section" id="todo-list">
 <h1>Todo list<a class="headerlink" href="#todo-list" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
+<li>Run more robustness tests for watching networked shares</li>
 <li>Add more docstrings</li>
 <li>Add more option specifiers to tesseract and ghostscript</li>
 </ul>
@@ -348,9 +349,8 @@ mail_to_list:
     - "person2@gmail.com"</pre>
 </div>
 </div>
-</div>
 <div class="section" id="fine-tuning-tesseract-ghostscript">
-<h2>Fine-tuning Tesseract/Ghostscript<a class="headerlink" href="#fine-tuning-tesseract-ghostscript" title="Permalink to this headline">¶</a></h2>
+<h3>Fine-tuning Tesseract/Ghostscript<a class="headerlink" href="#fine-tuning-tesseract-ghostscript" title="Permalink to this headline">¶</a></h3>
 <p>At the moment, the only options allowed for Tesseract and Ghostscript
 are specifying their executable locations manually. Use the following in
 your configuration file:</p>
@@ -359,6 +359,7 @@ your configuration file:</p>
 
 ghostscript:
     binary: "/usr/local/bin/gs"</pre>
+</div>
 </div>
 </div>
 <div class="section" id="disclaimer">
@@ -374,13 +375,12 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</p>
 <p>PyPDFOCR is available in PyPI, so you can just run:</p>
 <div class="highlight-python"><pre>pip install pypdfocr</pre>
 </div>
-<p>You will also need to install the external dependencies listed below.
-For those on <strong>Windows</strong>, because it&#8217;s such a pain to get all the PIL
+<p>For those on <strong>Windows</strong>, because it&#8217;s such a pain to get all the PIL
 and PDF dependencies installed, I&#8217;ve gone ahead and made an executable
 called
 <a class="reference external" href="https://github.com/virantha/pypdfocr/blob/master/dist/pypdfocr.exe?raw=true">pypdfocr.exe</a></p>
 <p>You still need to install Tesseract and GhostScript as detailed below in
-the dependencies list.</p>
+the external dependencies list.</p>
 </div>
 <div class="section" id="manual-install">
 <h3>Manual install<a class="headerlink" href="#manual-install" title="Permalink to this headline">¶</a></h3>
@@ -417,6 +417,7 @@ the path:</p>
 <div class="highlight-python"><pre>brew install tesseract
 brew install ghostscript</pre>
 </div>
+<p>On Windows, please use the installers provided on their download pages.</p>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
