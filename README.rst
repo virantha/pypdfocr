@@ -197,13 +197,6 @@ your configuration file:
     ghostscript:
         binary: "/usr/local/bin/gs"
 
-Disclaimer
-----------
-
-While test coverage is at 90% right now, Sphinx docs generation is at an
-early stage. The software is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-
 Installation
 ------------
 
@@ -270,3 +263,14 @@ On Mac OS X, you can install these using homebrew:
     brew install ghostscript
 
 On Windows, please use the installers provided on their download pages.
+
+\*\* Important \*\* Tesseract version 3.02.02 or newer required
+(apparently 3.02.01-6 and possibly others do not work due to a hocr
+output format change that I'm not planning to address).
+
+Disclaimer
+----------
+
+While test coverage is at 90% right now, Sphinx docs generation is at an
+early stage. The software is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
