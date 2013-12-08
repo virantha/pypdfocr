@@ -7,10 +7,6 @@ def build_windows_dist():
         # Call the pyinstaller
         local("python ../pyinstaller/pyinstaller.py pypdfocr_windows.spec --onefile")
 
-def prep_release():
-    # Build the documentation
-    # Convert the README.md to README.rst
-    local("pandoc README.md -f markdown -t rst -o README.rst")
 
 def run_tests():
     test_dir = "test"
@@ -26,6 +22,8 @@ def push_docs():
         And push it to gh-pages
     """
     githubpages = "/Users/virantha/dev/githubdocs/pypdfocr"
+    # Convert markdown readme to rst
+    local("pandoc README.md -f markdown -t rst -o README.rst")
     with lcd(githubpages):
         local("git checkout gh-pages")
         local("git pull origin gh-pages")
