@@ -70,13 +70,13 @@
 <li><a class="reference internal" href="#fine-tuning-tesseract-ghostscript">Fine-tuning Tesseract/Ghostscript</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#disclaimer">Disclaimer</a></li>
 <li><a class="reference internal" href="#installation">Installation</a><ul>
 <li><a class="reference internal" href="#using-pip">Using pip</a></li>
 <li><a class="reference internal" href="#manual-install">Manual install</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#external-dependencies">External Dependencies</a></li>
+<li><a class="reference internal" href="#disclaimer">Disclaimer</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
@@ -362,12 +362,6 @@ ghostscript:
 </div>
 </div>
 </div>
-<div class="section" id="disclaimer">
-<h2>Disclaimer<a class="headerlink" href="#disclaimer" title="Permalink to this headline">¶</a></h2>
-<p>While test coverage is at 90% right now, Sphinx docs generation is at an
-early stage. The software is distributed on an &#8220;AS IS&#8221; BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</p>
-</div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="using-pip">
@@ -418,6 +412,15 @@ the path:</p>
 brew install ghostscript</pre>
 </div>
 <p>On Windows, please use the installers provided on their download pages.</p>
+<p>** Important ** Tesseract version 3.02.02 or newer required
+(apparently 3.02.01-6 and possibly others do not work due to a hocr
+output format change that I&#8217;m not planning to address).</p>
+</div>
+<div class="section" id="disclaimer">
+<h2>Disclaimer<a class="headerlink" href="#disclaimer" title="Permalink to this headline">¶</a></h2>
+<p>While test coverage is at 90% right now, Sphinx docs generation is at an
+early stage. The software is distributed on an &#8220;AS IS&#8221; BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</p>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
