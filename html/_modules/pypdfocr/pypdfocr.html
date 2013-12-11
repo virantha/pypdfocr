@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr &mdash; pypdfocr 0.5.1 documentation</title>
+    <title>pypdfocr.pypdfocr &mdash; pypdfocr 0.5.2 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.5.1',
+        VERSION:     '0.5.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.5.1 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.5.2 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.5.1 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.5.2 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -316,6 +316,8 @@
             <span class="k">for</span> <span class="n">folder</span><span class="p">,</span> <span class="n">keywords</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;folders&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">folder_count</span> <span class="o">+=</span><span class="mi">1</span>
                 <span class="n">keyword_count</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span>
+                <span class="c"># Make sure keywords are lower-cased before adding</span>
+                <span class="n">keywords</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">keywords</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">filer</span><span class="o">.</span><span class="n">add_folder_target</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">keywords</span><span class="p">)</span>
 
         <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Filing of PDFs is enabled&quot;</span><span class="p">)</span>
@@ -480,7 +482,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.5.1 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.5.2 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
