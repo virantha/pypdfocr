@@ -41,6 +41,7 @@ from reportlab.pdfgen.canvas import Canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from xml.etree.ElementTree import ElementTree, ParseError
+import xml.etree
 
 class PyPdf(object):
     """Class to create pdfs from images"""
@@ -112,6 +113,7 @@ class PyPdf(object):
       p2 = re.compile('baseline((\s+[\d\.\-]+){2})')
       hocr = ElementTree()
       hocr.parse(hocrfile)
+      logging.debug(xml.etree.ElementTree.tostring(hocr.getroot()))
       for c in hocr.getroot():  # Find the <body> tag
           if c.tag != 'body':
               continue
@@ -122,6 +124,7 @@ class PyPdf(object):
               break
 
       for line in page.findall(".//{http://www.w3.org/1999/xhtml}span"):
+      #for line in page.findall(".//span"):
         if line.attrib['class'] != 'ocr_line':
           continue
         linebox = p1.search(line.attrib['title']).group(1).split()
@@ -137,13 +140,16 @@ class PyPdf(object):
         for word in line:
           if word.attrib['class'] != 'ocrx_word':
             continue
-          for child in word:
-             if child.tag:
-                 word.text = child.text
-             #if 'strong' in child.tag:
-                #word.text = child.text
-             ##elif 'em' in child.tag:
-             #    word.text = child.text
+          word_text = []
+          for child in word.iter():
+              if child.text:
+                  word_text.append(child.text)
+          word.text = ' '.join(word_text)
+          logging.debug(word.text)
+          #for child in word:
+             #if child.tag:
+                 #word.text = child.text
+
           if word.text is None:
             continue
           font_width = pdf.stringWidth(word.text.strip(), 'invisible', 8)
