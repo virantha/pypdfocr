@@ -183,7 +183,7 @@ file and then use the ``-m`` option when invoking ``pypdfocr``:
         - "person2@gmail.com"
 
 Fine-tuning Tesseract/Ghostscript
----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 At the moment, the only options allowed for Tesseract and Ghostscript
 are specifying their executable locations manually. Use the following in
@@ -197,13 +197,6 @@ your configuration file:
     ghostscript:
         binary: "/usr/local/bin/gs"
 
-Disclaimer
-----------
-
-While test coverage is at 90% right now, Sphinx docs generation is at an
-early stage. The software is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-
 Installation
 ------------
 
@@ -216,14 +209,13 @@ PyPDFOCR is available in PyPI, so you can just run:
 
     pip install pypdfocr
 
-You will also need to install the external dependencies listed below.
 For those on **Windows**, because it's such a pain to get all the PIL
 and PDF dependencies installed, I've gone ahead and made an executable
 called
 `pypdfocr.exe <https://github.com/virantha/pypdfocr/blob/master/dist/pypdfocr.exe?raw=true>`__
 
 You still need to install Tesseract and GhostScript as detailed below in
-the dependencies list.
+the external dependencies list.
 
 Manual install
 ~~~~~~~~~~~~~~
@@ -270,3 +262,15 @@ On Mac OS X, you can install these using homebrew:
     brew install tesseract
     brew install ghostscript
 
+On Windows, please use the installers provided on their download pages.
+
+\*\* Important \*\* Tesseract version 3.02.02 or newer required
+(apparently 3.02.01-6 and possibly others do not work due to a hocr
+output format change that I'm not planning to address).
+
+Disclaimer
+----------
+
+While test coverage is at 90% right now, Sphinx docs generation is at an
+early stage. The software is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
