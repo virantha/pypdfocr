@@ -129,7 +129,7 @@ class PyFilerEvernote(PyFiler):
         logging.debug("Authenticating using token %s" % dev_token)
         user = None
         try:
-            self.client = EvernoteClient(token=dev_token)
+            self.client = EvernoteClient(token=dev_token, sandbox=False)
             self.user_store = self.client.get_user_store()
             user = self.user_store.getUser()
         except EDAMUserException as e:
