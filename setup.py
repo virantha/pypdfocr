@@ -19,6 +19,9 @@ packages = find_packages(exclude="tests")
 
 long_description = read('README.rst', 'CHANGES.rst', 'TODO.rst')
 
+with open("requirements.txt") as f:
+    required = f.read().splitlines()
+
 setup (
     name = "pypdfocr",
     version = __version__,
@@ -31,13 +34,7 @@ setup (
     zip_safe = True,
     include_package_data = True,
     packages = packages,
-    install_requires = [ 
-        'pil>=1.1.7', 
-        'reportlab>=2.7', 
-        "watchdog>=0.6.0",
-        "pypdf2",
-        "evernote",
-        ],
+    install_requires = required,
     entry_points = {
             'console_scripts': [
                     'pypdfocr = pypdfocr.pypdfocr:main'
