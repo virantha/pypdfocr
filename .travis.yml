@@ -4,5 +4,6 @@ python:
 install: 
     - "pip install -r requirements.txt --use-mirrors"
     - "pip install pytest mock --use-mirrors"
+    - "pip install ."
 script: 
     - "python setup.py test"
