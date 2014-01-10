@@ -11,6 +11,8 @@ def build_windows_dist():
 def run_tests():
     test_dir = "test"
     with lcd(test_dir):
+        # Regenerate the test script
+        local("py.test --genscript=runtests.py")
         t = local("py.test --cov-config .coveragerc --cov=pypdfocr --cov-report=term --cov-report=html", capture=False)
 
         #with open("test/COVERAGE.rst", "w") as f:
