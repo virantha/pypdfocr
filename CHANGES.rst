@@ -2,6 +2,7 @@
 Version  Date       Changes
 -------  --------   ------
 
+v0.5.4   1/12/13    Fixed bug with reordering of text pages on certain platforms(glob)
 v0.5.3   12/12/13   Fix to evernote server specification
 v0.5.2   12/08/13   Fix to lowercase keywords
 v0.5.1   11/02/13   Fixed a bunch of windows critical path handling issues
