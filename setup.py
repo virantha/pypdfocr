@@ -4,7 +4,22 @@ from setuptools import setup, find_packages
 import pypdfocr
 import io
 from pypdfocr.version import __version__
+from setuptools import Command
+import os
 
+class PyTest(Command):
+    user_options = []
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+    def run(self):
+        import sys,subprocess
+        cwd = os.getcwd()
+        os.chdir('test')
+        errno = subprocess.call([sys.executable, 'runtests.py'])
+        os.chdir(cwd)
+        raise SystemExit(errno)
 
 def read(*filenames, **kwargs):
     encoding = kwargs.get('encoding', 'utf-8')
@@ -19,6 +34,9 @@ packages = find_packages(exclude="tests")
 
 long_description = read('README.rst', 'CHANGES.rst', 'TODO.rst')
 
+with open("requirements.txt") as f:
+    required = f.read().splitlines()
+
 setup (
     name = "pypdfocr",
     version = __version__,
@@ -31,13 +49,7 @@ setup (
     zip_safe = True,
     include_package_data = True,
     packages = packages,
-    install_requires = [ 
-        'pil>=1.1.7', 
-        'reportlab>=2.7', 
-        "watchdog>=0.6.0",
-        "pypdf2",
-        "evernote",
-        ],
+    install_requires = required,
     entry_points = {
             'console_scripts': [
                     'pypdfocr = pypdfocr.pypdfocr:main'
@@ -45,6 +57,7 @@ setup (
         },
     options = {
 	    "pyinstaller": {"packages": packages}
-	    }
+	    },
+    cmdclass = {'test':PyTest}
 
 )

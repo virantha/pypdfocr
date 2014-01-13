@@ -71,7 +71,12 @@ class PyPdf(object):
             pdf.setPageCompression(1)
             logging.info("Searching for %s" % ("%s*.jpg" % basename))
 
-            for jpg_file in glob.glob("%s*.jpg" % basename):
+            # Find all the jpg files, and sort them by page number
+            jpg_files = glob.glob("%s*.jpg" % basename)
+            jpg_files.sort(key=self.natural_keys)
+
+            for jpg_file in jpg_files:
+            #for jpg_file in glob.glob("%s*.jpg" % basename):
 
                 jpg = Image.open(jpg_file)
                 w,h = jpg.size
@@ -106,6 +111,17 @@ class PyPdf(object):
 	#f.close()
         os.chdir(cwd)
         return os.path.join(hocr_dir,pdf_filename)
+
+    def _atoi(self,text):
+        return int(text) if text.isdigit() else text
+
+    def natural_keys(self, text):
+        '''
+        alist.sort(key=natural_keys) sorts in human order
+        http://nedbatchelder.com/blog/200712/human_sorting.html
+        (See Toothy's implementation in the comments)
+        '''
+        return [ self._atoi(c) for c in re.split('(\d+)', text) ]
 
     def add_text_layer(self,pdf, hocrfile, page_num,height, dpi):
       """Draw an invisible text layer for OCR data"""
