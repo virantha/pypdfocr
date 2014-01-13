@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.5.3 documentation</title>
+    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.5.4 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.5.3',
+        VERSION:     '0.5.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.5.3 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.5.4 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.5.3 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.5.4 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -137,7 +137,12 @@
             <span class="n">pdf</span><span class="o">.</span><span class="n">setPageCompression</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Searching for </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">*.jpg&quot;</span> <span class="o">%</span> <span class="n">basename</span><span class="p">))</span>
 
-            <span class="k">for</span> <span class="n">jpg_file</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">*.jpg&quot;</span> <span class="o">%</span> <span class="n">basename</span><span class="p">):</span>
+            <span class="c"># Find all the jpg files, and sort them by page number</span>
+            <span class="n">jpg_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">*.jpg&quot;</span> <span class="o">%</span> <span class="n">basename</span><span class="p">)</span>
+            <span class="n">jpg_files</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">natural_keys</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">jpg_file</span> <span class="ow">in</span> <span class="n">jpg_files</span><span class="p">:</span>
+            <span class="c">#for jpg_file in glob.glob(&quot;%s*.jpg&quot; % basename):</span>
 
                 <span class="n">jpg</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">jpg_file</span><span class="p">)</span>
                 <span class="n">w</span><span class="p">,</span><span class="n">h</span> <span class="o">=</span> <span class="n">jpg</span><span class="o">.</span><span class="n">size</span>
@@ -172,6 +177,17 @@
 	<span class="c">#f.close()</span>
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hocr_dir</span><span class="p">,</span><span class="n">pdf_filename</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PyPdf._atoi"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf._atoi">[docs]</a>    <span class="k">def</span> <span class="nf">_atoi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">text</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">text</span>
+</div>
+<div class="viewcode-block" id="PyPdf.natural_keys"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.natural_keys">[docs]</a>    <span class="k">def</span> <span class="nf">natural_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        alist.sort(key=natural_keys) sorts in human order</span>
+<span class="sd">        http://nedbatchelder.com/blog/200712/human_sorting.html</span>
+<span class="sd">        (See Toothy&#39;s implementation in the comments)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoi</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;(\d+)&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span> <span class="p">]</span>
 </div>
 <div class="viewcode-block" id="PyPdf.add_text_layer"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.add_text_layer">[docs]</a>    <span class="k">def</span> <span class="nf">add_text_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">pdf</span><span class="p">,</span> <span class="n">hocrfile</span><span class="p">,</span> <span class="n">page_num</span><span class="p">,</span><span class="n">height</span><span class="p">,</span> <span class="n">dpi</span><span class="p">):</span>
       <span class="sd">&quot;&quot;&quot;Draw an invisible text layer for OCR data&quot;&quot;&quot;</span>
@@ -281,7 +297,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.5.3 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.5.4 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
