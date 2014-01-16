@@ -1,6 +1,8 @@
 PyPDFOCR - Tesseract-OCR based PDF filing
 =========================================
 
+|image0| |image1| |Coverage Status|
+
 This program will help manage your scanned PDFs by doing the following:
 
 -  Take a scanned PDF file and run OCR on it (using the Tesseract OCR
@@ -274,3 +276,9 @@ Disclaimer
 While test coverage is at 90% right now, Sphinx docs generation is at an
 early stage. The software is distributed on an "AS IS" BASIS, WITHOUT
 WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+.. |image0| image:: https://badge.fury.io/py/pypdfocr.png
+   :target: https://pypi.python.org/pypi/pypdfocr
+.. |image1| image:: https://pypip.in/d/pypdfocr/badge.png
+.. |Coverage Status| image:: https://coveralls.io/repos/virantha/pypdfocr/badge.png?branch=develop
+   :target: https://coveralls.io/r/virantha/pypdfocr

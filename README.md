@@ -1,4 +1,8 @@
 # PyPDFOCR - Tesseract-OCR based PDF filing
+[![](https://badge.fury.io/py/pypdfocr.png)](https://pypi.python.org/pypi/pypdfocr)
+![](https://pypip.in/d/pypdfocr/badge.png)
+[![Coverage Status](https://coveralls.io/repos/virantha/pypdfocr/badge.png?branch=develop)](https://coveralls.io/r/virantha/pypdfocr)
+
 This program will help manage your scanned PDFs by doing the following:
 
 - Take a scanned PDF file and run OCR on it (using the Tesseract OCR software from Google), generating a searchable PDF
