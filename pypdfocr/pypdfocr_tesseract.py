@@ -73,6 +73,11 @@ class PyTesseract(object):
         ver = [int(x) for x in ver_str.split('.')]
         req = [int(x) for x in self.required.split('.')]
 
+        # Aargh, in windows 3.02.02 is reported as version 3.02  
+        # SFKM
+        if str(os.name) == 'nt':
+            req = req[:2]
+
         version_good = False
         for i,num in enumerate(req):
             if len(ver) < i+1:
