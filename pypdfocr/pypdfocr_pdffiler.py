@@ -33,6 +33,10 @@ class PyPdfFiler(object):
         assert isinstance(filer, PyFiler)
         self.filer = filer  # Must be a subclass of PyFiler
 
+        # Whether to fall back on filename for matching keywords against
+        # if there is no match in the text
+        self.file_using_filename = False 
+
     def iter_pdf_page_text(self, filename):
         self.filename = filename
         reader = PdfFileReader(filename)
@@ -61,6 +65,9 @@ class PyPdfFiler(object):
         for page_text in self.iter_pdf_page_text(filename):
             tgt_folder = self._get_matching_folder(page_text)
             if tgt_folder: break  # Stop searching through pdf pages as soon as we find a match
+
+        if not tgt_folder and self.file_using_filename:
+            tgt_folder = self._get_matching_folder(filename)
 
         tgt_file = self.filer.move_to_matching_folder(filename, tgt_folder)
         return tgt_file

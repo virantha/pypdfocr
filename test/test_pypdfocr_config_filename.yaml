@@ -1,0 +1,14 @@
+target_folder: "temp/target"
+default_folder: "temp/target/default"
+
+mail_smtp_server: "smtp.gmail.com:587"
+mail_smtp_login: "someone@gmail.com"
+mail_smtp_password: "blah"
+mail_from_addr: "someone#gmail.com"
+mail_to_list: 
+    - "someone@gmail.com"
+
+folders:
+    recipe:
+        - super_long_keyword
+
