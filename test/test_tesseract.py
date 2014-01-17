@@ -9,6 +9,7 @@ from mock import patch, call
 
 class TestTesseract:
 
+    @pytest.mark.skipif(os.name=='nt', reason='Does not work on Windows')
     def test_version_shorter_older(self):
         with patch("subprocess.check_output") as mock_subprocess:
             p = P.PyTesseract()
@@ -33,6 +34,7 @@ class TestTesseract:
             uptodate,ver = p._is_version_uptodate()
             assert (not uptodate)
 
+    @pytest.mark.skipif(os.name=='nt', reason='Does not work on Windows')
     def test_version_major_equal(self):
         with patch("subprocess.check_output") as mock_subprocess:
             p = P.PyTesseract()
