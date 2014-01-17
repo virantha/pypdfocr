@@ -88,7 +88,7 @@
 <span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
-
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">CalledProcessError</span>
 <div class="viewcode-block" id="error"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_tesseract.error">[docs]</a><span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="k">print</span><span class="p">(</span><span class="s">&quot;ERROR: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">text</span><span class="p">)</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
@@ -96,21 +96,90 @@
 <div class="viewcode-block" id="PyTesseract"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_tesseract.PyTesseract">[docs]</a><span class="k">class</span> <span class="nc">PyTesseract</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class to wrap all the tesseract calls&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># Detect windows tesseract location</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">           Detect windows tesseract location.  The main script overrides self.binary</span>
+<span class="sd">           if it is set in the config file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="s">&quot;3.02.02&quot;</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
+            <span class="c"># Explicit str here to get around some MagicMock stuff for testing that I don&#39;t quite understand</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">binary</span> <span class="o">=</span> <span class="s">&#39;&quot;c:</span><span class="se">\\</span><span class="s">Program Files (x86)</span><span class="se">\\</span><span class="s">Tesseract-OCR</span><span class="se">\\</span><span class="s">tesseract.exe&quot;&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">binary</span> <span class="o">=</span> <span class="s">&quot;tesseract&quot;</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">msgs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;TS_MISSING&#39;</span><span class="p">:</span> <span class="s">&quot;&quot;&quot; </span>
+<span class="s">                Could not execute </span><span class="si">%s</span><span class="s"></span>
+<span class="s">                Please make sure you have Tesseract installed correctly</span>
+<span class="s">                &quot;&quot;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">binary</span><span class="p">,</span>
+            <span class="s">&#39;TS_VERSION&#39;</span><span class="p">:</span><span class="s">&#39;Tesseract version is too old&#39;</span><span class="p">,</span>
+            <span class="s">&#39;TS_TIFF_MISSING&#39;</span><span class="p">:</span><span class="s">&#39;Cannot find specified tiff file&#39;</span><span class="p">,</span>
+            <span class="s">&#39;TS_FAILED&#39;</span><span class="p">:</span> <span class="s">&#39;Tesseract-OCR execution failed!&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="PyTesseract._is_version_uptodate"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_tesseract.PyTesseract._is_version_uptodate">[docs]</a>    <span class="k">def</span> <span class="nf">_is_version_uptodate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Make sure the version is current </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Checking tesseract version&quot;</span><span class="p">)</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> -v&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binary</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ret_output</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>  <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">CalledProcessError</span><span class="p">:</span>
+            <span class="c"># Could not run tesseract</span>
+            <span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;TS_MISSING&#39;</span><span class="p">])</span>
+
+        <span class="n">ver_str</span> <span class="o">=</span> <span class="s">&#39;0.0.0&#39;</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ret_output</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s">&#39;tesseract&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">ver_str</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c"># Iterate through the version dots</span>
+        <span class="n">ver</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ver_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)]</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)]</span>
+
+        <span class="c"># Aargh, in windows 3.02.02 is reported as version 3.02  </span>
+        <span class="c"># SFKM</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
+            <span class="n">req</span> <span class="o">=</span> <span class="n">req</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">version_good</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">num</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">req</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ver</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+                <span class="c"># This minor version number is not present in tesseract, so it must be</span>
+                <span class="c"># lower than required.  (3.02 &lt; 3.02.01)</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">ver</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="n">num</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ver</span><span class="p">)</span> <span class="o">==</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ver</span><span class="p">)</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">req</span><span class="p">):</span>
+                <span class="c"># 3.02.02 == 3.02.02</span>
+                <span class="n">version_good</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">ver</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="n">num</span><span class="p">:</span>
+                <span class="c"># 4.0 &gt; 3.02.02</span>
+                <span class="c"># 3.03.02 &gt; 3.02.02</span>
+                <span class="n">version_good</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">ver</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&lt;</span><span class="n">num</span><span class="p">:</span>
+                <span class="c"># 3.01.02 &lt; 3.02.02</span>
+                <span class="k">break</span>
+            
+        <span class="k">return</span> <span class="n">version_good</span><span class="p">,</span> <span class="n">ver_str</span>
+
+
+</div>
 <div class="viewcode-block" id="PyTesseract.make_hocr_from_tiff"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_tesseract.PyTesseract.make_hocr_from_tiff">[docs]</a>    <span class="k">def</span> <span class="nf">make_hocr_from_tiff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tiff_filename</span><span class="p">):</span>
+        <span class="n">uptodate</span><span class="p">,</span><span class="n">ver</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">_is_version_uptodate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">uptodate</span><span class="p">:</span>
+            <span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;TS_VERSION&#39;</span><span class="p">]</span><span class="o">+</span> <span class="s">&quot; (found </span><span class="si">%s</span><span class="s">, required </span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ver</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span><span class="p">))</span>
+
         <span class="n">basename</span><span class="p">,</span><span class="n">filext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">tiff_filename</span><span class="p">)</span>
         <span class="n">hocr_filename</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.html&quot;</span> <span class="o">%</span> <span class="n">basename</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tiff_filename</span><span class="p">):</span>
-            <span class="n">error</span><span class="p">(</span><span class="s">&quot;Cannot find specified tiff file </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tiff_filename</span><span class="p">))</span>
+            <span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;TS_TIFF_MISSING&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot; </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tiff_filename</span><span class="p">))</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Running OCR on </span><span class="si">%s</span><span class="s"> to create </span><span class="si">%s</span><span class="s">.html&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tiff_filename</span><span class="p">,</span> <span class="n">basename</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
             <span class="n">cmd</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> &quot;</span><span class="si">%s</span><span class="s">&quot; &quot;</span><span class="si">%s</span><span class="s">&quot; hocr&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binary</span><span class="p">,</span> <span class="n">tiff_filename</span><span class="p">,</span> <span class="n">basename</span><span class="p">)</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>        
             <span class="n">ret</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
@@ -120,7 +189,7 @@
             <span class="n">ret</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
                 
         <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">error</span> <span class="p">(</span><span class="s">&quot;tesseract execution failed!&quot;</span><span class="p">)</span>
+            <span class="n">error</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;TS_FAILED&#39;</span><span class="p">])</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Created </span><span class="si">%s</span><span class="s">.html&quot;</span> <span class="o">%</span> <span class="n">basename</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">hocr_filename</span>

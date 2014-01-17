@@ -98,6 +98,10 @@
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filer</span><span class="p">,</span> <span class="n">PyFiler</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filer</span> <span class="o">=</span> <span class="n">filer</span>  <span class="c"># Must be a subclass of PyFiler</span>
 
+        <span class="c"># Whether to fall back on filename for matching keywords against</span>
+        <span class="c"># if there is no match in the text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_using_filename</span> <span class="o">=</span> <span class="bp">False</span> 
+
     <span class="k">def</span> <span class="nf">iter_pdf_page_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
 <div class="viewcode-block" id="PyPdfFiler.iter_pdf_page_text"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdffiler.PyPdfFiler.iter_pdf_page_text">[docs]</a>        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
         <span class="n">reader</span> <span class="o">=</span> <span class="n">PdfFileReader</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
@@ -126,6 +130,9 @@
 <div class="viewcode-block" id="PyPdfFiler.move_to_matching_folder"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdffiler.PyPdfFiler.move_to_matching_folder">[docs]</a>        <span class="k">for</span> <span class="n">page_text</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_pdf_page_text</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
             <span class="n">tgt_folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_matching_folder</span><span class="p">(</span><span class="n">page_text</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">tgt_folder</span><span class="p">:</span> <span class="k">break</span>  <span class="c"># Stop searching through pdf pages as soon as we find a match</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tgt_folder</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_using_filename</span><span class="p">:</span>
+            <span class="n">tgt_folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_matching_folder</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
         <span class="n">tgt_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filer</span><span class="o">.</span><span class="n">move_to_matching_folder</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">tgt_folder</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tgt_file</span>

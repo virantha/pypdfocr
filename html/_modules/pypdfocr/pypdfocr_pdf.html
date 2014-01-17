@@ -138,11 +138,16 @@
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Searching for </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">*.jpg&quot;</span> <span class="o">%</span> <span class="n">basename</span><span class="p">))</span>
 
             <span class="c"># Find all the jpg files, and sort them by page number</span>
-            <span class="n">jpg_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">*.jpg&quot;</span> <span class="o">%</span> <span class="n">basename</span><span class="p">)</span>
+            <span class="n">jpg_files</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c"># Make the jpg search a little bit more robust</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">r&quot;^</span><span class="si">%s</span><span class="s">\d+\.jpg$&quot;</span> <span class="o">%</span> <span class="n">basename</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+                    <span class="n">jpg_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="c">#jpg_files = glob.glob(&quot;%s*.jpg&quot; % basename)</span>
             <span class="n">jpg_files</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">natural_keys</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">jpg_file</span> <span class="ow">in</span> <span class="n">jpg_files</span><span class="p">:</span>
-            <span class="c">#for jpg_file in glob.glob(&quot;%s*.jpg&quot; % basename):</span>
 
                 <span class="n">jpg</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">jpg_file</span><span class="p">)</span>
                 <span class="n">w</span><span class="p">,</span><span class="n">h</span> <span class="o">=</span> <span class="n">jpg</span><span class="o">.</span><span class="n">size</span>

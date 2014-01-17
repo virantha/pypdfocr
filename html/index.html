@@ -56,7 +56,8 @@
 <li><a class="reference internal" href="#usage">Usage:</a><ul>
 <li><a class="reference internal" href="#single-conversion">Single conversion:</a></li>
 <li><a class="reference internal" href="#folder-monitoring">Folder monitoring:</a></li>
-<li><a class="reference internal" href="#automatic-filing">Automatic filing:</a><ul>
+<li><a class="reference internal" href="#automatic-filing">Automatic filing:</a></li>
+<li><a class="reference internal" href="#filing-based-on-filename-match">Filing based on filename match:</a><ul>
 <li><a class="reference internal" href="#configuration-file-for-automatic-pdf-filing">Configuration file for automatic PDF filing</a></li>
 </ul>
 </li>
@@ -146,51 +147,55 @@
 <td>Date</td>
 <td>Changes</td>
 </tr>
-<tr class="row-even"><td>v0.5.4</td>
+<tr class="row-even"><td>v0.6.0</td>
+<td>1/16/13</td>
+<td>Added filing based on filename match as fallback, added tesseract version check</td>
+</tr>
+<tr class="row-odd"><td>v0.5.4</td>
 <td>1/12/13</td>
 <td>Fixed bug with reordering of text pages on certain platforms(glob)</td>
 </tr>
-<tr class="row-odd"><td>v0.5.3</td>
+<tr class="row-even"><td>v0.5.3</td>
 <td>12/12/13</td>
 <td>Fix to evernote server specification</td>
 </tr>
-<tr class="row-even"><td>v0.5.2</td>
+<tr class="row-odd"><td>v0.5.2</td>
 <td>12/08/13</td>
 <td>Fix to lowercase keywords</td>
 </tr>
-<tr class="row-odd"><td>v0.5.1</td>
+<tr class="row-even"><td>v0.5.1</td>
 <td>11/02/13</td>
 <td>Fixed a bunch of windows critical path handling issues</td>
 </tr>
-<tr class="row-even"><td>v0.5.0</td>
+<tr class="row-odd"><td>v0.5.0</td>
 <td>10/30/13</td>
 <td>Email status added, 90% test coverage</td>
 </tr>
-<tr class="row-odd"><td>v0.4.1</td>
+<tr class="row-even"><td>v0.4.1</td>
 <td>10/28/13</td>
 <td>Made HOCR parsing more robust</td>
 </tr>
-<tr class="row-even"><td>v0.4.0</td>
+<tr class="row-odd"><td>v0.4.0</td>
 <td>10/28/13</td>
 <td>Added early Evernote upload support</td>
 </tr>
-<tr class="row-odd"><td>v0.3.1</td>
+<tr class="row-even"><td>v0.3.1</td>
 <td>10/24/13</td>
 <td>Path fix on windows</td>
 </tr>
-<tr class="row-even"><td>v0.3.0</td>
+<tr class="row-odd"><td>v0.3.0</td>
 <td>10/23/13</td>
 <td>Added filing of converted pdfs using a configuration file to specify target directories based on keyword matches in the pdf text</td>
 </tr>
-<tr class="row-odd"><td>v0.2.2</td>
+<tr class="row-even"><td>v0.2.2</td>
 <td>10/22/13</td>
 <td>Added a console script to put the pypdfocr script into your bin</td>
 </tr>
-<tr class="row-even"><td>v0.2.1</td>
+<tr class="row-odd"><td>v0.2.1</td>
 <td>10/22/13</td>
 <td>Fix to initial packaging problem.</td>
 </tr>
-<tr class="row-odd"><td>v0.2.0</td>
+<tr class="row-even"><td>v0.2.0</td>
 <td>10/21/13</td>
 <td>Initial release.</td>
 </tr>
@@ -200,6 +205,9 @@
 <div class="section" id="todo-list">
 <h1>Todo list<a class="headerlink" href="#todo-list" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
+<li>Add check for tesseract version</li>
+<li>Fix options for looking for ghostscript and tesseract</li>
+<li>Make tesseract run multiprocess</li>
 <li>Run more robustness tests for watching networked shares</li>
 <li>Add more docstrings</li>
 <li>Add more option specifiers to tesseract and ghostscript</li>
@@ -257,6 +265,19 @@ use the -f option and specify a configuration file (described below):</p>
 </div>
 <p>You can also do this in folder monitoring mode:</p>
 <div class="highlight-python"><pre>pypdfocr -w watch_directory -f -c config.yaml</pre>
+</div>
+</div>
+<div class="section" id="filing-based-on-filename-match">
+<h3>Filing based on filename match:<a class="headerlink" href="#filing-based-on-filename-match" title="Permalink to this headline">¶</a></h3>
+<p>If no keywords match the contents of the filename, you can optionally
+allow it to fallback to trying to find keyword matches with the PDF
+filename using the -n option. For example, you may have receipts always
+named as <tt class="docutils literal"><span class="pre">receipt_2013_12_2.pdf</span></tt> by your scanner, and you want to move
+this to a folder called &#8216;receipts&#8217;. Assuming you have a keyword
+<tt class="docutils literal"><span class="pre">receipt</span></tt> matching to folder <tt class="docutils literal"><span class="pre">receipts</span></tt> in your configuration file
+as described below, you can run the following and have this filed even
+if the content of the pdf does not contain the text &#8216;receipt&#8217;:</p>
+<div class="highlight-python"><pre>pypdfocr filename.pdf -f -c config.yaml -n</pre>
 </div>
 <div class="section" id="configuration-file-for-automatic-pdf-filing">
 <h4>Configuration file for automatic PDF filing<a class="headerlink" href="#configuration-file-for-automatic-pdf-filing" title="Permalink to this headline">¶</a></h4>

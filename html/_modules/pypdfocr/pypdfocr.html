@@ -199,6 +199,8 @@
              <span class="n">dest</span><span class="o">=</span><span class="s">&#39;configfile&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Configuration file for defaults and PDF filing&#39;</span><span class="p">)</span>
         <span class="n">filing_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-e&#39;</span><span class="p">,</span> <span class="s">&#39;--evernote&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;enable_evernote&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Enable filing to Evernote&#39;</span><span class="p">)</span>
+        <span class="n">filing_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-n&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;match_using_filename&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Use filename to match if contents did not match anything, before filing to default folder&#39;</span><span class="p">)</span>
 
 
         <span class="n">args</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
@@ -208,6 +210,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pdf_filename</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">pdf_filename</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">watch_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">watch_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">enable_email</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">mail</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">match_using_filename</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">match_using_filename</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">)</span>
@@ -305,6 +308,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">filer</span><span class="o">.</span><span class="n">original_move_folder</span> <span class="o">=</span> <span class="n">original_move_folder</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">pdf_filer</span> <span class="o">=</span> <span class="n">PyPdfFiler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filer</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_using_filename</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Matching using filename as a fallback to pdf contents&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pdf_filer</span><span class="o">.</span><span class="n">file_using_filename</span> <span class="o">=</span> <span class="bp">True</span>
 
         <span class="c"># ------------------------------</span>
         <span class="c"># Add all the folder names with associated keywords</span>
@@ -460,7 +466,7 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_email</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_send_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">filing</span><span class="p">)</span>
 </div></div>
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span> <span class="c"># pragma: no cover </span>
     <span class="n">script</span> <span class="o">=</span> <span class="n">PyPDFOCR</span><span class="p">()</span>
     <span class="n">script</span><span class="o">.</span><span class="n">go</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
 </div>
