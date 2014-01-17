@@ -60,6 +60,22 @@ You can also do this in folder monitoring mode:
 
     pypdfocr -w watch_directory -f -c config.yaml
 
+Filing based on filename match:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If no keywords match the contents of the filename, you can optionally
+allow it to fallback to trying to find keyword matches with the PDF
+filename using the -n option. For example, you may have receipts always
+named as ``receipt_2013_12_2.pdf`` by your scanner, and you want to move
+this to a folder called 'receipts'. Assuming you have a keyword
+``receipt`` matching to folder ``receipts`` in your configuration file
+as described below, you can run the following and have this filed even
+if the content of the pdf does not contain the text 'receipt':
+
+::
+
+    pypdfocr filename.pdf -f -c config.yaml -n
+
 Configuration file for automatic PDF filing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
