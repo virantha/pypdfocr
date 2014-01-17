@@ -133,6 +133,8 @@ class PyPDFOCR(object):
              dest='configfile', help='Configuration file for defaults and PDF filing')
         filing_group.add_argument('-e', '--evernote', action='store_true',
             default=False, dest='enable_evernote', help='Enable filing to Evernote')
+        filing_group.add_argument('-n', action='store_true',
+            default=False, dest='match_using_filename', help='Use filename to match if contents did not match anything, before filing to default folder')
 
 
         args = p.parse_args(argv)
@@ -142,6 +144,7 @@ class PyPDFOCR(object):
         self.pdf_filename = args.pdf_filename
         self.watch_dir = args.watch_dir
         self.enable_email = args.mail
+        self.match_using_filename = args.match_using_filename
 
         if self.debug:
             logging.basicConfig(level=logging.DEBUG, format='%(message)s')
@@ -239,6 +242,9 @@ class PyPDFOCR(object):
         self.filer.original_move_folder = original_move_folder
 
         self.pdf_filer = PyPdfFiler(self.filer)
+        if self.match_using_filename:
+            print("Matching using filename as a fallback to pdf contents")
+            self.pdf_filer.file_using_filename = True
 
         # ------------------------------
         # Add all the folder names with associated keywords
@@ -394,7 +400,7 @@ class PyPDFOCR(object):
             if self.enable_email:
                 self._send_email(self.pdf_filename, ocr_pdffilename, filing)
 
-def main():
+def main(): # pragma: no cover 
     script = PyPDFOCR()
     script.go(sys.argv[1:])
 

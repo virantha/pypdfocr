@@ -14,6 +14,7 @@ def run_tests():
         # Regenerate the test script
         local("py.test --genscript=runtests.py")
         t = local("py.test --cov-config .coveragerc --cov=pypdfocr --cov-report=term --cov-report=html", capture=False)
+        t = local("coveralls")
 
         #with open("test/COVERAGE.rst", "w") as f:
             #f.write(t)

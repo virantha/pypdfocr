@@ -72,11 +72,16 @@ class PyPdf(object):
             logging.info("Searching for %s" % ("%s*.jpg" % basename))
 
             # Find all the jpg files, and sort them by page number
-            jpg_files = glob.glob("%s*.jpg" % basename)
+            jpg_files = []
+
+            # Make the jpg search a little bit more robust
+            for f in os.listdir("."):
+                if re.match(r"^%s\d+\.jpg$" % basename, f):
+                    jpg_files.append(f)
+            #jpg_files = glob.glob("%s*.jpg" % basename)
             jpg_files.sort(key=self.natural_keys)
 
             for jpg_file in jpg_files:
-            #for jpg_file in glob.glob("%s*.jpg" % basename):
 
                 jpg = Image.open(jpg_file)
                 w,h = jpg.size

@@ -1,4 +1,8 @@
 # PyPDFOCR - Tesseract-OCR based PDF filing
+[![](https://badge.fury.io/py/pypdfocr.png)](https://pypi.python.org/pypi/pypdfocr)
+![](https://pypip.in/d/pypdfocr/badge.png)
+[![Coverage Status](https://coveralls.io/repos/virantha/pypdfocr/badge.png?branch=develop)](https://coveralls.io/r/virantha/pypdfocr)
+
 This program will help manage your scanned PDFs by doing the following:
 
 - Take a scanned PDF file and run OCR on it (using the Tesseract OCR software from Google), generating a searchable PDF
@@ -35,6 +39,16 @@ and specify a configuration file (described below):
 You can also do this in folder monitoring mode:
 
     pypdfocr -w watch_directory -f -c config.yaml
+
+### Filing based on filename match:
+If no keywords match the contents of the filename, you can optionally allow it to fallback to
+trying to find keyword matches with the PDF filename using the -n option.  For example, you may have receipts always
+named as ``receipt_2013_12_2.pdf`` by your scanner, and you want to move this to a folder called
+'receipts'.  Assuming you have a keyword ``receipt`` matching to folder ``receipts`` in your configuration file as
+described below, you can run the following and have this filed even if the content of the pdf does not contain the text
+'receipt':
+
+    pypdfocr filename.pdf -f -c config.yaml -n
 
 #### Configuration file for automatic PDF filing
 The config.yaml file above is a simple folder to keyword matching text file. It determines

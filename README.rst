@@ -1,6 +1,8 @@
 PyPDFOCR - Tesseract-OCR based PDF filing
 =========================================
 
+|image0| |image1| |Coverage Status|
+
 This program will help manage your scanned PDFs by doing the following:
 
 -  Take a scanned PDF file and run OCR on it (using the Tesseract OCR
@@ -57,6 +59,22 @@ You can also do this in folder monitoring mode:
 ::
 
     pypdfocr -w watch_directory -f -c config.yaml
+
+Filing based on filename match:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If no keywords match the contents of the filename, you can optionally
+allow it to fallback to trying to find keyword matches with the PDF
+filename using the -n option. For example, you may have receipts always
+named as ``receipt_2013_12_2.pdf`` by your scanner, and you want to move
+this to a folder called 'receipts'. Assuming you have a keyword
+``receipt`` matching to folder ``receipts`` in your configuration file
+as described below, you can run the following and have this filed even
+if the content of the pdf does not contain the text 'receipt':
+
+::
+
+    pypdfocr filename.pdf -f -c config.yaml -n
 
 Configuration file for automatic PDF filing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -274,3 +292,9 @@ Disclaimer
 While test coverage is at 90% right now, Sphinx docs generation is at an
 early stage. The software is distributed on an "AS IS" BASIS, WITHOUT
 WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+.. |image0| image:: https://badge.fury.io/py/pypdfocr.png
+   :target: https://pypi.python.org/pypi/pypdfocr
+.. |image1| image:: https://pypip.in/d/pypdfocr/badge.png
+.. |Coverage Status| image:: https://coveralls.io/repos/virantha/pypdfocr/badge.png?branch=develop
+   :target: https://coveralls.io/r/virantha/pypdfocr
