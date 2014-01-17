@@ -18,14 +18,14 @@ class TestPydfocr:
         self.p = P.PyPDFOCR()
 
     def _iter_pdf(self, filename):
-	with open(filename, 'rb') as f:
-		reader = PdfFileReader(f)
-		logging.debug("pdf scanner found %d pages in %s" % (reader.getNumPages(), filename))
-		for pgnum in range(reader.getNumPages()):
-		    text = reader.getPage(pgnum).extractText()
-		    text = text.encode('ascii', 'ignore')
-		    text = text.replace('\n', ' ')
-		    yield text
+        with open(filename, 'rb') as f:
+            reader = PdfFileReader(f)
+            logging.debug("pdf scanner found %d pages in %s" % (reader.getNumPages(), filename))
+            for pgnum in range(reader.getNumPages()):
+                text = reader.getPage(pgnum).extractText()
+                text = text.encode('ascii', 'ignore')
+                text = text.replace('\n', ' ')
+                yield text
     
     pdf_tests = [
             (".", os.path.join("temp","target","recipe"), os.path.join("..","test", "pdfs", "test_recipe.pdf"), [ ["Spinach Recipe","Drain any excess"],
@@ -55,11 +55,11 @@ class TestPydfocr:
         """
         # Run a single file conversion
 
-	# First redo the unix-style paths, in case we're running on windows
-	# Assume paths in unix-style
-	dirname = os.path.join(*(dirname.split("/")))
-	tgt_folder = os.path.join(*(tgt_folder.split("/")))
-	filename = os.path.join(*(filename.split("/")))
+        # First redo the unix-style paths, in case we're running on windows
+        # Assume paths in unix-style
+        dirname = os.path.join(*(dirname.split("/")))
+        tgt_folder = os.path.join(*(tgt_folder.split("/")))
+        filename = os.path.join(*(filename.split("/")))
 
 
         cwd = os.getcwd()
@@ -131,7 +131,7 @@ class TestPydfocr:
             os.chdir(cwd)
 
         os.chdir(dirname)
-	print("Current direcxtory: %s" % os.getcwd())
+        print("Current direcxtory: %s" % os.getcwd())
         #opts = [filename, "--config=test_pypdfocr_config.yaml", "-f"]
         opts = [filename, "--config=%s" % config, "-f"]
         self.p.go(opts)
