@@ -77,6 +77,6 @@ class PyGs(object):
         # that reportlab doesn't compress PIL images, leading to huge PDFs
         # Instead, we insert the jpeg directly per page
         options = ' '.join(self.gs_options['jpg'])
-        self._run_gs(options, "%s%%d.jpg" % filename, pdf_filename)
+        self._run_gs(options, "%s_%%d.jpg" % filename, pdf_filename)
         return (self.tiff_dpi,output_filename)
 
