@@ -76,12 +76,16 @@ class PyPdf(object):
 
             # Make the jpg search a little bit more robust
             for f in os.listdir("."):
-                if re.match(r"^%s\d+\.jpg$" % basename, f):
+                if re.match(r"^%s_\d+\.jpg$" % basename, f):
                     jpg_files.append(f)
             #jpg_files = glob.glob("%s*.jpg" % basename)
             jpg_files.sort(key=self.natural_keys)
 
-            for jpg_file in jpg_files:
+            if len(jpg_files) == 0:
+                logging.warn("No jpg files found to embed in PDF.  Please check this!")
+            # We know the following loop will iterate in page order 
+            # because we sorted the jpg filenames
+            for i, jpg_file in enumerate(jpg_files):
 
                 jpg = Image.open(jpg_file)
                 w,h = jpg.size
@@ -95,7 +99,13 @@ class PyPdf(object):
                 logging.info("Page width=%f, height=%f" % (width, height))
                 pdf.drawImage(jpg_file,0,0, width=width, height=height)
                 # Get the page number
-                pg_num = int(jpg_file.split(basename)[1].split('.')[0])
+                pg_num = i+1
+                # Do a quick assert to make sure our sorted page number matches
+                # what's embedded in the filename
+                file_pg_num = int(jpg_file.split(basename+"_")[1].split('.')[0])
+                if file_pg_num != pg_num:
+                    logging.warn("Page number from file (%d) does not match iteration (%d)... continuing anyway" % (file_pg_num, pg_num))
+
                 logging.info("Adding text to page %d" % pg_num)
                 self.add_text_layer(pdf, hocr_basename,pg_num,height,dpi)
                 pdf.showPage()
