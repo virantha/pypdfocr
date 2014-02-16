@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.6.0 documentation</title>
+    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.6.1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.6.0',
+        VERSION:     '0.6.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.6.0 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.6.1 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.6.0 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.6.1 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -142,12 +142,16 @@
 
             <span class="c"># Make the jpg search a little bit more robust</span>
             <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">r&quot;^</span><span class="si">%s</span><span class="s">\d+\.jpg$&quot;</span> <span class="o">%</span> <span class="n">basename</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">r&quot;^</span><span class="si">%s</span><span class="s">_\d+\.jpg$&quot;</span> <span class="o">%</span> <span class="n">basename</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
                     <span class="n">jpg_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
             <span class="c">#jpg_files = glob.glob(&quot;%s*.jpg&quot; % basename)</span>
             <span class="n">jpg_files</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">natural_keys</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">jpg_file</span> <span class="ow">in</span> <span class="n">jpg_files</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">jpg_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;No jpg files found to embed in PDF.  Please check this!&quot;</span><span class="p">)</span>
+            <span class="c"># We know the following loop will iterate in page order </span>
+            <span class="c"># because we sorted the jpg filenames</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">jpg_file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">jpg_files</span><span class="p">):</span>
 
                 <span class="n">jpg</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">jpg_file</span><span class="p">)</span>
                 <span class="n">w</span><span class="p">,</span><span class="n">h</span> <span class="o">=</span> <span class="n">jpg</span><span class="o">.</span><span class="n">size</span>
@@ -161,7 +165,13 @@
                 <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Page width=</span><span class="si">%f</span><span class="s">, height=</span><span class="si">%f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>
                 <span class="n">pdf</span><span class="o">.</span><span class="n">drawImage</span><span class="p">(</span><span class="n">jpg_file</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">)</span>
                 <span class="c"># Get the page number</span>
-                <span class="n">pg_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">jpg_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">basename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">pg_num</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span>
+                <span class="c"># Do a quick assert to make sure our sorted page number matches</span>
+                <span class="c"># what&#39;s embedded in the filename</span>
+                <span class="n">file_pg_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">jpg_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">basename</span><span class="o">+</span><span class="s">&quot;_&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">file_pg_num</span> <span class="o">!=</span> <span class="n">pg_num</span><span class="p">:</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Page number from file (</span><span class="si">%d</span><span class="s">) does not match iteration (</span><span class="si">%d</span><span class="s">)... continuing anyway&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">file_pg_num</span><span class="p">,</span> <span class="n">pg_num</span><span class="p">))</span>
+
                 <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Adding text to page </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pg_num</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_text_layer</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">hocr_basename</span><span class="p">,</span><span class="n">pg_num</span><span class="p">,</span><span class="n">height</span><span class="p">,</span><span class="n">dpi</span><span class="p">)</span>
                 <span class="n">pdf</span><span class="o">.</span><span class="n">showPage</span><span class="p">()</span>
@@ -302,7 +312,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.6.0 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.6.1 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
