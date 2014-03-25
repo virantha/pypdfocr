@@ -17,7 +17,7 @@
 
 
 """
-    Wrap ghostscript calls
+    Wrap ghostscript calls.  Yes, this is ugly.
 """
 
 import subprocess
@@ -37,13 +37,67 @@ class PyGs(object):
         else:
             self.binary = "gs"
         self.tiff_dpi = 300
-        self.gs_options = {'tiff': ['-sDEVICE=tiff24nc','-r%d' % (self.tiff_dpi)],
-                            'jpg': ['-sDEVICE=jpeg','-dJPEGQ=75', '-r200']
+        self.output_dpi = 200
+        self.greyscale = True
+        # Tiff is used for the ocr, so just fix it at 300dpi
+        #  The other formats will be used to create the final OCR'ed image, so determine
+        #  the DPI by using pdfimages if available, o/w default to 200
+        self.gs_options = {'tiff': ['tiff', ['-sDEVICE=tiff24nc','-r%d' % (self.tiff_dpi)]],
+                            'jpg': ['jpg', ['-sDEVICE=jpeg','-dJPEGQ=75', '-r%(dpi)s']],
+                            'jpggrey': ['jpg', ['-sDEVICE=jpeggray', '-dJPEGQ=75', '-r%(dpi)s']],
+                            'png': ['png', ['-sDEVICE=png16m', '-r%(dpi)s']],
                         }
         self.msgs = {
                 'GS_FAILED': 'Ghostscript execution failed',
                 'GS_MISSING_PDF': 'Cannot find specified pdf file',
             }
+
+    def _warn(self, msg):
+        print("WARNING: %s" % msg)
+
+    def _get_dpi(self, pdf_filename):
+        if not os.path.exists(pdf_filename):
+            error(self.msgs['GS_MISSING_PDF'] + " %s" % pdf_filename)
+
+        cmd = "pdfimages -list %s" % pdf_filename
+        try:
+            out = subprocess.check_output(cmd, shell=True)
+        except subprocess.CalledProcessError as e:
+            self._warn ("Could not execute pdfimages to calculate DPI (try installing xpdf or poppler?), so defaulting to %sdpi" % self.output_dpi) 
+
+        # Need the second line of output
+        results = out.splitlines()[2]
+        logging.debug(results)
+        results = results.split()
+        if(results[2] != 'image'):
+            self._warn("Could not understand output of pdfimages, please rerun with -d option and file an issue at http://github.com/virantha/pypdfocr/issues") 
+            return
+        x_pt, y_pt, greyscale = int(results[3]), int(results[4]), results[5]=='gray'
+        self.greyscale = greyscale
+
+        # Now, run imagemagick identify to get pdf width/height/density
+        cmd = 'identify -format "%%w %%x %%h %%y\n" %s' % pdf_filename
+        try:
+            out = subprocess.check_output(cmd, shell=True)
+            results = out.splitlines()[0]
+            width, xdensity, height, ydensity = [float(x) for x in results.split()]
+            xdpi = round(x_pt/width*xdensity)
+            ydpi = round(y_pt/height*ydensity)
+            self.output_dpi = xdpi
+            if xdpi != ydpi:
+                if ydpi>xdpi: self.output_dpi = ydpi
+                self._warn("X-dpi is %d, Y-dpi is %d, defaulting to %d" % (xdpi, ydpi, self.output_dpi))
+            else:
+                print("Using %d DPI" % self.output_dpi)
+
+
+        except Exception as e:
+            logging.debug(str(e))
+            self._warn ("Could not execute identify to calculate DPI (try installing imagemagick?), so defaulting to %sdpi" % self.output_dpi) 
+
+
+
+
 
     def _run_gs(self, options, output_filename, pdf_filename):
         if str(os.name)=='nt':
@@ -59,16 +113,17 @@ class PyGs(object):
             error (self.msgs['GS_FAILED'])
 
     def make_img_from_pdf(self, pdf_filename, output_format):
+        self._get_dpi(pdf_filename)
         # Need tiff for multi-page documents
         if not os.path.exists(pdf_filename):
             error(self.msgs['GS_MISSING_PDF'] + " %s" % pdf_filename)
 
         filename, filext = os.path.splitext(pdf_filename)
-        output_filename = "%s.%s" % (filename, output_format)
+        output_filename = "%s.%s" % (filename, self.gs_options[output_format][0])
 
         logging.info("Running ghostscript on %s to create %s" % (pdf_filename, output_filename))
 
-        options = ' '.join(self.gs_options[output_format])
+        options = ' '.join(self.gs_options[output_format][1])
         self._run_gs(options, output_filename, pdf_filename)
 
         logging.info("Created %s" % output_filename)
@@ -76,7 +131,13 @@ class PyGs(object):
         # Create ancillary jpeg files per page to get around the fact
         # that reportlab doesn't compress PIL images, leading to huge PDFs
         # Instead, we insert the jpeg directly per page
-        options = ' '.join(self.gs_options['jpg'])
-        self._run_gs(options, "%s_%%d.jpg" % filename, pdf_filename)
+        if self.greyscale:
+            self.img_format = 'jpggrey'
+        else:
+            self.img_format = 'jpg'
+
+        self.img_file_ext = self.gs_options[self.img_format][0]
+        options = ' '.join(self.gs_options[self.img_format][1]) % {'dpi':self.output_dpi}
+        self._run_gs(options, "%s_%%d.%s" % (filename, self.img_file_ext), pdf_filename)
         return (self.tiff_dpi,output_filename)
 
