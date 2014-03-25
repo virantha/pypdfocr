@@ -242,8 +242,7 @@ keyword matching that you specify</li>
 </ul>
 <p>More links:</p>
 <ul class="simple">
-<li><a class="reference external" href="http://virantha.com/category/projects/pypdfocr">Blog &#64;
-virantha.com</a></li>
+<li><a class="reference external" href="http://virantha.com/category/pypdfocr.html">Blog &#64; virantha.com</a></li>
 <li><a class="reference external" href="http://documentup.com/virantha/pypdfocr">Documentation &#64;
 documentup.com</a></li>
 <li><a class="reference external" href="https://www.github.com/virantha/pypdfocr">Source &#64; github</a></li>
@@ -449,14 +448,21 @@ the path:</p>
 <li>Tesseract OCR software <a class="reference external" href="https://code.google.com/p/tesseract-ocr/">https://code.google.com/p/tesseract-ocr/</a></li>
 <li>GhostScript <a class="reference external" href="http://www.ghostscript.com/">http://www.ghostscript.com/</a></li>
 </ul>
+<p>In addition, if you want it to figure out the original PDF resolution
+automatically, you need to have pdfimages in your path, which is part of
+the <a class="reference external" href="http://www.foolabs.com/xpdf/download.html">xpdf</a> or poppler
+packages.</p>
 <p>On Mac OS X, you can install these using homebrew:</p>
 <div class="highlight-python"><pre>brew install tesseract
-brew install ghostscript</pre>
+brew install ghostscript
+brew install poppler</pre>
 </div>
 <p>On Windows, please use the installers provided on their download pages.</p>
 <p>** Important ** Tesseract version 3.02.02 or newer required
 (apparently 3.02.01-6 and possibly others do not work due to a hocr
-output format change that I&#8217;m not planning to address).</p>
+output format change that I&#8217;m not planning to address). On Ubuntu, you
+may need to compile and install it manually by following <a class="reference external" href="http://miphol.com/muse/2013/05/install-tesseract-ocr-on-ubunt.html">these
+instructions</a></p>
 </div>
 <div class="section" id="disclaimer">
 <h2>Disclaimer<a class="headerlink" href="#disclaimer" title="Permalink to this headline">¶</a></h2>
