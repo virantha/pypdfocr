@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.6.1 documentation</title>
+    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.7.0 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.6.1',
+        VERSION:     '0.7.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.6.1 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.7.0 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.6.1 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.7.0 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -112,8 +112,9 @@
 <div class="viewcode-block" id="PyPdf"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf">[docs]</a><span class="k">class</span> <span class="nc">PyPdf</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class to create pdfs from images&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load_invisible_font</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gs</span> <span class="o">=</span> <span class="n">gs</span> <span class="c"># Pointer to ghostscript object</span>
         <span class="k">pass</span>
 
 <div class="viewcode-block" id="PyPdf.overlay_hocr"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.overlay_hocr">[docs]</a>    <span class="k">def</span> <span class="nf">overlay_hocr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpi</span><span class="p">,</span> <span class="n">hocr_filename</span><span class="p">):</span>
@@ -142,7 +143,7 @@
 
             <span class="c"># Make the jpg search a little bit more robust</span>
             <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">r&quot;^</span><span class="si">%s</span><span class="s">_\d+\.jpg$&quot;</span> <span class="o">%</span> <span class="n">basename</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">r&quot;^</span><span class="si">%s</span><span class="s">_\d+\.</span><span class="si">%s</span><span class="s">$&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">basename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="o">.</span><span class="n">img_file_ext</span><span class="p">),</span> <span class="n">f</span><span class="p">):</span>
                     <span class="n">jpg_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
             <span class="c">#jpg_files = glob.glob(&quot;%s*.jpg&quot; % basename)</span>
             <span class="n">jpg_files</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">natural_keys</span><span class="p">)</span>
@@ -312,7 +313,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.6.1 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.7.0 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
