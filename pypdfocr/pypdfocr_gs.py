@@ -64,6 +64,7 @@ class PyGs(object):
             out = subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError as e:
             self._warn ("Could not execute pdfimages to calculate DPI (try installing xpdf or poppler?), so defaulting to %sdpi" % self.output_dpi) 
+	    return
 
         # Need the second line of output
         results = out.splitlines()[2]
@@ -94,6 +95,7 @@ class PyGs(object):
         except Exception as e:
             logging.debug(str(e))
             self._warn ("Could not execute identify to calculate DPI (try installing imagemagick?), so defaulting to %sdpi" % self.output_dpi) 
+	    return
 
 
 
