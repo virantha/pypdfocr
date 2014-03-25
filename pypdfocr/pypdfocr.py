@@ -64,7 +64,7 @@ class PyPDFOCR(object):
         self.config = None
         self.gs = PyGs()
         self.ts = PyTesseract()
-        self.pdf = PyPdf()
+        self.pdf = PyPdf(self.gs)
         """PDF read and generation class"""
 
     def _get_config_file(self, config_file):

@@ -17,7 +17,7 @@ This program will help manage your scanned PDFs by doing the following:
 More links:
 
 -  `Blog @
-   virantha.com <http://virantha.com/category/projects/pypdfocr>`__
+   virantha.com <http://virantha.com/category/pypdfocr.html>`__
 -  `Documentation @
    documentup.com <http://documentup.com/virantha/pypdfocr>`__
 -  `Source @ github <https://www.github.com/virantha/pypdfocr>`__
@@ -273,18 +273,26 @@ the path:
 -  Tesseract OCR software https://code.google.com/p/tesseract-ocr/
 -  GhostScript http://www.ghostscript.com/
 
+
+In addition, if you want it to figure out the original PDF resolution
+automatically, you need to have pdfimages in your path, which is part of
+the `xpdf <http://www.foolabs.com/xpdf/download.html>`__ or poppler packages
+
 On Mac OS X, you can install these using homebrew:
 
 ::
 
     brew install tesseract
     brew install ghostscript
+    brew install poppler
 
 On Windows, please use the installers provided on their download pages.
 
 \*\* Important \*\* Tesseract version 3.02.02 or newer required
-(apparently 3.02.01-6 and possibly others do not work due to a hocr
-output format change that I'm not planning to address).
+(apparently 3.02.01-6 and possibly others do not work due to a hocr output
+format change that I'm not planning to address).  On Ubuntu, you may need to
+compile and install it manually by following `these instructions
+<http://miphol.com/muse/2013/05/install-tesseract-ocr-on-ubunt.html>`__
 
 Disclaimer
 ----------

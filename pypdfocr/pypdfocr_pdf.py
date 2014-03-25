@@ -46,8 +46,9 @@ import xml.etree
 class PyPdf(object):
     """Class to create pdfs from images"""
 
-    def __init__(self):
+    def __init__(self, gs):
         self.load_invisible_font()
+        self.gs = gs # Pointer to ghostscript object
         pass
 
     def overlay_hocr(self, dpi, hocr_filename):
@@ -76,7 +77,7 @@ class PyPdf(object):
 
             # Make the jpg search a little bit more robust
             for f in os.listdir("."):
-                if re.match(r"^%s_\d+\.jpg$" % basename, f):
+                if re.match(r"^%s_\d+\.%s$" % (basename, self.gs.img_file_ext), f):
                     jpg_files.append(f)
             #jpg_files = glob.glob("%s*.jpg" % basename)
             jpg_files.sort(key=self.natural_keys)
