@@ -179,6 +179,8 @@
         <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-m&#39;</span><span class="p">,</span> <span class="s">&#39;--mail&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;mail&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Send email after conversion&#39;</span><span class="p">)</span>
 
+        <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-l&#39;</span><span class="p">,</span> <span class="s">&#39;--lang&#39;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s">&#39;eng&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;lang&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Language(default eng)&#39;</span><span class="p">)</span>
         <span class="c">#---------</span>
         <span class="c"># Single or watch mode</span>
         <span class="c">#--------</span>
@@ -208,6 +210,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">debug</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pdf_filename</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">pdf_filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lang</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">lang</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">watch_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">watch_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">enable_email</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">mail</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">match_using_filename</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">match_using_filename</span>
@@ -366,6 +369,7 @@
         <span class="c"># Make the images for Tesseract</span>
         <span class="n">tiff_dpi</span><span class="p">,</span> <span class="n">tiff_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="o">.</span><span class="n">make_img_from_pdf</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="n">conversion_format</span><span class="p">)</span>
         <span class="c"># Run teserract</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="o">.</span><span class="n">lang</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lang</span>
         <span class="n">hocr_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="o">.</span><span class="n">make_hocr_from_tiff</span><span class="p">(</span><span class="n">tiff_filename</span><span class="p">)</span>
         
         <span class="c"># Generate new pdf with overlayed text</span>
