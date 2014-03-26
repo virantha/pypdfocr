@@ -300,7 +300,7 @@ class PyPDFOCR(object):
         # Make the images for Tesseract
         tiff_dpi, tiff_filename = self.gs.make_img_from_pdf(pdf_filename, conversion_format)
         # Run teserract
-        hocr_filename = self.ts.make_hocr_from_tiff(tiff_filename)
+        hocr_filename = self.ts.make_hocr_from_tiff(tiff_filename, self.language)
         
         # Generate new pdf with overlayed text
         ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename)
