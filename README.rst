@@ -282,7 +282,9 @@ the path:
 In addition, if you want it to figure out the original PDF resolution
 automatically, you need to have pdfimages in your path, which is part of
 the `xpdf <http://www.foolabs.com/xpdf/download.html>`__ or poppler
-packages.
+packages.  Otherwise, it will run the OCR on a 300dpi version of your
+original (the images in your output file will still be at the original
+resolution)
 
 On Mac OS X, you can install these using homebrew:
 

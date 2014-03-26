@@ -58,6 +58,7 @@ class PyPdf(object):
         hocr_dir, hocr_basename = os.path.split(hocr_filename)
         logging.debug("hocr_filename:%s, hocr_dir:%s, hocr_basename:%s" % (hocr_filename, hocr_dir, hocr_basename))
         basename = hocr_basename.split('.')[0]
+        orig_pdf_filename = os.path.abspath(orig_pdf_filename)
         pdf_filename = os.path.join("%s_ocr.pdf" % (basename))
         text_pdf_filename = pdf_filename + ".tmp"
         # Switch to the hocr directory to make this easier
@@ -130,6 +131,7 @@ class PyPdf(object):
             writer.write(f)
         orig.close()
         text.close()
+        os.remove(text_pdf_filename)
 
         logging.info("Created OCR'ed pdf as %s" % (pdf_filename))
         os.chdir(cwd)
