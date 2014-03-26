@@ -23,6 +23,7 @@
 import subprocess
 import sys, os
 import logging
+import glob
 
 def error(text):
     print("ERROR: %s" % text)
@@ -31,9 +32,17 @@ def error(text):
 class PyGs(object):
     """Class to wrap all the ghostscript calls"""
     def __init__(self):
+        self.msgs = {
+                'GS_FAILED': 'Ghostscript execution failed',
+                'GS_MISSING_PDF': 'Cannot find specified pdf file',
+                'GS_OUTDATED': 'Your Ghostscript version is probably out of date.  Please upgrade to the latest version',
+                'GS_MISSING_BINARY': 'Could not find Ghostscript in the usual place; please specify it using your config file',
+            }
         # Detect windows gs binary (make this smarter in the future)
         if str(os.name) == 'nt':
-            self.binary = '"c:\\Program Files (x86)\\gs\\gs9.07\\bin\\gswin32c.exe"'
+	    win_binary = self._find_windows_gs()
+	    self.binary = '"%s"' % win_binary
+	    logging.info("Using Ghostscript: %s" % self.binary)
         else:
             self.binary = "gs"
         self.tiff_dpi = 300
@@ -50,11 +59,31 @@ class PyGs(object):
                             'tifflzw': ['tiff', ['-sDEVICE=tifflzw', '-r%(dpi)s']],
                             'tiffg4': ['tiff', ['-sDEVICE=tiffg4', '-r%(dpi)s']],
                         }
-        self.msgs = {
-                'GS_FAILED': 'Ghostscript execution failed',
-                'GS_MISSING_PDF': 'Cannot find specified pdf file',
-                'GS_OUTDATED': 'Your Ghostscript version is probably out of date.  Please upgrade to the latest version',
-            }
+
+    def _find_windows_gs(self):
+        windirs = ["c:\\Program Files\\gs", "c:\\Program Files (x86)\\gs"]
+        gs = None
+        for d in windirs:
+            if not os.path.exists(d):
+                continue
+            cwd = os.getcwd()
+            os.chdir(d)
+            listing = os.listdir('.')
+	    listing = [x for x in listing if x.startswith('gs')]
+            listing.sort(reverse=True)
+	    for bindir in listing:
+		binpath = os.path.join(bindir,'bin')
+		if not os.path.exists(binpath): continue
+		os.chdir(binpath)
+		gswin = glob.glob('gswin*c.exe')
+		if len(gswin) == 0:
+		    continue
+		gs = os.path.abspath(gswin[0])
+		os.chdir(cwd)
+		return gs
+
+        if not gs:
+            error(self.msgs['GS_MISSING_BINARY'])
 
     def _warn(self, msg):
         print("WARNING: %s" % msg)
@@ -68,7 +97,7 @@ class PyGs(object):
             out = subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError as e:
             self._warn ("Could not execute pdfimages to calculate DPI (try installing xpdf or poppler?), so defaulting to %sdpi" % self.output_dpi) 
-	    return
+        return
 
         # Need the second line of output
         results = out.splitlines()[2]
@@ -100,7 +129,7 @@ class PyGs(object):
         except Exception as e:
             logging.debug(str(e))
             self._warn ("Could not execute identify to calculate DPI (try installing imagemagick?), so defaulting to %sdpi" % self.output_dpi) 
-	    return
+        return
 
 
 
@@ -121,6 +150,7 @@ class PyGs(object):
 
 
     def make_img_from_pdf(self, pdf_filename, output_format):
+        self._find_windows_gs()
         self._get_dpi(pdf_filename)
         # Need tiff for multi-page documents
         if not os.path.exists(pdf_filename):
