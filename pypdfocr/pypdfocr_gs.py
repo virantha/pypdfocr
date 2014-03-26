@@ -46,6 +46,9 @@ class PyGs(object):
                             'jpg': ['jpg', ['-sDEVICE=jpeg','-dJPEGQ=75', '-r%(dpi)s']],
                             'jpggrey': ['jpg', ['-sDEVICE=jpeggray', '-dJPEGQ=75', '-r%(dpi)s']],
                             'png': ['png', ['-sDEVICE=png16m', '-r%(dpi)s']],
+                            'pnggrey': ['png', ['-sDEVICE=pngmono', '-r%(dpi)s']],
+                            'tifflzw': ['tiff', ['-sDEVICE=tifflzw', '-r%(dpi)s']],
+                            'tiffg4': ['tiff', ['-sDEVICE=tiffg4', '-r%(dpi)s']],
                         }
         self.msgs = {
                 'GS_FAILED': 'Ghostscript execution failed',
@@ -134,9 +137,11 @@ class PyGs(object):
         # that reportlab doesn't compress PIL images, leading to huge PDFs
         # Instead, we insert the jpeg directly per page
         if self.greyscale:
-            self.img_format = 'jpggrey'
+            self.img_format = 'tifflzw'
+            logging.info("Detected greyscale")
         else:
             self.img_format = 'jpg'
+            logging.info("Detected color")
 
         self.img_file_ext = self.gs_options[self.img_format][0]
         options = ' '.join(self.gs_options[self.img_format][1]) % {'dpi':self.output_dpi}
