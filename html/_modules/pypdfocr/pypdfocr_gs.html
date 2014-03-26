@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr_gs &mdash; pypdfocr 0.7.1 documentation</title>
+    <title>pypdfocr.pypdfocr_gs &mdash; pypdfocr 0.7.2 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.7.1',
+        VERSION:     '0.7.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.7.1 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.7.2 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.1 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.7.2 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -89,6 +89,7 @@
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">glob</span>
 
 <div class="viewcode-block" id="error"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_gs.error">[docs]</a><span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="k">print</span><span class="p">(</span><span class="s">&quot;ERROR: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">text</span><span class="p">)</span>
@@ -97,27 +98,73 @@
 <div class="viewcode-block" id="PyGs"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_gs.PyGs">[docs]</a><span class="k">class</span> <span class="nc">PyGs</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class to wrap all the ghostscript calls&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msgs</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&#39;GS_FAILED&#39;</span><span class="p">:</span> <span class="s">&#39;Ghostscript execution failed&#39;</span><span class="p">,</span>
+                <span class="s">&#39;GS_MISSING_PDF&#39;</span><span class="p">:</span> <span class="s">&#39;Cannot find specified pdf file&#39;</span><span class="p">,</span>
+                <span class="s">&#39;GS_OUTDATED&#39;</span><span class="p">:</span> <span class="s">&#39;Your Ghostscript version is probably out of date.  Please upgrade to the latest version&#39;</span><span class="p">,</span>
+                <span class="s">&#39;GS_MISSING_BINARY&#39;</span><span class="p">:</span> <span class="s">&#39;Could not find Ghostscript in the usual place; please specify it using your config file&#39;</span><span class="p">,</span>
+            <span class="p">}</span>
         <span class="c"># Detect windows gs binary (make this smarter in the future)</span>
         <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">binary</span> <span class="o">=</span> <span class="s">&#39;&quot;c:</span><span class="se">\\</span><span class="s">Program Files (x86)</span><span class="se">\\</span><span class="s">gs</span><span class="se">\\</span><span class="s">gs9.07</span><span class="se">\\</span><span class="s">bin</span><span class="se">\\</span><span class="s">gswin32c.exe&quot;&#39;</span>
+	    <span class="n">win_binary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_windows_gs</span><span class="p">()</span>
+	    <span class="bp">self</span><span class="o">.</span><span class="n">binary</span> <span class="o">=</span> <span class="s">&#39;&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">win_binary</span>
+	    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Using Ghostscript: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">binary</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">binary</span> <span class="o">=</span> <span class="s">&quot;gs&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tiff_dpi</span> <span class="o">=</span> <span class="mi">300</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span> <span class="o">=</span> <span class="mi">200</span>
+
+        <span class="c">#self.tiff_dpi = 300</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span> <span class="o">=</span> <span class="mi">300</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">greyscale</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="c"># Tiff is used for the ocr, so just fix it at 300dpi</span>
         <span class="c">#  The other formats will be used to create the final OCR&#39;ed image, so determine</span>
         <span class="c">#  the DPI by using pdfimages if available, o/w default to 200</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gs_options</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;tiff&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;tiff&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;-sDEVICE=tiff24nc&#39;</span><span class="p">,</span><span class="s">&#39;-r</span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tiff_dpi</span><span class="p">)]],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gs_options</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;tiff&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;tiff&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;-sDEVICE=tiff24nc&#39;</span><span class="p">,</span><span class="s">&#39;-r</span><span class="si">%d</span><span class="s">&#39;</span> <span class="p">]],</span>
                             <span class="s">&#39;jpg&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;jpg&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;-sDEVICE=jpeg&#39;</span><span class="p">,</span><span class="s">&#39;-dJPEGQ=75&#39;</span><span class="p">,</span> <span class="s">&#39;-r</span><span class="si">%(dpi)s</span><span class="s">&#39;</span><span class="p">]],</span>
                             <span class="s">&#39;jpggrey&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;jpg&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;-sDEVICE=jpeggray&#39;</span><span class="p">,</span> <span class="s">&#39;-dJPEGQ=75&#39;</span><span class="p">,</span> <span class="s">&#39;-r</span><span class="si">%(dpi)s</span><span class="s">&#39;</span><span class="p">]],</span>
                             <span class="s">&#39;png&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;png&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;-sDEVICE=png16m&#39;</span><span class="p">,</span> <span class="s">&#39;-r</span><span class="si">%(dpi)s</span><span class="s">&#39;</span><span class="p">]],</span>
+                            <span class="s">&#39;pnggrey&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;png&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;-sDEVICE=pngmono&#39;</span><span class="p">,</span> <span class="s">&#39;-r</span><span class="si">%(dpi)s</span><span class="s">&#39;</span><span class="p">]],</span>
+                            <span class="s">&#39;tifflzw&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;tiff&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;-sDEVICE=tifflzw&#39;</span><span class="p">,</span> <span class="s">&#39;-r</span><span class="si">%(dpi)s</span><span class="s">&#39;</span><span class="p">]],</span>
+                            <span class="s">&#39;tiffg4&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;tiff&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;-sDEVICE=tiffg4&#39;</span><span class="p">,</span> <span class="s">&#39;-r</span><span class="si">%(dpi)s</span><span class="s">&#39;</span><span class="p">]],</span>
                         <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">msgs</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s">&#39;GS_FAILED&#39;</span><span class="p">:</span> <span class="s">&#39;Ghostscript execution failed&#39;</span><span class="p">,</span>
-                <span class="s">&#39;GS_MISSING_PDF&#39;</span><span class="p">:</span> <span class="s">&#39;Cannot find specified pdf file&#39;</span><span class="p">,</span>
-            <span class="p">}</span>
 
+<div class="viewcode-block" id="PyGs._find_windows_gs"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_gs.PyGs._find_windows_gs">[docs]</a>    <span class="k">def</span> <span class="nf">_find_windows_gs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Searches through the Windows program files directories to find Ghostscript.</span>
+<span class="sd">            If it finds multiple versions, it does a naive sort for now to find the most</span>
+<span class="sd">            recent.</span>
+
+<span class="sd">            :rval: The ghostscript binary location</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">windirs</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;c:</span><span class="se">\\</span><span class="s">Program Files</span><span class="se">\\</span><span class="s">gs&quot;</span><span class="p">,</span> <span class="s">&quot;c:</span><span class="se">\\</span><span class="s">Program Files (x86)</span><span class="se">\\</span><span class="s">gs&quot;</span><span class="p">]</span>
+        <span class="n">gs</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">windirs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+            <span class="n">listing</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+
+            <span class="c"># Find all possible gs* sub-directories</span>
+	    <span class="n">listing</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">listing</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;gs&#39;</span><span class="p">)]</span>
+
+            <span class="c"># TODO: Make this a natural sort</span>
+            <span class="n">listing</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+	    <span class="k">for</span> <span class="n">bindir</span> <span class="ow">in</span> <span class="n">listing</span><span class="p">:</span>
+		<span class="n">binpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bindir</span><span class="p">,</span><span class="s">&#39;bin&#39;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">binpath</span><span class="p">):</span> <span class="k">continue</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">binpath</span><span class="p">)</span>
+                <span class="c"># Look for gswin64c.exe or gswin32c.exe (the c is for the command-line version)</span>
+		<span class="n">gswin</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s">&#39;gswin*c.exe&#39;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gswin</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+		    <span class="k">continue</span>
+		<span class="n">gs</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">gswin</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="c"># Just use the first found .exe (Do i need to do anything more complicated here?)</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">gs</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">gs</span><span class="p">:</span>
+            <span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;GS_MISSING_BINARY&#39;</span><span class="p">])</span>
+</div>
 <div class="viewcode-block" id="PyGs._warn"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_gs.PyGs._warn">[docs]</a>    <span class="k">def</span> <span class="nf">_warn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
         <span class="k">print</span><span class="p">(</span><span class="s">&quot;WARNING: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">)</span>
 </div>
@@ -130,7 +177,7 @@
             <span class="n">out</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span> <span class="p">(</span><span class="s">&quot;Could not execute pdfimages to calculate DPI (try installing xpdf or poppler?), so defaulting to </span><span class="si">%s</span><span class="s">dpi&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span><span class="p">)</span> 
-	    <span class="k">return</span>
+            <span class="k">return</span>
 
         <span class="c"># Need the second line of output</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span>
@@ -147,12 +194,13 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
             <span class="n">results</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;Undefined&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
             <span class="n">width</span><span class="p">,</span> <span class="n">xdensity</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">ydensity</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
             <span class="n">xdpi</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">x_pt</span><span class="o">/</span><span class="n">width</span><span class="o">*</span><span class="n">xdensity</span><span class="p">)</span>
             <span class="n">ydpi</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">y_pt</span><span class="o">/</span><span class="n">height</span><span class="o">*</span><span class="n">ydensity</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span> <span class="o">=</span> <span class="n">xdpi</span>
-            <span class="k">if</span> <span class="n">xdpi</span> <span class="o">!=</span> <span class="n">ydpi</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">ydpi</span><span class="o">&gt;</span><span class="n">xdpi</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span> <span class="o">=</span> <span class="n">ydpi</span>
+            <span class="k">if</span> <span class="n">ydpi</span><span class="o">&gt;</span><span class="n">xdpi</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span> <span class="o">=</span> <span class="n">ydpi</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">xdpi</span><span class="o">-</span><span class="n">ydpi</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">xdpi</span><span class="o">*.</span><span class="mo">05</span><span class="p">:</span>  <span class="c"># Make sure the two dpi&#39;s are within 5%</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">(</span><span class="s">&quot;X-dpi is </span><span class="si">%d</span><span class="s">, Y-dpi is </span><span class="si">%d</span><span class="s">, defaulting to </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">xdpi</span><span class="p">,</span> <span class="n">ydpi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">print</span><span class="p">(</span><span class="s">&quot;Using </span><span class="si">%d</span><span class="s"> DPI&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span><span class="p">)</span>
@@ -161,27 +209,27 @@
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span> <span class="p">(</span><span class="s">&quot;Could not execute identify to calculate DPI (try installing imagemagick?), so defaulting to </span><span class="si">%s</span><span class="s">dpi&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span><span class="p">)</span> 
-	    <span class="k">return</span>
-
-
+        <span class="k">return</span>
 
 
 </div>
 <div class="viewcode-block" id="PyGs._run_gs"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_gs.PyGs._run_gs">[docs]</a>    <span class="k">def</span> <span class="nf">_run_gs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">==</span><span class="s">&#39;nt&#39;</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
             <span class="n">cmd</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> -q -dNOPAUSE </span><span class="si">%s</span><span class="s"> -sOutputFile=&quot;</span><span class="si">%s</span><span class="s">&quot; &quot;</span><span class="si">%s</span><span class="s">&quot; -c quit&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binary</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">)</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>        
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">cmd</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> -q -dNOPAUSE </span><span class="si">%s</span><span class="s"> -sOutputFile=&quot;</span><span class="si">%s</span><span class="s">&quot; &quot;</span><span class="si">%s</span><span class="s">&quot; -c quit&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binary</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">error</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;GS_FAILED&#39;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">print</span> <span class="n">e</span><span class="o">.</span><span class="n">output</span>
+            <span class="k">if</span> <span class="s">&quot;undefined in .getdeviceparams&quot;</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                <span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;GS_OUTDATED&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">error</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;GS_FAILED&#39;</span><span class="p">])</span>
+
 </div>
 <div class="viewcode-block" id="PyGs.make_img_from_pdf"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_gs.PyGs.make_img_from_pdf">[docs]</a>    <span class="k">def</span> <span class="nf">make_img_from_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">,</span> <span class="n">output_format</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_dpi</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_dpi</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span> <span class="c"># No need to bother anymore</span>
+
         <span class="c"># Need tiff for multi-page documents</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">):</span>
             <span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;GS_MISSING_PDF&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot; </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pdf_filename</span><span class="p">)</span>
@@ -191,23 +239,25 @@
 
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Running ghostscript on </span><span class="si">%s</span><span class="s"> to create </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">))</span>
 
-        <span class="n">options</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gs_options</span><span class="p">[</span><span class="n">output_format</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gs_options</span><span class="p">[</span><span class="n">output_format</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_run_gs</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">)</span>
 
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Created </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">output_filename</span><span class="p">)</span>
 
-        <span class="c"># Create ancillary jpeg files per page to get around the fact</span>
-        <span class="c"># that reportlab doesn&#39;t compress PIL images, leading to huge PDFs</span>
-        <span class="c"># Instead, we insert the jpeg directly per page</span>
+        <span class="c"># Create ancillary jpeg files to use later to calculate image dpi etc</span>
+        <span class="c">#   We no longer use these for the final image. Instead the text is merged</span>
+        <span class="c">#   directly with the original PDF.  Yay!</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">greyscale</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">img_format</span> <span class="o">=</span> <span class="s">&#39;jpggrey&#39;</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Detected greyscale&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">img_format</span> <span class="o">=</span> <span class="s">&#39;jpg&#39;</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Detected color&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">img_file_ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs_options</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">img_format</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">options</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gs_options</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">img_format</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="p">{</span><span class="s">&#39;dpi&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_run_gs</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">_</span><span class="si">%%</span><span class="s">d.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_file_ext</span><span class="p">),</span> <span class="n">pdf_filename</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tiff_dpi</span><span class="p">,</span><span class="n">output_filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span><span class="p">,</span><span class="n">output_filename</span><span class="p">)</span>
 </pre></div></div></div>
 
           </div>
@@ -224,7 +274,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.1 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.7.2 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
