@@ -22,7 +22,8 @@ a = Analysis(['pypdfocr\\pypdfocr.py'],
 		    'reportlab.pdfbase._fontdata_widths_timesbolditalic',
 		    'reportlab.pdfbase._fontdata_widths_timesitalic',
 		    'reportlab.pdfbase._fontdata_widths_timesroman',
-		    'reportlab.pdfbase._fontdata_widths_zapfdingbats'],
+		    'reportlab.pdfbase._fontdata_widths_zapfdingbats',
+		    'reportlab.rl_settings'],
              hookspath=None,
              runtime_hooks=None)
 pyz = PYZ(a.pure)
