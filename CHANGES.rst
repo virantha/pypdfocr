@@ -2,6 +2,7 @@
 Version  Date       Changes
 -------  --------   ------
 
+v0.7.1   3/25/14    OCR Language is now an option
 v0.7.0   3/25/14    Now honors original pdf resolution
 v0.6.1   2/16/14    Bug fix for pdfs with only numbers in the filename
 v0.6.0   1/16/14    Added filing based on filename match as fallback, added tesseract version check
