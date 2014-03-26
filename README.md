@@ -25,6 +25,11 @@ More links:
 
     --> filename_ocr.pdf will be generated
 
+If you have a language pack installed, then you can specify it with the ``-l`` option:
+
+    pypdfocr -l spa filename.pdf
+
+
 ### Folder monitoring:
     pypdfocr -w watch_directory
 

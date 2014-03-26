@@ -34,6 +34,7 @@ class PyTesseract(object):
            Detect windows tesseract location.  The main script overrides self.binary
            if it is set in the config file
         """
+        self.lang = 'eng'
         self.required = "3.02.02"
         if str(os.name) == 'nt':
             # Explicit str here to get around some MagicMock stuff for testing that I don't quite understand
@@ -114,11 +115,11 @@ class PyTesseract(object):
 
         logging.info("Running OCR on %s to create %s.html" % (tiff_filename, basename))
         if str(os.name) == 'nt':
-            cmd = '%s "%s" "%s" hocr' % (self.binary, tiff_filename, basename)
+            cmd = '%s "%s" "%s" -l %s hocr' % (self.binary, tiff_filename, basename, self.lang)
             logging.info(cmd)        
             ret = subprocess.call(cmd)
         else:
-            cmd = '%s "%s" "%s" hocr' % (self.binary, tiff_filename, basename)
+            cmd = '%s "%s" "%s" -l %s hocr' % (self.binary, tiff_filename, basename, self.lang)
             logging.info(cmd)        
             ret = os.system(cmd)
                 
