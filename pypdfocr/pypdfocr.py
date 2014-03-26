@@ -113,6 +113,8 @@ class PyPDFOCR(object):
         p.add_argument('-m', '--mail', action='store_true',
             default=False, dest='mail', help='Send email after conversion')
 
+        p.add_argument('-l', '--lang',
+            default='eng', dest='lang', help='Language(default eng)')
         #---------
         # Single or watch mode
         #--------
@@ -142,6 +144,7 @@ class PyPDFOCR(object):
         self.debug = args.debug
         self.verbose = args.verbose
         self.pdf_filename = args.pdf_filename
+        self.lang = args.lang
         self.watch_dir = args.watch_dir
         self.enable_email = args.mail
         self.match_using_filename = args.match_using_filename
@@ -300,6 +303,7 @@ class PyPDFOCR(object):
         # Make the images for Tesseract
         tiff_dpi, tiff_filename = self.gs.make_img_from_pdf(pdf_filename, conversion_format)
         # Run teserract
+        self.ts.lang = self.lang
         hocr_filename = self.ts.make_hocr_from_tiff(tiff_filename)
         
         # Generate new pdf with overlayed text
