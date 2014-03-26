@@ -101,7 +101,7 @@ class PyTesseract(object):
 
 
 
-    def make_hocr_from_tiff(self, tiff_filename):
+    def make_hocr_from_tiff(self, tiff_filename, language):
         uptodate,ver =  self._is_version_uptodate()
         if not uptodate:
             error(self.msgs['TS_VERSION']+ " (found %s, required %s)" % (ver, self.required))
@@ -118,7 +118,7 @@ class PyTesseract(object):
             logging.info(cmd)        
             ret = subprocess.call(cmd)
         else:
-            cmd = '%s "%s" "%s" hocr' % (self.binary, tiff_filename, basename)
+            cmd = '%s "%s" "%s" -l %s hocr' % (self.binary, tiff_filename, basename, language)
             logging.info(cmd)        
             ret = os.system(cmd)
                 
