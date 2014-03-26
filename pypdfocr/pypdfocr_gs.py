@@ -46,13 +46,13 @@ class PyGs(object):
         else:
             self.binary = "gs"
 
-        self.tiff_dpi = 300
-        self.output_dpi = 200
+        #self.tiff_dpi = 300
+        self.output_dpi = 300
         self.greyscale = True
         # Tiff is used for the ocr, so just fix it at 300dpi
         #  The other formats will be used to create the final OCR'ed image, so determine
         #  the DPI by using pdfimages if available, o/w default to 200
-        self.gs_options = {'tiff': ['tiff', ['-sDEVICE=tiff24nc','-r%d' % (self.tiff_dpi)]],
+        self.gs_options = {'tiff': ['tiff', ['-sDEVICE=tiff24nc','-r%d' ]],
                             'jpg': ['jpg', ['-sDEVICE=jpeg','-dJPEGQ=75', '-r%(dpi)s']],
                             'jpggrey': ['jpg', ['-sDEVICE=jpeggray', '-dJPEGQ=75', '-r%(dpi)s']],
                             'png': ['png', ['-sDEVICE=png16m', '-r%(dpi)s']],
@@ -162,7 +162,8 @@ class PyGs(object):
 
 
     def make_img_from_pdf(self, pdf_filename, output_format):
-        self._get_dpi(pdf_filename)
+        self._get_dpi(pdf_filename) # No need to bother anymore
+
         # Need tiff for multi-page documents
         if not os.path.exists(pdf_filename):
             error(self.msgs['GS_MISSING_PDF'] + " %s" % pdf_filename)
@@ -172,7 +173,7 @@ class PyGs(object):
 
         logging.info("Running ghostscript on %s to create %s" % (pdf_filename, output_filename))
 
-        options = ' '.join(self.gs_options[output_format][1])
+        options = ' '.join(self.gs_options[output_format][1]) % self.output_dpi
         self._run_gs(options, output_filename, pdf_filename)
 
         logging.info("Created %s" % output_filename)
@@ -181,7 +182,7 @@ class PyGs(object):
         #   We no longer use these for the final image. Instead the text is merged
         #   directly with the original PDF.  Yay!
         if self.greyscale:
-            self.img_format = 'tiffgrey'
+            self.img_format = 'jpggrey'
             logging.info("Detected greyscale")
         else:
             self.img_format = 'jpg'
@@ -190,5 +191,5 @@ class PyGs(object):
         self.img_file_ext = self.gs_options[self.img_format][0]
         options = ' '.join(self.gs_options[self.img_format][1]) % {'dpi':self.output_dpi}
         self._run_gs(options, "%s_%%d.%s" % (filename, self.img_file_ext), pdf_filename)
-        return (self.tiff_dpi,output_filename)
+        return (self.output_dpi,output_filename)
 

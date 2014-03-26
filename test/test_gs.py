@@ -10,6 +10,7 @@ from pytest import skip
 
 class TestGS:
 
+    @pytest.mark.skipif(os.name!='nt', reason="Not on NT")
     @patch('os.name')
     @patch('subprocess.check_output')
     def test_gs_set_nt(self, mock_subprocess, mock_os_name):
@@ -21,6 +22,7 @@ class TestGS:
 
         assert 'gswin32c.exe' in p.binary
 
+    @pytest.mark.skipif(os.name!='nt', reason="Not on NT")
     @patch('os.name')
     @patch('subprocess.call')
     def test_gs_run_nt(self, mock_subprocess, mock_os_name, capsys):
