@@ -53,6 +53,7 @@ class PyGs(object):
         self.msgs = {
                 'GS_FAILED': 'Ghostscript execution failed',
                 'GS_MISSING_PDF': 'Cannot find specified pdf file',
+                'GS_OUTDATED': 'Your Ghostscript version is probably out of date.  Please upgrade to the latest version',
             }
 
     def _warn(self, msg):
@@ -113,7 +114,10 @@ class PyGs(object):
 
         except subprocess.CalledProcessError as e:
             print e.output
-            error (self.msgs['GS_FAILED'])
+            if "undefined in .getdeviceparams" in e.output:
+                error(self.msgs['GS_OUTDATED'])
+            else:
+                error (self.msgs['GS_FAILED'])
 
 
     def make_img_from_pdf(self, pdf_filename, output_format):
