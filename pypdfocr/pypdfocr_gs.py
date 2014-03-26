@@ -45,6 +45,7 @@ class PyGs(object):
 	    logging.info("Using Ghostscript: %s" % self.binary)
         else:
             self.binary = "gs"
+
         self.tiff_dpi = 300
         self.output_dpi = 200
         self.greyscale = True
@@ -61,6 +62,14 @@ class PyGs(object):
                         }
 
     def _find_windows_gs(self):
+        """
+            Searches through the Windows program files directories to find Ghostscript.
+            If it finds multiple versions, it does a naive sort for now to find the most
+            recent.
+
+            :rval: The ghostscript binary location
+
+        """
         windirs = ["c:\\Program Files\\gs", "c:\\Program Files (x86)\\gs"]
         gs = None
         for d in windirs:
@@ -69,16 +78,21 @@ class PyGs(object):
             cwd = os.getcwd()
             os.chdir(d)
             listing = os.listdir('.')
+
+            # Find all possible gs* sub-directories
 	    listing = [x for x in listing if x.startswith('gs')]
+
+            # TODO: Make this a natural sort
             listing.sort(reverse=True)
 	    for bindir in listing:
 		binpath = os.path.join(bindir,'bin')
 		if not os.path.exists(binpath): continue
 		os.chdir(binpath)
+                # Look for gswin64c.exe or gswin32c.exe (the c is for the command-line version)
 		gswin = glob.glob('gswin*c.exe')
 		if len(gswin) == 0:
 		    continue
-		gs = os.path.abspath(gswin[0])
+		gs = os.path.abspath(gswin[0]) # Just use the first found .exe (Do i need to do anything more complicated here?)
 		os.chdir(cwd)
 		return gs
 
@@ -97,7 +111,7 @@ class PyGs(object):
             out = subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError as e:
             self._warn ("Could not execute pdfimages to calculate DPI (try installing xpdf or poppler?), so defaulting to %sdpi" % self.output_dpi) 
-        return
+            return
 
         # Need the second line of output
         results = out.splitlines()[2]
@@ -119,8 +133,8 @@ class PyGs(object):
             xdpi = round(x_pt/width*xdensity)
             ydpi = round(y_pt/height*ydensity)
             self.output_dpi = xdpi
-            if xdpi != ydpi:
-                if ydpi>xdpi: self.output_dpi = ydpi
+            if ydpi>xdpi: self.output_dpi = ydpi
+            if abs(xdpi-ydpi) > xdpi*.05:  # Make sure the two dpi's are within 5%
                 self._warn("X-dpi is %d, Y-dpi is %d, defaulting to %d" % (xdpi, ydpi, self.output_dpi))
             else:
                 print("Using %d DPI" % self.output_dpi)
@@ -130,8 +144,6 @@ class PyGs(object):
             logging.debug(str(e))
             self._warn ("Could not execute identify to calculate DPI (try installing imagemagick?), so defaulting to %sdpi" % self.output_dpi) 
         return
-
-
 
 
 
@@ -150,7 +162,6 @@ class PyGs(object):
 
 
     def make_img_from_pdf(self, pdf_filename, output_format):
-        self._find_windows_gs()
         self._get_dpi(pdf_filename)
         # Need tiff for multi-page documents
         if not os.path.exists(pdf_filename):
@@ -166,11 +177,11 @@ class PyGs(object):
 
         logging.info("Created %s" % output_filename)
 
-        # Create ancillary jpeg files per page to get around the fact
-        # that reportlab doesn't compress PIL images, leading to huge PDFs
-        # Instead, we insert the jpeg directly per page
+        # Create ancillary jpeg files to use later to calculate image dpi etc
+        #   We no longer use these for the final image. Instead the text is merged
+        #   directly with the original PDF.  Yay!
         if self.greyscale:
-            self.img_format = 'tifflzw'
+            self.img_format = 'tiffgrey'
             logging.info("Detected greyscale")
         else:
             self.img_format = 'jpg'
