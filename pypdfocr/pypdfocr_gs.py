@@ -106,17 +106,15 @@ class PyGs(object):
 
 
     def _run_gs(self, options, output_filename, pdf_filename):
-        if str(os.name)=='nt':
+        try:
             cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s" "%s" -c quit' % (self.binary, options, output_filename, pdf_filename)
             logging.info(cmd)        
-            ret = subprocess.call(cmd)
-        else:
-            cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s" "%s" -c quit' % (self.binary, options, output_filename, pdf_filename)
-            logging.debug(cmd)
-            ret = os.system(cmd)
+            out = subprocess.check_output(cmd, shell=True)
 
-        if ret != 0:
+        except subprocess.CalledProcessError as e:
+            print e.output
             error (self.msgs['GS_FAILED'])
+
 
     def make_img_from_pdf(self, pdf_filename, output_format):
         self._get_dpi(pdf_filename)
