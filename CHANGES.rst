@@ -2,6 +2,7 @@
 Version  Date       Changes
 -------  --------   ------
 
+v0.7.2   3/26/14    Switched from Pil to Pillow. Now uses original images from PDF in output pdf (no dpi/color/quality changes!)
 v0.7.1   3/25/14    OCR Language is now an option
 v0.7.0   3/25/14    Now honors original pdf resolution
 v0.6.1   2/16/14    Bug fix for pdfs with only numbers in the filename

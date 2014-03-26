@@ -43,6 +43,9 @@ from reportlab.pdfbase.ttfonts import TTFont
 from xml.etree.ElementTree import ElementTree, ParseError
 import xml.etree
 
+# Import Pypdf2
+from PyPDF2 import PdfFileMerger, PdfFileReader, PdfFileWriter
+
 class PyPdf(object):
     """Class to create pdfs from images"""
 
@@ -51,18 +54,20 @@ class PyPdf(object):
         self.gs = gs # Pointer to ghostscript object
         pass
 
-    def overlay_hocr(self, dpi, hocr_filename):
+    def overlay_hocr(self, dpi, hocr_filename, orig_pdf_filename):
         hocr_dir, hocr_basename = os.path.split(hocr_filename)
         logging.debug("hocr_filename:%s, hocr_dir:%s, hocr_basename:%s" % (hocr_filename, hocr_dir, hocr_basename))
         basename = hocr_basename.split('.')[0]
+        orig_pdf_filename = os.path.abspath(orig_pdf_filename)
         pdf_filename = os.path.join("%s_ocr.pdf" % (basename))
+        text_pdf_filename = pdf_filename + ".tmp"
         # Switch to the hocr directory to make this easier
 
         cwd = os.getcwd()
         if hocr_dir != "":
             os.chdir(hocr_dir)
 
-        with open(pdf_filename, "wb") as f:
+        with open(text_pdf_filename, "wb") as f:
             logging.info("Overlaying hocr and creating final %s" % pdf_filename)
             pdf = Canvas(f, pageCompression=1)
             pdf.setCreator('pyocr')
@@ -73,22 +78,22 @@ class PyPdf(object):
             logging.info("Searching for %s" % ("%s*.jpg" % basename))
 
             # Find all the jpg files, and sort them by page number
-            jpg_files = []
+            img_files = []
 
             # Make the jpg search a little bit more robust
             for f in os.listdir("."):
                 if re.match(r"^%s_\d+\.%s$" % (basename, self.gs.img_file_ext), f):
-                    jpg_files.append(f)
-            #jpg_files = glob.glob("%s*.jpg" % basename)
-            jpg_files.sort(key=self.natural_keys)
+                    img_files.append(f)
+            img_files.sort(key=self.natural_keys)
 
-            if len(jpg_files) == 0:
-                logging.warn("No jpg files found to embed in PDF.  Please check this!")
+            if len(img_files) == 0:
+                logging.warn("No %s files found to embed in PDF.  Please check this!" % self.gs.img_file_ext)
+
             # We know the following loop will iterate in page order 
             # because we sorted the jpg filenames
-            for i, jpg_file in enumerate(jpg_files):
+            for i, img_file in enumerate(img_files):
 
-                jpg = Image.open(jpg_file)
+                jpg = Image.open(img_file)
                 w,h = jpg.size
                 dpi_jpg = jpg.info['dpi']
                 width = w*72.0/dpi_jpg[0]
@@ -96,37 +101,47 @@ class PyPdf(object):
                 del jpg
 
                 pdf.setPageSize((width,height))
-                logging.info("Adding page image %s" % jpg_file)
+                logging.info("Adding page image %s" % img_file)
                 logging.info("Page width=%f, height=%f" % (width, height))
-                pdf.drawImage(jpg_file,0,0, width=width, height=height)
+                #pdf.drawImage(img_file,0,0, width=width, height=height)
                 # Get the page number
                 pg_num = i+1
                 # Do a quick assert to make sure our sorted page number matches
                 # what's embedded in the filename
-                file_pg_num = int(jpg_file.split(basename+"_")[1].split('.')[0])
+                file_pg_num = int(img_file.split(basename+"_")[1].split('.')[0])
                 if file_pg_num != pg_num:
                     logging.warn("Page number from file (%d) does not match iteration (%d)... continuing anyway" % (file_pg_num, pg_num))
 
                 logging.info("Adding text to page %d" % pg_num)
                 self.add_text_layer(pdf, hocr_basename,pg_num,height,dpi)
                 pdf.showPage()
-                os.remove(jpg_file)
+                os.remove(img_file)
 
             pdf.save()
-        logging.info("Created OCR'ed pdf as %s" % (pdf_filename))
 
-	# Now we have to fix up stuff on windows because of reportlab
-	# adding \r\r\n on each line (instead of \r\n)
-	f = open(pdf_filename, "rb")
-	s = str(f.read())
-	f.close()
-	#s = s.replace('\r\r\n', '\r\n')
-	#s = re.sub("\r\r\n", "\r\n", s)
-	#f = open(pdf_filename, "wb")
-	#f.write(s)
-	#f.close()
+        logging.info("Created temp OCR'ed pdf containing only the text as %s" % (text_pdf_filename))
+        writer = PdfFileWriter()
+        orig = open(orig_pdf_filename, 'rb')
+        text = open(text_pdf_filename, 'rb')
+        for orig_pg, text_pg in zip(self.iter_pdf_page(orig), self.iter_pdf_page(text)):
+            orig_pg.mergePage(text_pg)
+            writer.addPage(orig_pg)
+
+        with open(pdf_filename, 'wb') as f:
+            writer.write(f)
+        orig.close()
+        text.close()
+        os.remove(text_pdf_filename)
+
+        logging.info("Created OCR'ed pdf as %s" % (pdf_filename))
         os.chdir(cwd)
         return os.path.join(hocr_dir,pdf_filename)
+
+    def iter_pdf_page(self, f):
+        reader = PdfFileReader(f)
+        for pgnum in range(reader.getNumPages()):
+            pg = reader.getPage(pgnum)
+            yield pg
 
     def _atoi(self,text):
         return int(text) if text.isdigit() else text

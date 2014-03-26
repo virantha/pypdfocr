@@ -307,7 +307,7 @@ class PyPDFOCR(object):
         hocr_filename = self.ts.make_hocr_from_tiff(tiff_filename)
         
         # Generate new pdf with overlayed text
-        ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename)
+        ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename, pdf_filename)
 
         # Clean up the files
         self._clean_up_files((tiff_filename, hocr_filename))

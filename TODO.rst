@@ -1,8 +1,7 @@
 Todo list
 =========
 
-- Add check for tesseract version
-- Fix options for looking for ghostscript and tesseract
+- Switch to page-by-page pnm conversion so we start adding support for unpaper
 - Make tesseract run multiprocess
 - Run more robustness tests for watching networked shares
 - Add more docstrings
