@@ -18,6 +18,7 @@ import argparse
 import sys, os
 import logging
 import shutil
+import itertools
 
 from version import __version__
 from PIL import Image
@@ -301,16 +302,17 @@ class PyPDFOCR(object):
         print ("Starting conversion of %s" % pdf_filename)
         conversion_format = "tiff"
         # Make the images for Tesseract
-        tiff_dpi, tiff_filename = self.gs.make_img_from_pdf(pdf_filename, conversion_format)
+        img_dpi, glob_img_filename = self.gs.make_img_from_pdf(pdf_filename, conversion_format)
         # Run teserract
         self.ts.lang = self.lang
-        hocr_filename = self.ts.make_hocr_from_tiff(tiff_filename)
+        hocr_filenames = self.ts.make_hocr_from_pnms(glob_img_filename)
         
         # Generate new pdf with overlayed text
-        ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename, pdf_filename)
+        #ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename, pdf_filename)
+        ocr_pdf_filename = self.pdf.overlay_hocr_pages(img_dpi, hocr_filenames, pdf_filename)
 
         # Clean up the files
-        self._clean_up_files((tiff_filename, hocr_filename))
+        self._clean_up_files(itertools.chain(*hocr_filenames))
 
         print ("Completed conversion successfully to %s" % ocr_pdf_filename)
         return ocr_pdf_filename

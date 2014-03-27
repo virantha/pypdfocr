@@ -22,7 +22,9 @@
 import os, sys
 import logging
 import subprocess
+import glob
 from subprocess import CalledProcessError
+
 def error(text):
     print("ERROR: %s" % text)
     sys.exit(-1)
@@ -48,7 +50,7 @@ class PyTesseract(object):
                 Please make sure you have Tesseract installed correctly
                 """ % self.binary,
             'TS_VERSION':'Tesseract version is too old',
-            'TS_TIFF_MISSING':'Cannot find specified tiff file',
+            'TS_img_MISSING':'Cannot find specified tiff file',
             'TS_FAILED': 'Tesseract-OCR execution failed!',
         }
 
@@ -102,30 +104,39 @@ class PyTesseract(object):
 
 
 
-    def make_hocr_from_tiff(self, tiff_filename):
+    def make_hocr_from_pnms(self, img_filename):
         uptodate,ver =  self._is_version_uptodate()
         if not uptodate:
             error(self.msgs['TS_VERSION']+ " (found %s, required %s)" % (ver, self.required))
 
-        basename,filext = os.path.splitext(tiff_filename)
+        # Glob it
+        fns = glob.glob(img_filename)
+        hocr_filenames = []
+        for fn in fns:
+            hocr_fn = self.make_hocr_from_pnm(fn)
+            hocr_filenames.append((fn,hocr_fn))
+
+        return hocr_filenames
+
+
+    def make_hocr_from_pnm(self, img_filename):
+
+        basename,filext = os.path.splitext(img_filename)
         hocr_filename = "%s.html" % basename
 
-        if not os.path.exists(tiff_filename):
-            error(self.msgs['TS_TIFF_MISSING'] + " %s" % (tiff_filename))
+        if not os.path.exists(img_filename):
+            error(self.msgs['TS_img_MISSING'] + " %s" % (img_filename))
 
-        logging.info("Running OCR on %s to create %s.html" % (tiff_filename, basename))
-        if str(os.name) == 'nt':
-            cmd = '%s "%s" "%s" -l %s hocr' % (self.binary, tiff_filename, basename, self.lang)
-            logging.info(cmd)        
-            ret = subprocess.call(cmd)
-        else:
-            cmd = '%s "%s" "%s" -l %s hocr' % (self.binary, tiff_filename, basename, self.lang)
-            logging.info(cmd)        
-            ret = os.system(cmd)
-                
-        if ret != 0:
+        logging.info("Running OCR on %s to create %s.html" % (img_filename, basename))
+        cmd = '%s "%s" "%s" -psm 1 -l %s hocr' % (self.binary, img_filename, basename, self.lang)
+        logging.info(cmd)
+        try:
+            ret_output = subprocess.check_output(cmd, shell=True,  stderr=subprocess.STDOUT)
+        except CalledProcessError as e:
+            # Could not run tesseract
+            print e.output
             error (self.msgs['TS_FAILED'])
+                
         logging.info("Created %s.html" % basename)
 
         return hocr_filename
-

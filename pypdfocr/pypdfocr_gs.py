@@ -59,6 +59,8 @@ class PyGs(object):
                             'pnggrey': ['png', ['-sDEVICE=pngmono', '-r%(dpi)s']],
                             'tifflzw': ['tiff', ['-sDEVICE=tifflzw', '-r%(dpi)s']],
                             'tiffg4': ['tiff', ['-sDEVICE=tiffg4', '-r%(dpi)s']],
+                            'pnm': ['pnm', ['-sDEVICE=pnmraw', '-r%(dpi)s']],
+                            'pgm': ['pgm', ['-sDEVICE=pgm', '-r%(dpi)s']],
                         }
 
     def _find_windows_gs(self):
@@ -164,32 +166,35 @@ class PyGs(object):
     def make_img_from_pdf(self, pdf_filename, output_format):
         self._get_dpi(pdf_filename) # No need to bother anymore
 
-        # Need tiff for multi-page documents
         if not os.path.exists(pdf_filename):
             error(self.msgs['GS_MISSING_PDF'] + " %s" % pdf_filename)
 
         filename, filext = os.path.splitext(pdf_filename)
-        output_filename = "%s.%s" % (filename, self.gs_options[output_format][0])
 
-        logging.info("Running ghostscript on %s to create %s" % (pdf_filename, output_filename))
-
-        options = ' '.join(self.gs_options[output_format][1]) % self.output_dpi
-        self._run_gs(options, output_filename, pdf_filename)
-
-        logging.info("Created %s" % output_filename)
 
         # Create ancillary jpeg files to use later to calculate image dpi etc
         #   We no longer use these for the final image. Instead the text is merged
         #   directly with the original PDF.  Yay!
         if self.greyscale:
-            self.img_format = 'jpggrey'
+            #self.img_format = 'jpggrey'
+            self.img_format = 'pnggrey'
             logging.info("Detected greyscale")
         else:
-            self.img_format = 'jpg'
+            self.img_format = 'png'
             logging.info("Detected color")
 
         self.img_file_ext = self.gs_options[self.img_format][0]
+
+        # The possible output files glob
+        globable_filename = '%s_*.%s' % (filename, self.img_file_ext)
+        # Delete any img files already existing
+        for fn in glob.glob(globable_filename):
+            os.remove(fn)
+
         options = ' '.join(self.gs_options[self.img_format][1]) % {'dpi':self.output_dpi}
-        self._run_gs(options, "%s_%%d.%s" % (filename, self.img_file_ext), pdf_filename)
-        return (self.output_dpi,output_filename)
+        output_filename = '%s_%%d.%s' % (filename, self.img_file_ext)
+        self._run_gs(options, output_filename, pdf_filename)
+        for fn in glob.glob(globable_filename):
+            logging.info("Created image %s" % fn)
+        return (self.output_dpi, globable_filename)
 

@@ -54,21 +54,106 @@ class PyPdf(object):
         self.gs = gs # Pointer to ghostscript object
         pass
 
-    def overlay_hocr(self, dpi, hocr_filename, orig_pdf_filename):
+    def overlay_hocr_pages(self, dpi, hocr_filenames, orig_pdf_filename):
+        
+        logging.debug("Going to overlay following files onto %s" % orig_pdf_filename)
+        logging.debug(hocr_filenames)
+
+        text_pdf_filenames = []
+        for img_filename, hocr_filename in hocr_filenames:
+            text_pdf_filename = self.overlay_hocr_page(dpi, hocr_filename, img_filename)
+            logging.info("Created temp OCR'ed pdf containing only the text as %s" % (text_pdf_filename))
+            text_pdf_filenames.append(text_pdf_filename)
+
+
+        writer = PdfFileWriter()
+        orig = open(orig_pdf_filename, 'rb')
+        text_files = []
+        for orig_pg, text_pg_filename in zip(self.iter_pdf_page(orig), text_pdf_filenames):
+            text_file = open(text_pg_filename, 'rb')
+            text_files.append(text_file) # Save this to close after we write the final pdf
+            text_pg = self.iter_pdf_page(text_file).next()
+            orig_pg.mergePage(text_pg)
+            writer.addPage(orig_pg)
+            #text_file.close()
+
+        pdf_dir, pdf_basename = os.path.split(orig_pdf_filename)
+        basename = pdf_basename.split('.')[0]
+        pdf_filename = os.path.join(pdf_dir, "%s_ocr.pdf" % (basename))
+        with open(pdf_filename, 'wb') as f:
+            writer.write(f)
+        
+        orig.close()
+        for f in text_files:
+            f.close()
+        for fn in text_pdf_filenames:
+            os.remove(fn)
+
+        logging.info("Created OCR'ed pdf as %s" % (pdf_filename))
+        return pdf_filename
+
+    def _get_img_dims(self, img_filename):
+        """
+            :rval: (width, height, dpi)
+        """
+        img = Image.open(img_filename)
+        w,h = img.size
+        dpi = img.info['dpi']
+        width = w*72.0/dpi[0]
+        height = h*72.0/dpi[1]
+        del img
+        return (width, height, dpi)
+
+    def overlay_hocr_page(self, dpi, hocr_filename, img_filename):
+        hocr_dir, hocr_basename = os.path.split(hocr_filename)
+        img_dir, img_basename = os.path.split(img_filename)
+        logging.debug("hocr_filename:%s, hocr_dir:%s, hocr_basename:%s" % (hocr_filename, hocr_dir, hocr_basename))
+        assert(img_dir == hocr_dir)
+
+        basename = hocr_basename.split('.')[0]
+        pdf_filename = os.path.join("text_%s_ocr.pdf" % (basename))
+
+        # Switch to the hocr directory to make this easier
+        cwd = os.getcwd()
+        if hocr_dir != "":
+            os.chdir(hocr_dir)
+
+        with open(pdf_filename, "wb") as f:
+            logging.info("Overlaying hocr and creating text pdf %s" % pdf_filename)
+            pdf = Canvas(f, pageCompression=1)
+            pdf.setCreator('pypdfocr')
+            pdf.setTitle(os.path.basename(hocr_filename))
+            pdf.setPageCompression(1)
+
+            width, height, dpi_jpg = self._get_img_dims(img_basename)
+            pdf.setPageSize((width,height))
+            logging.info("Page width=%f, height=%f" % (width, height))
+
+            pg_num = 1
+
+            logging.info("Adding text to page %s" % pdf_filename)
+            self.add_text_layer(pdf,hocr_basename,pg_num,height,dpi)
+            pdf.showPage()
+            #os.remove(img_filename)
+            pdf.save()
+
+        os.chdir(cwd)
+        return os.path.join(hocr_dir, pdf_filename)
+
+    def overlay_hocr_old(self, dpi, hocr_filename):
         hocr_dir, hocr_basename = os.path.split(hocr_filename)
         logging.debug("hocr_filename:%s, hocr_dir:%s, hocr_basename:%s" % (hocr_filename, hocr_dir, hocr_basename))
         basename = hocr_basename.split('.')[0]
-        orig_pdf_filename = os.path.abspath(orig_pdf_filename)
         pdf_filename = os.path.join("%s_ocr.pdf" % (basename))
         text_pdf_filename = pdf_filename + ".tmp"
-        # Switch to the hocr directory to make this easier
 
+        # Switch to the hocr directory to make this easier
         cwd = os.getcwd()
         if hocr_dir != "":
             os.chdir(hocr_dir)
 
         with open(text_pdf_filename, "wb") as f:
-            logging.info("Overlaying hocr and creating final %s" % pdf_filename)
+            logging.info("Overlaying hocr and creating text pdf %s" % text_pdf_filename)
             pdf = Canvas(f, pageCompression=1)
             pdf.setCreator('pyocr')
             pdf.setTitle(os.path.basename(hocr_filename))
@@ -119,22 +204,6 @@ class PyPdf(object):
 
             pdf.save()
 
-        logging.info("Created temp OCR'ed pdf containing only the text as %s" % (text_pdf_filename))
-        writer = PdfFileWriter()
-        orig = open(orig_pdf_filename, 'rb')
-        text = open(text_pdf_filename, 'rb')
-        for orig_pg, text_pg in zip(self.iter_pdf_page(orig), self.iter_pdf_page(text)):
-            orig_pg.mergePage(text_pg)
-            writer.addPage(orig_pg)
-
-        with open(pdf_filename, 'wb') as f:
-            writer.write(f)
-        orig.close()
-        text.close()
-        os.remove(text_pdf_filename)
-
-        logging.info("Created OCR'ed pdf as %s" % (pdf_filename))
-        os.chdir(cwd)
         return os.path.join(hocr_dir,pdf_filename)
 
     def iter_pdf_page(self, f):
