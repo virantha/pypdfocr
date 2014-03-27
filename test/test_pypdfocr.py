@@ -28,7 +28,7 @@ class TestPydfocr:
                 yield text
     
     pdf_tests = [
-            (".", os.path.join("temp","target","recipe"), os.path.join("..","test", "pdfs", "test_recipe.pdf"), [ ["Spinach Recipe","Drain any excess"],
+            (".", os.path.join("temp","target","recipe"), os.path.join("..","test", "pdfs", "test_recipe.pdf"), [ ["Simply Recipes"],
                                  ]),
         (".", os.path.join("temp","target","patents"), os.path.join("pdfs","test_patent.pdf"), [ 
                            ["ASYNCHRONOUS", "subject to", "20 Claims"], # Page 1

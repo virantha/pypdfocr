@@ -47,7 +47,7 @@ class PyGs(object):
             self.binary = "gs"
 
         #self.tiff_dpi = 300
-        self.output_dpi = 300
+        self.output_dpi = 400
         self.greyscale = True
         # Tiff is used for the ocr, so just fix it at 300dpi
         #  The other formats will be used to create the final OCR'ed image, so determine
