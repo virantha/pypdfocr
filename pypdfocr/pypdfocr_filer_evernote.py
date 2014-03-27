@@ -244,6 +244,8 @@ class PyFilerEvernote(PyFiler):
         pdf_resource = Types.Resource()
         pdf_resource.data = pdf_data
         pdf_resource.mime = "application/pdf"
+        # TODO: Enable filename
+        #pdf_resource.attributes.filename = filename
         resource_list.append(pdf_resource)
 
         note.resources = resource_list
