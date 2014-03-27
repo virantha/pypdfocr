@@ -20,7 +20,7 @@ class TestGS:
         mock_os_name.__str__.return_value = 'nt'
         p = P.PyGs()
 
-        assert 'gswin32c.exe' in p.binary
+        assert 'gswin' in p.binary
 
     @pytest.mark.skipif(os.name!='nt', reason="Not on NT")
     @patch('os.name')

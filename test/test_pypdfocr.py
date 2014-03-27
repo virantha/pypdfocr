@@ -40,7 +40,7 @@ class TestPydfocr:
         ("pdfs", os.path.join("temp","target","default"), "test_sherlock.pdf", [ ["Bohemia", "Trincomalee"], # Page 1
                            ["hundreds of times" ], # Page 2
                            ]),
-            (".", os.path.join("temp","target","recipe"), os.path.join("..","test", "pdfs", "1.pdf"), [ ["Spinach Recipe","Drain any excess"],
+            (".", os.path.join("temp","target","recipe"), os.path.join("..","test", "pdfs", "1.pdf"), [ ["Simply","Recipes"],
                                  ]),
         ]
 
