@@ -300,6 +300,17 @@ output format change that I'm not planning to address). On Ubuntu, you
 may need to compile and install it manually by following `these
 instructions <http://miphol.com/muse/2013/05/install-tesseract-ocr-on-ubunt.html>`__
 
+Also note that if you want Tesseract to recognize rotated documents (upside down, or rotated 90 degrees)
+then you need to find your tessdata directory and do the following:
+
+::
+    cd /usr/local/share/tessdata 
+    cp eng.traineddata osd.traineddata 
+
+``osd`` stands for Orientation and Script Detection, so you need to copy the .traineddata
+for whatever language you want to scan in as ``osd.traineddata``.  If you don't do this step, 
+then any landscape document will produce garbage
+
 Disclaimer
 ----------
 
