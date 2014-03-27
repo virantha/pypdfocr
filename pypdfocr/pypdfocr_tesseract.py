@@ -50,7 +50,7 @@ class PyTesseract(object):
                 Please make sure you have Tesseract installed correctly
                 """ % self.binary,
             'TS_VERSION':'Tesseract version is too old',
-            'TS_TIFF_MISSING':'Cannot find specified tiff file',
+            'TS_img_MISSING':'Cannot find specified tiff file',
             'TS_FAILED': 'Tesseract-OCR execution failed!',
         }
 

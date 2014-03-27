@@ -74,16 +74,16 @@ class TestTesseract:
         p = P.PyTesseract()
         p.required = "100"
         with pytest.raises(SystemExit):
-            p.make_hocr_from_tiff("")
+            p.make_hocr_from_pnms("")
         out, err = capsys.readouterr()
         assert p.msgs['TS_VERSION'] in out
 
     def test_tiff_file_check(self, capsys):
         p = P.PyTesseract()
         with pytest.raises(SystemExit):
-            p.make_hocr_from_tiff("DUMMY_NOTPRESENT.tiff")
+            p.make_hocr_from_pnm("DUMMY_NOTPRESENT.tiff")
         out, err = capsys.readouterr()
-        assert p.msgs['TS_TIFF_MISSING'] in out
+        assert p.msgs['TS_img_MISSING'] in out
 
     @patch('os.name')
     @patch('subprocess.check_output')
@@ -111,8 +111,9 @@ class TestTesseract:
         mock_uptodate.return_value = (True,"")
         # force a bad tesseract on windows
         p.binary = "blah"
-        with pytest.raises(OSError):
-            p.make_hocr_from_tiff('blah.tiff')
+        print("here")
+        with pytest.raises(SystemExit):
+            p.make_hocr_from_pnm('blah.tiff')
 
     @patch('pypdfocr.pypdfocr_tesseract.subprocess.call')
     @patch('pypdfocr.pypdfocr_tesseract.PyTesseract._is_version_uptodate')
@@ -130,7 +131,7 @@ class TestTesseract:
         mock_uptodate.return_value = (True,"")
         mock_subprocess_call.return_value = -1
         with pytest.raises(SystemExit):
-            p.make_hocr_from_tiff('blah.tiff')
+            p.make_hocr_from_pnm('blah.tiff')
 
         out, err = capsys.readouterr()
         assert p.msgs['TS_FAILED'] in out
