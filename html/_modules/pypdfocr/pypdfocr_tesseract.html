@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr_tesseract &mdash; pypdfocr 0.7.2 documentation</title>
+    <title>pypdfocr.pypdfocr_tesseract &mdash; pypdfocr 0.7.3 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.7.2',
+        VERSION:     '0.7.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.7.2 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.7.3 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.7.3 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -88,7 +88,9 @@
 <span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">CalledProcessError</span>
+
 <div class="viewcode-block" id="error"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_tesseract.error">[docs]</a><span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="k">print</span><span class="p">(</span><span class="s">&quot;ERROR: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">text</span><span class="p">)</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
@@ -114,7 +116,7 @@
 <span class="s">                Please make sure you have Tesseract installed correctly</span>
 <span class="s">                &quot;&quot;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">binary</span><span class="p">,</span>
             <span class="s">&#39;TS_VERSION&#39;</span><span class="p">:</span><span class="s">&#39;Tesseract version is too old&#39;</span><span class="p">,</span>
-            <span class="s">&#39;TS_TIFF_MISSING&#39;</span><span class="p">:</span><span class="s">&#39;Cannot find specified tiff file&#39;</span><span class="p">,</span>
+            <span class="s">&#39;TS_img_MISSING&#39;</span><span class="p">:</span><span class="s">&#39;Cannot find specified tiff file&#39;</span><span class="p">,</span>
             <span class="s">&#39;TS_FAILED&#39;</span><span class="p">:</span> <span class="s">&#39;Tesseract-OCR execution failed!&#39;</span><span class="p">,</span>
         <span class="p">}</span>
 
@@ -168,33 +170,43 @@
 
 
 </div>
-<div class="viewcode-block" id="PyTesseract.make_hocr_from_tiff"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_tesseract.PyTesseract.make_hocr_from_tiff">[docs]</a>    <span class="k">def</span> <span class="nf">make_hocr_from_tiff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tiff_filename</span><span class="p">):</span>
+<div class="viewcode-block" id="PyTesseract.make_hocr_from_pnms"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_tesseract.PyTesseract.make_hocr_from_pnms">[docs]</a>    <span class="k">def</span> <span class="nf">make_hocr_from_pnms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_filename</span><span class="p">):</span>
         <span class="n">uptodate</span><span class="p">,</span><span class="n">ver</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">_is_version_uptodate</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">uptodate</span><span class="p">:</span>
             <span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;TS_VERSION&#39;</span><span class="p">]</span><span class="o">+</span> <span class="s">&quot; (found </span><span class="si">%s</span><span class="s">, required </span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ver</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span><span class="p">))</span>
 
-        <span class="n">basename</span><span class="p">,</span><span class="n">filext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">tiff_filename</span><span class="p">)</span>
+        <span class="c"># Glob it</span>
+        <span class="n">fns</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">img_filename</span><span class="p">)</span>
+        <span class="n">hocr_filenames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">fns</span><span class="p">:</span>
+            <span class="n">hocr_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_hocr_from_pnm</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+            <span class="n">hocr_filenames</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fn</span><span class="p">,</span><span class="n">hocr_fn</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">hocr_filenames</span>
+
+</div>
+<div class="viewcode-block" id="PyTesseract.make_hocr_from_pnm"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_tesseract.PyTesseract.make_hocr_from_pnm">[docs]</a>    <span class="k">def</span> <span class="nf">make_hocr_from_pnm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_filename</span><span class="p">):</span>
+
+        <span class="n">basename</span><span class="p">,</span><span class="n">filext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">img_filename</span><span class="p">)</span>
         <span class="n">hocr_filename</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.html&quot;</span> <span class="o">%</span> <span class="n">basename</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tiff_filename</span><span class="p">):</span>
-            <span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;TS_TIFF_MISSING&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot; </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tiff_filename</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">img_filename</span><span class="p">):</span>
+            <span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;TS_img_MISSING&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot; </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">img_filename</span><span class="p">))</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Running OCR on </span><span class="si">%s</span><span class="s"> to create </span><span class="si">%s</span><span class="s">.html&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tiff_filename</span><span class="p">,</span> <span class="n">basename</span><span class="p">))</span>
-        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
-            <span class="n">cmd</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> &quot;</span><span class="si">%s</span><span class="s">&quot; &quot;</span><span class="si">%s</span><span class="s">&quot; -l </span><span class="si">%s</span><span class="s"> hocr&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binary</span><span class="p">,</span> <span class="n">tiff_filename</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lang</span><span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>        
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">cmd</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> &quot;</span><span class="si">%s</span><span class="s">&quot; &quot;</span><span class="si">%s</span><span class="s">&quot; -l </span><span class="si">%s</span><span class="s"> hocr&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binary</span><span class="p">,</span> <span class="n">tiff_filename</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lang</span><span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>        
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
-                
-        <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Running OCR on </span><span class="si">%s</span><span class="s"> to create </span><span class="si">%s</span><span class="s">.html&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">img_filename</span><span class="p">,</span> <span class="n">basename</span><span class="p">))</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> &quot;</span><span class="si">%s</span><span class="s">&quot; &quot;</span><span class="si">%s</span><span class="s">&quot; -psm 1 -l </span><span class="si">%s</span><span class="s"> hocr&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binary</span><span class="p">,</span> <span class="n">img_filename</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lang</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ret_output</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>  <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c"># Could not run tesseract</span>
+            <span class="k">print</span> <span class="n">e</span><span class="o">.</span><span class="n">output</span>
             <span class="n">error</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;TS_FAILED&#39;</span><span class="p">])</span>
+                
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Created </span><span class="si">%s</span><span class="s">.html&quot;</span> <span class="o">%</span> <span class="n">basename</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">hocr_filename</span>
-</pre></div></div></div>
+        <span class="k">return</span> <span class="n">hocr_filename</span></div></div>
+</pre></div>
 
           </div>
         </div>
@@ -210,7 +222,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.7.3 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.7.2 documentation</title>
+    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.7.3 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.7.2',
+        VERSION:     '0.7.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.7.2 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.7.3 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.7.3 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -120,21 +120,106 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">gs</span> <span class="o">=</span> <span class="n">gs</span> <span class="c"># Pointer to ghostscript object</span>
         <span class="k">pass</span>
 
-<div class="viewcode-block" id="PyPdf.overlay_hocr"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.overlay_hocr">[docs]</a>    <span class="k">def</span> <span class="nf">overlay_hocr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpi</span><span class="p">,</span> <span class="n">hocr_filename</span><span class="p">,</span> <span class="n">orig_pdf_filename</span><span class="p">):</span>
+<div class="viewcode-block" id="PyPdf.overlay_hocr_pages"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.overlay_hocr_pages">[docs]</a>    <span class="k">def</span> <span class="nf">overlay_hocr_pages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpi</span><span class="p">,</span> <span class="n">hocr_filenames</span><span class="p">,</span> <span class="n">orig_pdf_filename</span><span class="p">):</span>
+        
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Going to overlay following files onto </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">orig_pdf_filename</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">hocr_filenames</span><span class="p">)</span>
+
+        <span class="n">text_pdf_filenames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">img_filename</span><span class="p">,</span> <span class="n">hocr_filename</span> <span class="ow">in</span> <span class="n">hocr_filenames</span><span class="p">:</span>
+            <span class="n">text_pdf_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlay_hocr_page</span><span class="p">(</span><span class="n">dpi</span><span class="p">,</span> <span class="n">hocr_filename</span><span class="p">,</span> <span class="n">img_filename</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Created temp OCR&#39;ed pdf containing only the text as </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">text_pdf_filename</span><span class="p">))</span>
+            <span class="n">text_pdf_filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text_pdf_filename</span><span class="p">)</span>
+
+
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">PdfFileWriter</span><span class="p">()</span>
+        <span class="n">orig</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">orig_pdf_filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span>
+        <span class="n">text_files</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">orig_pg</span><span class="p">,</span> <span class="n">text_pg_filename</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_pdf_page</span><span class="p">(</span><span class="n">orig</span><span class="p">),</span> <span class="n">text_pdf_filenames</span><span class="p">):</span>
+            <span class="n">text_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">text_pg_filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span>
+            <span class="n">text_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text_file</span><span class="p">)</span> <span class="c"># Save this to close after we write the final pdf</span>
+            <span class="n">text_pg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_pdf_page</span><span class="p">(</span><span class="n">text_file</span><span class="p">)</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+            <span class="n">orig_pg</span><span class="o">.</span><span class="n">mergePage</span><span class="p">(</span><span class="n">text_pg</span><span class="p">)</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">addPage</span><span class="p">(</span><span class="n">orig_pg</span><span class="p">)</span>
+            <span class="c">#text_file.close()</span>
+
+        <span class="n">pdf_dir</span><span class="p">,</span> <span class="n">pdf_basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">orig_pdf_filename</span><span class="p">)</span>
+        <span class="n">basename</span> <span class="o">=</span> <span class="n">pdf_basename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">pdf_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pdf_dir</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">_ocr.pdf&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">basename</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        
+        <span class="n">orig</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">text_files</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">text_pdf_filenames</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Created OCR&#39;ed pdf as </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pdf_filename</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">pdf_filename</span>
+</div>
+<div class="viewcode-block" id="PyPdf._get_img_dims"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf._get_img_dims">[docs]</a>    <span class="k">def</span> <span class="nf">_get_img_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            :rval: (width, height, dpi)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img_filename</span><span class="p">)</span>
+        <span class="n">w</span><span class="p">,</span><span class="n">h</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">dpi</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s">&#39;dpi&#39;</span><span class="p">]</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">w</span><span class="o">*</span><span class="mf">72.0</span><span class="o">/</span><span class="n">dpi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">h</span><span class="o">*</span><span class="mf">72.0</span><span class="o">/</span><span class="n">dpi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">img</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">dpi</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PyPdf.overlay_hocr_page"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.overlay_hocr_page">[docs]</a>    <span class="k">def</span> <span class="nf">overlay_hocr_page</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpi</span><span class="p">,</span> <span class="n">hocr_filename</span><span class="p">,</span> <span class="n">img_filename</span><span class="p">):</span>
+        <span class="n">hocr_dir</span><span class="p">,</span> <span class="n">hocr_basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">hocr_filename</span><span class="p">)</span>
+        <span class="n">img_dir</span><span class="p">,</span> <span class="n">img_basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">img_filename</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;hocr_filename:</span><span class="si">%s</span><span class="s">, hocr_dir:</span><span class="si">%s</span><span class="s">, hocr_basename:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hocr_filename</span><span class="p">,</span> <span class="n">hocr_dir</span><span class="p">,</span> <span class="n">hocr_basename</span><span class="p">))</span>
+        <span class="k">assert</span><span class="p">(</span><span class="n">img_dir</span> <span class="o">==</span> <span class="n">hocr_dir</span><span class="p">)</span>
+
+        <span class="n">basename</span> <span class="o">=</span> <span class="n">hocr_basename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">pdf_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;text_</span><span class="si">%s</span><span class="s">_ocr.pdf&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">basename</span><span class="p">))</span>
+
+        <span class="c"># Switch to the hocr directory to make this easier</span>
+        <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">hocr_dir</span> <span class="o">!=</span> <span class="s">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">hocr_dir</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="s">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Overlaying hocr and creating text pdf </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pdf_filename</span><span class="p">)</span>
+            <span class="n">pdf</span> <span class="o">=</span> <span class="n">Canvas</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">pageCompression</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">pdf</span><span class="o">.</span><span class="n">setCreator</span><span class="p">(</span><span class="s">&#39;pypdfocr&#39;</span><span class="p">)</span>
+            <span class="n">pdf</span><span class="o">.</span><span class="n">setTitle</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">hocr_filename</span><span class="p">))</span>
+            <span class="n">pdf</span><span class="o">.</span><span class="n">setPageCompression</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">dpi_jpg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_img_dims</span><span class="p">(</span><span class="n">img_basename</span><span class="p">)</span>
+            <span class="n">pdf</span><span class="o">.</span><span class="n">setPageSize</span><span class="p">((</span><span class="n">width</span><span class="p">,</span><span class="n">height</span><span class="p">))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Page width=</span><span class="si">%f</span><span class="s">, height=</span><span class="si">%f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>
+
+            <span class="n">pg_num</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Adding text to page </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pdf_filename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_text_layer</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span><span class="n">hocr_basename</span><span class="p">,</span><span class="n">pg_num</span><span class="p">,</span><span class="n">height</span><span class="p">,</span><span class="n">dpi</span><span class="p">)</span>
+            <span class="n">pdf</span><span class="o">.</span><span class="n">showPage</span><span class="p">()</span>
+            <span class="c">#os.remove(img_filename)</span>
+            <span class="n">pdf</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hocr_dir</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PyPdf.overlay_hocr_old"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.overlay_hocr_old">[docs]</a>    <span class="k">def</span> <span class="nf">overlay_hocr_old</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpi</span><span class="p">,</span> <span class="n">hocr_filename</span><span class="p">):</span>
         <span class="n">hocr_dir</span><span class="p">,</span> <span class="n">hocr_basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">hocr_filename</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;hocr_filename:</span><span class="si">%s</span><span class="s">, hocr_dir:</span><span class="si">%s</span><span class="s">, hocr_basename:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hocr_filename</span><span class="p">,</span> <span class="n">hocr_dir</span><span class="p">,</span> <span class="n">hocr_basename</span><span class="p">))</span>
         <span class="n">basename</span> <span class="o">=</span> <span class="n">hocr_basename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">orig_pdf_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">orig_pdf_filename</span><span class="p">)</span>
         <span class="n">pdf_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">_ocr.pdf&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">basename</span><span class="p">))</span>
         <span class="n">text_pdf_filename</span> <span class="o">=</span> <span class="n">pdf_filename</span> <span class="o">+</span> <span class="s">&quot;.tmp&quot;</span>
-        <span class="c"># Switch to the hocr directory to make this easier</span>
 
+        <span class="c"># Switch to the hocr directory to make this easier</span>
         <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">hocr_dir</span> <span class="o">!=</span> <span class="s">&quot;&quot;</span><span class="p">:</span>
             <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">hocr_dir</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">text_pdf_filename</span><span class="p">,</span> <span class="s">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Overlaying hocr and creating final </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pdf_filename</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Overlaying hocr and creating text pdf </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">text_pdf_filename</span><span class="p">)</span>
             <span class="n">pdf</span> <span class="o">=</span> <span class="n">Canvas</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">pageCompression</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">pdf</span><span class="o">.</span><span class="n">setCreator</span><span class="p">(</span><span class="s">&#39;pyocr&#39;</span><span class="p">)</span>
             <span class="n">pdf</span><span class="o">.</span><span class="n">setTitle</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">hocr_filename</span><span class="p">))</span>
@@ -185,22 +270,6 @@
 
             <span class="n">pdf</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Created temp OCR&#39;ed pdf containing only the text as </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">text_pdf_filename</span><span class="p">))</span>
-        <span class="n">writer</span> <span class="o">=</span> <span class="n">PdfFileWriter</span><span class="p">()</span>
-        <span class="n">orig</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">orig_pdf_filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">text_pdf_filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">orig_pg</span><span class="p">,</span> <span class="n">text_pg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_pdf_page</span><span class="p">(</span><span class="n">orig</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_pdf_page</span><span class="p">(</span><span class="n">text</span><span class="p">)):</span>
-            <span class="n">orig_pg</span><span class="o">.</span><span class="n">mergePage</span><span class="p">(</span><span class="n">text_pg</span><span class="p">)</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">addPage</span><span class="p">(</span><span class="n">orig_pg</span><span class="p">)</span>
-
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-        <span class="n">orig</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="n">text</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">text_pdf_filename</span><span class="p">)</span>
-
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Created OCR&#39;ed pdf as </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pdf_filename</span><span class="p">))</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hocr_dir</span><span class="p">,</span><span class="n">pdf_filename</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="PyPdf.iter_pdf_page"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.iter_pdf_page">[docs]</a>    <span class="k">def</span> <span class="nf">iter_pdf_page</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
@@ -328,7 +397,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.7.3 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>

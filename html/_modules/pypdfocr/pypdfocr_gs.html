@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr_gs &mdash; pypdfocr 0.7.2 documentation</title>
+    <title>pypdfocr.pypdfocr_gs &mdash; pypdfocr 0.7.3 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.7.2',
+        VERSION:     '0.7.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.7.2 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.7.3 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.7.3 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -125,6 +125,8 @@
                             <span class="s">&#39;pnggrey&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;png&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;-sDEVICE=pngmono&#39;</span><span class="p">,</span> <span class="s">&#39;-r</span><span class="si">%(dpi)s</span><span class="s">&#39;</span><span class="p">]],</span>
                             <span class="s">&#39;tifflzw&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;tiff&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;-sDEVICE=tifflzw&#39;</span><span class="p">,</span> <span class="s">&#39;-r</span><span class="si">%(dpi)s</span><span class="s">&#39;</span><span class="p">]],</span>
                             <span class="s">&#39;tiffg4&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;tiff&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;-sDEVICE=tiffg4&#39;</span><span class="p">,</span> <span class="s">&#39;-r</span><span class="si">%(dpi)s</span><span class="s">&#39;</span><span class="p">]],</span>
+                            <span class="s">&#39;pnm&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;pnm&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;-sDEVICE=pnmraw&#39;</span><span class="p">,</span> <span class="s">&#39;-r</span><span class="si">%(dpi)s</span><span class="s">&#39;</span><span class="p">]],</span>
+                            <span class="s">&#39;pgm&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;pgm&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;-sDEVICE=pgm&#39;</span><span class="p">,</span> <span class="s">&#39;-r</span><span class="si">%(dpi)s</span><span class="s">&#39;</span><span class="p">]],</span>
                         <span class="p">}</span>
 
 <div class="viewcode-block" id="PyGs._find_windows_gs"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_gs.PyGs._find_windows_gs">[docs]</a>    <span class="k">def</span> <span class="nf">_find_windows_gs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -230,34 +232,37 @@
 <div class="viewcode-block" id="PyGs.make_img_from_pdf"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_gs.PyGs.make_img_from_pdf">[docs]</a>    <span class="k">def</span> <span class="nf">make_img_from_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">,</span> <span class="n">output_format</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_dpi</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span> <span class="c"># No need to bother anymore</span>
 
-        <span class="c"># Need tiff for multi-page documents</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">):</span>
             <span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;GS_MISSING_PDF&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot; </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pdf_filename</span><span class="p">)</span>
 
         <span class="n">filename</span><span class="p">,</span> <span class="n">filext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span>
-        <span class="n">output_filename</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs_options</span><span class="p">[</span><span class="n">output_format</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Running ghostscript on </span><span class="si">%s</span><span class="s"> to create </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">))</span>
-
-        <span class="n">options</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gs_options</span><span class="p">[</span><span class="n">output_format</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_run_gs</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">)</span>
-
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Created </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">output_filename</span><span class="p">)</span>
 
         <span class="c"># Create ancillary jpeg files to use later to calculate image dpi etc</span>
         <span class="c">#   We no longer use these for the final image. Instead the text is merged</span>
         <span class="c">#   directly with the original PDF.  Yay!</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">greyscale</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">img_format</span> <span class="o">=</span> <span class="s">&#39;jpggrey&#39;</span>
+            <span class="c">#self.img_format = &#39;jpggrey&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">img_format</span> <span class="o">=</span> <span class="s">&#39;pnggrey&#39;</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Detected greyscale&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">img_format</span> <span class="o">=</span> <span class="s">&#39;jpg&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">img_format</span> <span class="o">=</span> <span class="s">&#39;png&#39;</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Detected color&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">img_file_ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs_options</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">img_format</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c"># The possible output files glob</span>
+        <span class="n">globable_filename</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">_*.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_file_ext</span><span class="p">)</span>
+        <span class="c"># Delete any img files already existing</span>
+        <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">globable_filename</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+
         <span class="n">options</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gs_options</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">img_format</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="p">{</span><span class="s">&#39;dpi&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_run_gs</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">_</span><span class="si">%%</span><span class="s">d.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_file_ext</span><span class="p">),</span> <span class="n">pdf_filename</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span><span class="p">,</span><span class="n">output_filename</span><span class="p">)</span>
+        <span class="n">output_filename</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">_</span><span class="si">%%</span><span class="s">d.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_file_ext</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_gs</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">globable_filename</span><span class="p">):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Created image </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fn</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span><span class="p">,</span> <span class="n">globable_filename</span><span class="p">)</span>
 </pre></div></div></div>
 
           </div>
@@ -274,7 +279,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.7.3 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
