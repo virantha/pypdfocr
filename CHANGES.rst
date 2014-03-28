@@ -2,6 +2,7 @@
 Version  Date       Changes
 -------  --------   ------
 
+v0.7.4   3/28/14    Bug fix on pdf assembly
 v0.7.3   3/27/14    Modified internals to use single image per page (instead of multipage tiff). Also enabled orientation detection
 v0.7.2   3/26/14    Switched from Pil to Pillow. Now uses original images from PDF in output pdf (no dpi/color/quality changes!)
 v0.7.1   3/25/14    OCR Language is now an option
