@@ -247,7 +247,7 @@ class PyFilerEvernote(PyFiler):
         # TODO: Enable filename
         # Make a attributes for this resource
         pdf_resource.attributes = Types.ResourceAttributes()
-        pdf_resource.attributes.fileName = filename
+        pdf_resource.attributes.fileName = os.path.basename(filename)
         resource_list.append(pdf_resource)
 
         note.resources = resource_list
