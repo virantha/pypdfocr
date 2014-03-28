@@ -57,6 +57,8 @@ class PyPdf(object):
     def overlay_hocr_pages(self, dpi, hocr_filenames, orig_pdf_filename):
         
         logging.debug("Going to overlay following files onto %s" % orig_pdf_filename)
+        # Sort the hocr_filenames into natural keys!
+        hocr_filenames.sort(key=lambda x: self.natural_keys(x[0] ))
         logging.debug(hocr_filenames)
 
         text_pdf_filenames = []
