@@ -304,6 +304,7 @@ Also note that if you want Tesseract to recognize rotated documents (upside down
 then you need to find your tessdata directory and do the following:
 
 ::
+
     cd /usr/local/share/tessdata 
     cp eng.traineddata osd.traineddata 
 
