@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr_filer_evernote &mdash; pypdfocr 0.7.3 documentation</title>
+    <title>pypdfocr.pypdfocr_filer_evernote &mdash; pypdfocr 0.7.4 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.7.3',
+        VERSION:     '0.7.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.7.3 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.7.4 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.3 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.7.4 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -310,7 +310,9 @@
         <span class="n">pdf_resource</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">pdf_data</span>
         <span class="n">pdf_resource</span><span class="o">.</span><span class="n">mime</span> <span class="o">=</span> <span class="s">&quot;application/pdf&quot;</span>
         <span class="c"># TODO: Enable filename</span>
-        <span class="c">#pdf_resource.attributes.filename = filename</span>
+        <span class="c"># Make a attributes for this resource</span>
+        <span class="n">pdf_resource</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="n">Types</span><span class="o">.</span><span class="n">ResourceAttributes</span><span class="p">()</span>
+        <span class="n">pdf_resource</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">fileName</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="n">resource_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pdf_resource</span><span class="p">)</span>
 
         <span class="n">note</span><span class="o">.</span><span class="n">resources</span> <span class="o">=</span> <span class="n">resource_list</span>
@@ -377,7 +379,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.3 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.7.4 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
