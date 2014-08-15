@@ -229,7 +229,9 @@ class PyPdf(object):
       """Draw an invisible text layer for OCR data"""
       p1 = re.compile('bbox((\s+\d+){4})')
       p2 = re.compile('baseline((\s+[\d\.\-]+){2})')
+      p3 = re.compile('.html$') # Temp fix 1/2: Match .html extension
       hocr = ElementTree()
+      hocrfile = p3.sub('.hocr', hocrfile)  # Temp fix 2/2: Replace with .hocr
       hocr.parse(hocrfile)
       logging.debug(xml.etree.ElementTree.tostring(hocr.getroot()))
       for c in hocr.getroot():  # Find the <body> tag
