@@ -122,12 +122,14 @@ class PyTesseract(object):
     def make_hocr_from_pnm(self, img_filename):
 
         basename,filext = os.path.splitext(img_filename)
-        hocr_filename = "%s.html" % basename
+        # hocr_filename = "%s.html" % basename
+        hocr_filename = "%s.hocr" % basename
 
         if not os.path.exists(img_filename):
             error(self.msgs['TS_img_MISSING'] + " %s" % (img_filename))
 
-        logging.info("Running OCR on %s to create %s.html" % (img_filename, basename))
+        # logging.info("Running OCR on %s to create %s.html" % (img_filename, basename))
+        logging.info("Running OCR on %s to create %s.hocr" % (img_filename, basename))
         cmd = '%s "%s" "%s" -psm 1 -l %s hocr' % (self.binary, img_filename, basename, self.lang)
         logging.info(cmd)
         try:
@@ -137,6 +139,7 @@ class PyTesseract(object):
             print e.output
             error (self.msgs['TS_FAILED'])
                 
-        logging.info("Created %s.html" % basename)
+        # logging.info("Created %s.html" % basename)
+        logging.info("Created %s.hocr" % basename)
 
         return hocr_filename
