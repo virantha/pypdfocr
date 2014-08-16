@@ -230,6 +230,7 @@ class PyPdf(object):
       p1 = re.compile('bbox((\s+\d+){4})')
       p2 = re.compile('baseline((\s+[\d\.\-]+){2})')
       hocr = ElementTree()
+      # hocrfile = re.compile('.html$').sub('.hocr', hocrfile) # .html -> .hocr
       hocr.parse(hocrfile)
       logging.debug(xml.etree.ElementTree.tostring(hocr.getroot()))
       for c in hocr.getroot():  # Find the <body> tag
