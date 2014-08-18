@@ -137,6 +137,16 @@ class PyTesseract(object):
             print e.output
             error (self.msgs['TS_FAILED'])
                 
-        logging.info("Created %s.html" % basename)
-
-        return hocr_filename
+        if os.path.isfile(hocr_filename):
+            # Output format is html for old versions of tesseract
+            logging.info("Created %s.html" % basename)
+            return hocr_filename
+        else:
+            # Try changing extension to .hocr for tesseract 3.03 and higher
+            hocr_filename = "%s.hocr" % basename
+            if os.path.isfile(hocr_filename):
+                logging.info("Created %s.hocr" % basename)
+                return hocr_filename
+            else:
+                error(self.msgs['TS_FAILED'])
+            
