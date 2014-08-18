@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>PyPDFOCR API Reference (version 0.7.4) &mdash; pypdfocr 0.7.4 documentation</title>
+    <title>PyPDFOCR API Reference (version 0.7.5) &mdash; pypdfocr 0.7.5 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.7.4',
+        VERSION:     '0.7.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.7.4 documentation" href="#" />
+    <link rel="top" title="pypdfocr 0.7.5 documentation" href="#" />
     <link rel="next" title="pypdfocr package" href="pypdfocr.html" /> 
   </head>
   <body>
@@ -39,14 +39,14 @@
         <li class="right" >
           <a href="pypdfocr.html" title="pypdfocr package"
              accesskey="N">next</a> |</li>
-        <li><a href="#">pypdfocr 0.7.4 documentation</a> &raquo;</li> 
+        <li><a href="#">pypdfocr 0.7.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">PyPDFOCR API Reference (version 0.7.4)</a><ul>
+<li><a class="reference internal" href="#">PyPDFOCR API Reference (version 0.7.5)</a><ul>
 </ul>
 </li>
 <li><a class="reference internal" href="#changelog">Changelog</a></li>
@@ -113,7 +113,7 @@
           <div class="body">
             
   <div class="section" id="pypdfocr-api-reference-version-release">
-<h1>PyPDFOCR API Reference (version 0.7.4)<a class="headerlink" href="#pypdfocr-api-reference-version-release" title="Permalink to this headline">¶</a></h1>
+<h1>PyPDFOCR API Reference (version 0.7.5)<a class="headerlink" href="#pypdfocr-api-reference-version-release" title="Permalink to this headline">¶</a></h1>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
 <ul>
@@ -147,79 +147,83 @@
 <td>Date</td>
 <td>Changes</td>
 </tr>
-<tr class="row-even"><td>v0.7.4</td>
+<tr class="row-even"><td>v0.7.5</td>
+<td>8/18/14</td>
+<td>Update for Tesseract 3.03 .hocr filename change</td>
+</tr>
+<tr class="row-odd"><td>v0.7.4</td>
 <td>3/28/14</td>
 <td>Bug fix on pdf assembly</td>
 </tr>
-<tr class="row-odd"><td>v0.7.3</td>
+<tr class="row-even"><td>v0.7.3</td>
 <td>3/27/14</td>
 <td>Modified internals to use single image per page (instead of multipage tiff). Also enabled orientation detection</td>
 </tr>
-<tr class="row-even"><td>v0.7.2</td>
+<tr class="row-odd"><td>v0.7.2</td>
 <td>3/26/14</td>
 <td>Switched from Pil to Pillow. Now uses original images from PDF in output pdf (no dpi/color/quality changes!)</td>
 </tr>
-<tr class="row-odd"><td>v0.7.1</td>
+<tr class="row-even"><td>v0.7.1</td>
 <td>3/25/14</td>
 <td>OCR Language is now an option</td>
 </tr>
-<tr class="row-even"><td>v0.7.0</td>
+<tr class="row-odd"><td>v0.7.0</td>
 <td>3/25/14</td>
 <td>Now honors original pdf resolution</td>
 </tr>
-<tr class="row-odd"><td>v0.6.1</td>
+<tr class="row-even"><td>v0.6.1</td>
 <td>2/16/14</td>
 <td>Bug fix for pdfs with only numbers in the filename</td>
 </tr>
-<tr class="row-even"><td>v0.6.0</td>
+<tr class="row-odd"><td>v0.6.0</td>
 <td>1/16/14</td>
 <td>Added filing based on filename match as fallback, added tesseract version check</td>
 </tr>
-<tr class="row-odd"><td>v0.5.4</td>
+<tr class="row-even"><td>v0.5.4</td>
 <td>1/12/14</td>
 <td>Fixed bug with reordering of text pages on certain platforms(glob)</td>
 </tr>
-<tr class="row-even"><td>v0.5.3</td>
+<tr class="row-odd"><td>v0.5.3</td>
 <td>12/12/13</td>
 <td>Fix to evernote server specification</td>
 </tr>
-<tr class="row-odd"><td>v0.5.2</td>
+<tr class="row-even"><td>v0.5.2</td>
 <td>12/08/13</td>
 <td>Fix to lowercase keywords</td>
 </tr>
-<tr class="row-even"><td>v0.5.1</td>
+<tr class="row-odd"><td>v0.5.1</td>
 <td>11/02/13</td>
 <td>Fixed a bunch of windows critical path handling issues</td>
 </tr>
-<tr class="row-odd"><td>v0.5.0</td>
+<tr class="row-even"><td>v0.5.0</td>
 <td>10/30/13</td>
 <td>Email status added, 90% test coverage</td>
 </tr>
-<tr class="row-even"><td>v0.4.1</td>
+<tr class="row-odd"><td>v0.4.1</td>
 <td>10/28/13</td>
 <td>Made HOCR parsing more robust</td>
 </tr>
-<tr class="row-odd"><td>v0.4.0</td>
+<tr class="row-even"><td>v0.4.0</td>
 <td>10/28/13</td>
 <td>Added early Evernote upload support</td>
 </tr>
-<tr class="row-even"><td>v0.3.1</td>
+<tr class="row-odd"><td>v0.3.1</td>
 <td>10/24/13</td>
 <td>Path fix on windows</td>
 </tr>
-<tr class="row-odd"><td>v0.3.0</td>
+<tr class="row-even"><td>v0.3.0</td>
 <td>10/23/13</td>
 <td>Added filing of converted pdfs using a configuration file to specify target directories based on keyword matches in the pdf text</td>
 </tr>
-<tr class="row-even"><td>v0.2.2</td>
+<tr class="row-odd"><td>v0.2.2</td>
 <td>10/22/13</td>
 <td>Added a console script to put the pypdfocr script into your bin</td>
 </tr>
-<tr class="row-odd"><td>v0.2.1</td>
+<tr class="row-even"><td>v0.2.1</td>
 <td>10/22/13</td>
 <td>Fix to initial packaging problem.</td>
 </tr>
-<tr class="row-even"><td>v0.2.0</td>
+<tr class="row-odd"><td>v0.2.0</td>
 <td>10/21/13</td>
 <td>Initial release.</td>
 </tr>
@@ -525,7 +529,7 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</p>
         <li class="right" >
           <a href="pypdfocr.html" title="pypdfocr package"
              >next</a> |</li>
-        <li><a href="#">pypdfocr 0.7.4 documentation</a> &raquo;</li> 
+        <li><a href="#">pypdfocr 0.7.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
