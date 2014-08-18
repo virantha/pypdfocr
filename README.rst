@@ -254,7 +254,7 @@ Then, install the following third-party python libraries:
 
 -  PIL (Python Imaging Library) http://www.pythonware.com/products/pil/
 -  ReportLab (PDF generation library)
-   http://www.reportlab.com/software/opensource/
+   http://www.reportlab.com/opensource/
 -  Watchdog (Cross-platform fhlesystem events monitoring)
    https://pypi.python.org/pypi/watchdog
 -  PyPDF2 (Pure python pdf library)
