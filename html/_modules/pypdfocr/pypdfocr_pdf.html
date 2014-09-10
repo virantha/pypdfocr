@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.7.5 documentation</title>
+    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.7.6 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.7.5',
+        VERSION:     '0.7.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.7.5 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.7.6 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.5 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.7.6 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -100,6 +100,7 @@
 <span class="kn">import</span> <span class="nn">cStringIO</span>
 <span class="kn">import</span> <span class="nn">base64</span>
 <span class="kn">import</span> <span class="nn">zlib</span>
+<span class="kn">import</span> <span class="nn">math</span>
 
 <span class="c"># Pkg to read multiple image tiffs</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
@@ -110,7 +111,7 @@
 <span class="kn">import</span> <span class="nn">xml.etree</span>
 
 <span class="c"># Import Pypdf2</span>
-<span class="kn">from</span> <span class="nn">PyPDF2</span> <span class="kn">import</span> <span class="n">PdfFileMerger</span><span class="p">,</span> <span class="n">PdfFileReader</span><span class="p">,</span> <span class="n">PdfFileWriter</span>
+<span class="kn">from</span> <span class="nn">PyPDF2</span> <span class="kn">import</span> <span class="n">PdfFileMerger</span><span class="p">,</span> <span class="n">PdfFileReader</span><span class="p">,</span> <span class="n">PdfFileWriter</span><span class="p">,</span> <span class="n">utils</span>
 
 <div class="viewcode-block" id="PyPdf"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf">[docs]</a><span class="k">class</span> <span class="nc">PyPdf</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class to create pdfs from images&quot;&quot;&quot;</span>
@@ -120,6 +121,27 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">gs</span> <span class="o">=</span> <span class="n">gs</span> <span class="c"># Pointer to ghostscript object</span>
         <span class="k">pass</span>
 
+<div class="viewcode-block" id="PyPdf.mergeRotateAroundPointPage"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.mergeRotateAroundPointPage">[docs]</a>    <span class="k">def</span> <span class="nf">mergeRotateAroundPointPage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">page</span><span class="p">,</span> <span class="n">page2</span><span class="p">,</span> <span class="n">rotation</span><span class="p">,</span> <span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">):</span>
+        <span class="c"># Code taken from here:</span>
+        <span class="c"># http://stackoverflow.com/questions/6041244/how-to-merge-two-landscape-pdf-pages-using-pypdf/17392824#17392824</span>
+        <span class="c"># Unclear why PyPDF2 builtin page rotation functions don&#39;t work</span>
+        <span class="n">translation</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                       <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                       <span class="p">[</span><span class="o">-</span><span class="n">tx</span><span class="p">,</span><span class="o">-</span><span class="n">ty</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">rotation</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">rotation</span><span class="p">)</span>
+        <span class="n">rotating</span> <span class="o">=</span> <span class="p">[[</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rotation</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rotation</span><span class="p">),</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="p">[</span><span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rotation</span><span class="p">),</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rotation</span><span class="p">),</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span>                  <span class="mi">0</span><span class="p">,</span>                  <span class="mi">1</span><span class="p">]]</span>
+        <span class="n">rtranslation</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                       <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                       <span class="p">[</span><span class="n">tx</span><span class="p">,</span><span class="n">ty</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">ctm</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">matrixMultiply</span><span class="p">(</span><span class="n">translation</span><span class="p">,</span> <span class="n">rotating</span><span class="p">)</span>
+        <span class="n">ctm</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">matrixMultiply</span><span class="p">(</span><span class="n">ctm</span><span class="p">,</span> <span class="n">rtranslation</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">page</span><span class="o">.</span><span class="n">mergeTransformedPage</span><span class="p">(</span><span class="n">page2</span><span class="p">,</span> <span class="p">[</span><span class="n">ctm</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">ctm</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                                                 <span class="n">ctm</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">ctm</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                                                 <span class="n">ctm</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">ctm</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]])</span>
+</div>
 <div class="viewcode-block" id="PyPdf.overlay_hocr_pages"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.overlay_hocr_pages">[docs]</a>    <span class="k">def</span> <span class="nf">overlay_hocr_pages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpi</span><span class="p">,</span> <span class="n">hocr_filenames</span><span class="p">,</span> <span class="n">orig_pdf_filename</span><span class="p">):</span>
         
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Going to overlay following files onto </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">orig_pdf_filename</span><span class="p">)</span>
@@ -141,9 +163,19 @@
             <span class="n">text_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">text_pg_filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span>
             <span class="n">text_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text_file</span><span class="p">)</span> <span class="c"># Save this to close after we write the final pdf</span>
             <span class="n">text_pg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_pdf_page</span><span class="p">(</span><span class="n">text_file</span><span class="p">)</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
-            <span class="n">orig_pg</span><span class="o">.</span><span class="n">mergePage</span><span class="p">(</span><span class="n">text_pg</span><span class="p">)</span>
+            <span class="n">orig_rotation_angle</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">orig_pg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;/Rotate&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">orig_rotation_angle</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Original Rotation: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">orig_pg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;/Rotate&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mergeRotateAroundPointPage</span><span class="p">(</span><span class="n">orig_pg</span><span class="p">,</span> <span class="n">text_pg</span><span class="p">,</span> <span class="n">orig_rotation_angle</span><span class="p">,</span> <span class="n">text_pg</span><span class="o">.</span><span class="n">mediaBox</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">text_pg</span><span class="o">.</span><span class="n">mediaBox</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+
+                <span class="c"># None of these commands worked for me:</span>
+                    <span class="c">#orig_pg.rotateCounterClockwise(orig_rotation_angle)</span>
+                    <span class="c">#orig_pg.mergeRotatedPage(text_pg,text_rotation_angle)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">orig_pg</span><span class="o">.</span><span class="n">mergePage</span><span class="p">(</span><span class="n">text_pg</span><span class="p">)</span>
+            <span class="n">orig_pg</span><span class="o">.</span><span class="n">compressContentStreams</span><span class="p">()</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">addPage</span><span class="p">(</span><span class="n">orig_pg</span><span class="p">)</span>
-            <span class="c">#text_file.close()</span>
 
         <span class="n">pdf_dir</span><span class="p">,</span> <span class="n">pdf_basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">orig_pdf_filename</span><span class="p">)</span>
         <span class="n">basename</span> <span class="o">=</span> <span class="n">pdf_basename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -399,7 +431,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.5 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.7.6 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
