@@ -2,6 +2,7 @@
 Version  Date       Changes
 -------  --------   ------
 
+v0.7.6   9/10/14    Fixed issue 17 rotation bug
 v0.7.5   8/18/14    Update for Tesseract 3.03 .hocr filename change
 v0.7.4   3/28/14    Bug fix on pdf assembly
 v0.7.3   3/27/14    Modified internals to use single image per page (instead of multipage tiff). Also enabled orientation detection

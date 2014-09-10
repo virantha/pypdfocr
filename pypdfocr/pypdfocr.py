@@ -312,7 +312,8 @@ class PyPDFOCR(object):
         ocr_pdf_filename = self.pdf.overlay_hocr_pages(img_dpi, hocr_filenames, pdf_filename)
 
         # Clean up the files
-        self._clean_up_files(itertools.chain(*hocr_filenames))
+        if not self.debug:
+            self._clean_up_files(itertools.chain(*hocr_filenames))
 
         print ("Completed conversion successfully to %s" % ocr_pdf_filename)
         return ocr_pdf_filename

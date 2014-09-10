@@ -116,7 +116,12 @@ class PyGs(object):
             return
 
         # Need the second line of output
-        results = out.splitlines()[2]
+        # Make sure it exists (in case this is an empty pdf)
+        results = out.splitlines()
+        if len(results)<3:
+            self._warn("Empty pdf, cannot determine dpi using pdfimages")
+            return
+        results = results[2]
         logging.debug(results)
         results = results.split()
         if(results[2] != 'image'):

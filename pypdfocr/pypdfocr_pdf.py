@@ -34,6 +34,7 @@ import glob
 import cStringIO
 import base64
 import zlib
+import math
 
 # Pkg to read multiple image tiffs
 from PIL import Image
@@ -44,7 +45,7 @@ from xml.etree.ElementTree import ElementTree, ParseError
 import xml.etree
 
 # Import Pypdf2
-from PyPDF2 import PdfFileMerger, PdfFileReader, PdfFileWriter
+from PyPDF2 import PdfFileMerger, PdfFileReader, PdfFileWriter, utils
 
 class PyPdf(object):
     """Class to create pdfs from images"""
@@ -53,6 +54,27 @@ class PyPdf(object):
         self.load_invisible_font()
         self.gs = gs # Pointer to ghostscript object
         pass
+
+    def mergeRotateAroundPointPage(self,page, page2, rotation, tx, ty):
+        # Code taken from here:
+        # http://stackoverflow.com/questions/6041244/how-to-merge-two-landscape-pdf-pages-using-pypdf/17392824#17392824
+        # Unclear why PyPDF2 builtin page rotation functions don't work
+        translation = [[1, 0, 0],
+                       [0, 1, 0],
+                       [-tx,-ty,1]]
+        rotation = math.radians(rotation)
+        rotating = [[math.cos(rotation), math.sin(rotation),0],
+                    [-math.sin(rotation),math.cos(rotation), 0],
+                    [0,                  0,                  1]]
+        rtranslation = [[1, 0, 0],
+                       [0, 1, 0],
+                       [tx,ty,1]]
+        ctm = utils.matrixMultiply(translation, rotating)
+        ctm = utils.matrixMultiply(ctm, rtranslation)
+
+        return page.mergeTransformedPage(page2, [ctm[0][0], ctm[0][1],
+                                                 ctm[1][0], ctm[1][1],
+                                                 ctm[2][0], ctm[2][1]])
 
     def overlay_hocr_pages(self, dpi, hocr_filenames, orig_pdf_filename):
         
@@ -75,9 +97,19 @@ class PyPdf(object):
             text_file = open(text_pg_filename, 'rb')
             text_files.append(text_file) # Save this to close after we write the final pdf
             text_pg = self.iter_pdf_page(text_file).next()
-            orig_pg.mergePage(text_pg)
+            orig_rotation_angle = int(orig_pg.get('/Rotate', 0))
+
+            if orig_rotation_angle != 0:
+                logging.info("Original Rotation: %s" % orig_pg.get("/Rotate", 0))
+                self.mergeRotateAroundPointPage(orig_pg, text_pg, orig_rotation_angle, text_pg.mediaBox.getWidth()/2, text_pg.mediaBox.getWidth()/2)
+
+                # None of these commands worked for me:
+                    #orig_pg.rotateCounterClockwise(orig_rotation_angle)
+                    #orig_pg.mergeRotatedPage(text_pg,text_rotation_angle)
+            else:
+                orig_pg.mergePage(text_pg)
+            orig_pg.compressContentStreams()
             writer.addPage(orig_pg)
-            #text_file.close()
 
         pdf_dir, pdf_basename = os.path.split(orig_pdf_filename)
         basename = pdf_basename.split('.')[0]

@@ -17,10 +17,8 @@ This program will help manage your scanned PDFs by doing the following:
 More links:
 
 -  `Blog @ virantha.com <http://virantha.com/category/pypdfocr.html>`__
--  `Documentation @
-   documentup.com <http://documentup.com/virantha/pypdfocr>`__
+-  `Documentation @ gitpages <http://virantha.github.com/pypdfocr/html>`__
 -  `Source @ github <https://www.github.com/virantha/pypdfocr>`__
--  `API docs @ gitpages <http://virantha.github.com/pypdfocr/html>`__
 
 Usage:
 ------
@@ -254,7 +252,7 @@ Then, install the following third-party python libraries:
 
 -  PIL (Python Imaging Library) http://www.pythonware.com/products/pil/
 -  ReportLab (PDF generation library)
-   http://www.reportlab.com/software/opensource/
+   http://www.reportlab.com/opensource/
 -  Watchdog (Cross-platform fhlesystem events monitoring)
    https://pypi.python.org/pypi/watchdog
 -  PyPDF2 (Pure python pdf library)
