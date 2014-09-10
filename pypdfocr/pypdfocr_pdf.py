@@ -107,7 +107,7 @@ class PyPdf(object):
                     #orig_pg.rotateCounterClockwise(orig_rotation_angle)
                     #orig_pg.mergeRotatedPage(text_pg,text_rotation_angle)
             else:
-                orig_pg.mergePerge(text_pg)
+                orig_pg.mergePage(text_pg)
             orig_pg.compressContentStreams()
             writer.addPage(orig_pg)
 
