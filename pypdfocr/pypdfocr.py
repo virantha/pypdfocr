@@ -46,7 +46,7 @@ def retry(count=5, exc_type = Exception):
             for _ in range(count):
                 try:
                     return func(*args, **kwargs)
-                except exc_types:
+                except exc_type:
                     pass
                 raise
         return result
