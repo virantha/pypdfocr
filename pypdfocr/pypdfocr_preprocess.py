@@ -35,13 +35,6 @@ class PyPreprocess(object):
         self.msgs = {
                 'CV_FAILED': 'convert execution failed',
             }
-        # Detect windows gs binary (make this smarter in the future)
-        if str(os.name) == 'nt':
-	    win_binary = self._find_windows_gs()
-	    self.binary = '"%s"' % win_binary
-	    logging.info("Using Ghostscript: %s" % self.binary)
-        else:
-            self.binary = "gs"
 
 
 
@@ -60,8 +53,6 @@ class PyPreprocess(object):
             print e.output
             self._warn("Could not run command %s" % cmd_list)
             
-
-
 
     def _run_preprocess(self,  in_filename):
         basename, filext = os.path.splitext(in_filename)
