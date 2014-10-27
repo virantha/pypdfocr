@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr &mdash; pypdfocr 0.7.6 documentation</title>
+    <title>pypdfocr.pypdfocr &mdash; pypdfocr 0.8.0 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.7.6',
+        VERSION:     '0.8.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.7.6 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.8.0 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.6 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.8.0 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -83,8 +83,9 @@
 <span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
 
 <span class="kn">from</span> <span class="nn">version</span> <span class="kn">import</span> <span class="n">__version__</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
@@ -97,12 +98,30 @@
 <span class="kn">from</span> <span class="nn">pypdfocr_pdffiler</span> <span class="kn">import</span> <span class="n">PyPdfFiler</span>
 <span class="kn">from</span> <span class="nn">pypdfocr_filer_dirs</span> <span class="kn">import</span> <span class="n">PyFilerDirs</span>
 <span class="kn">from</span> <span class="nn">pypdfocr_filer_evernote</span> <span class="kn">import</span> <span class="n">PyFilerEvernote</span>
+<span class="kn">from</span> <span class="nn">pypdfocr_preprocess</span> <span class="kn">import</span> <span class="n">PyPreprocess</span>
 
 <div class="viewcode-block" id="error"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.error">[docs]</a><span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="k">print</span><span class="p">(</span><span class="s">&quot;ERROR: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">text</span><span class="p">)</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-
+<span class="c"># decorator to retry multiple times</span></div>
+<div class="viewcode-block" id="retry"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.retry">[docs]</a><span class="k">def</span> <span class="nf">retry</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">exc_type</span> <span class="o">=</span> <span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">result</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">exc_type</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">raise</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+</div>
+<span class="nd">@retry</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">exc_type</span><span class="o">=</span><span class="ne">IOError</span><span class="p">)</span>
+<div class="viewcode-block" id="open_file_with_timeout"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.open_file_with_timeout">[docs]</a><span class="k">def</span> <span class="nf">open_file_with_timeout</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">f</span>
 </div>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Make scanned PDFs searchable using Tesseract-OCR and autofile them</span>
@@ -132,6 +151,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">gs</span> <span class="o">=</span> <span class="n">PyGs</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ts</span> <span class="o">=</span> <span class="n">PyTesseract</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pdf</span> <span class="o">=</span> <span class="n">PyPdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span> <span class="o">=</span> <span class="n">PyPreprocess</span><span class="p">()</span>
         <span class="sd">&quot;&quot;&quot;PDF read and generation class&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="PyPDFOCR._get_config_file"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.PyPDFOCR._get_config_file">[docs]</a>    <span class="k">def</span> <span class="nf">_get_config_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">):</span>
@@ -198,7 +218,8 @@
         <span class="n">filing_group</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">&quot;Filing optinos&quot;</span><span class="p">)</span>
         <span class="n">filing_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-f&#39;</span><span class="p">,</span> <span class="s">&#39;--file&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;enable_filing&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Enable filing of converted PDFs&#39;</span><span class="p">)</span>
-        <span class="n">filing_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-c&#39;</span><span class="p">,</span> <span class="s">&#39;--config&#39;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">FileType</span><span class="p">(</span><span class="s">&#39;r&#39;</span><span class="p">),</span>
+        <span class="c">#filing_group.add_argument(&#39;-c&#39;, &#39;--config&#39;, type = argparse.FileType(&#39;r&#39;),</span>
+        <span class="n">filing_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-c&#39;</span><span class="p">,</span> <span class="s">&#39;--config&#39;</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">open_file_with_timeout</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="n">x</span><span class="p">),</span>
              <span class="n">dest</span><span class="o">=</span><span class="s">&#39;configfile&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Configuration file for defaults and PDF filing&#39;</span><span class="p">)</span>
         <span class="n">filing_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-e&#39;</span><span class="p">,</span> <span class="s">&#39;--evernote&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;enable_evernote&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Enable filing to Evernote&#39;</span><span class="p">)</span>
@@ -369,9 +390,15 @@
         <span class="n">conversion_format</span> <span class="o">=</span> <span class="s">&quot;tiff&quot;</span>
         <span class="c"># Make the images for Tesseract</span>
         <span class="n">img_dpi</span><span class="p">,</span> <span class="n">glob_img_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="o">.</span><span class="n">make_img_from_pdf</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="n">conversion_format</span><span class="p">)</span>
+
+        <span class="n">fns</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glob_img_filename</span><span class="p">)</span>
+
+        <span class="c"># Preprocess</span>
+        <span class="n">preprocess_imagefilenames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">fns</span><span class="p">)</span>
+
         <span class="c"># Run teserract</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="o">.</span><span class="n">lang</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lang</span>
-        <span class="n">hocr_filenames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="o">.</span><span class="n">make_hocr_from_pnms</span><span class="p">(</span><span class="n">glob_img_filename</span><span class="p">)</span>
+        <span class="n">hocr_filenames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="o">.</span><span class="n">make_hocr_from_pnms</span><span class="p">(</span><span class="n">preprocess_imagefilenames</span><span class="p">)</span>
         
         <span class="c"># Generate new pdf with overlayed text</span>
         <span class="c">#ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename, pdf_filename)</span>
@@ -379,7 +406,8 @@
 
         <span class="c"># Clean up the files</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_clean_up_files</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">hocr_filenames</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_clean_up_files</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">hocr_filenames</span><span class="p">))</span> <span class="c"># splat the hocr_filenames as it is a list of pairs</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_clean_up_files</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="n">fns</span><span class="p">,</span> <span class="n">preprocess_imagefilenames</span><span class="p">))</span>
 
         <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Completed conversion successfully to </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">ocr_pdf_filename</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ocr_pdf_filename</span>
@@ -495,7 +523,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.6 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.8.0 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>

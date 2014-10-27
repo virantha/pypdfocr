@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr_tesseract &mdash; pypdfocr 0.7.6 documentation</title>
+    <title>pypdfocr.pypdfocr_tesseract &mdash; pypdfocr 0.8.0 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.7.6',
+        VERSION:     '0.8.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.7.6 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.8.0 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.6 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.8.0 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -170,13 +170,13 @@
 
 
 </div>
-<div class="viewcode-block" id="PyTesseract.make_hocr_from_pnms"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_tesseract.PyTesseract.make_hocr_from_pnms">[docs]</a>    <span class="k">def</span> <span class="nf">make_hocr_from_pnms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_filename</span><span class="p">):</span>
+<div class="viewcode-block" id="PyTesseract.make_hocr_from_pnms"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_tesseract.PyTesseract.make_hocr_from_pnms">[docs]</a>    <span class="k">def</span> <span class="nf">make_hocr_from_pnms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fns</span><span class="p">):</span>
         <span class="n">uptodate</span><span class="p">,</span><span class="n">ver</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">_is_version_uptodate</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">uptodate</span><span class="p">:</span>
             <span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;TS_VERSION&#39;</span><span class="p">]</span><span class="o">+</span> <span class="s">&quot; (found </span><span class="si">%s</span><span class="s">, required </span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ver</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span><span class="p">))</span>
 
         <span class="c"># Glob it</span>
-        <span class="n">fns</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">img_filename</span><span class="p">)</span>
+        <span class="c">#fns = glob.glob(img_filename)</span>
         <span class="n">hocr_filenames</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">fns</span><span class="p">:</span>
             <span class="n">hocr_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_hocr_from_pnm</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
@@ -232,7 +232,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.6 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.8.0 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>

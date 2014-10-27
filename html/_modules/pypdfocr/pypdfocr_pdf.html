@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.7.6 documentation</title>
+    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.8.0 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.7.6',
+        VERSION:     '0.8.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.7.6 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.8.0 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.6 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.8.0 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -178,7 +178,8 @@
             <span class="n">writer</span><span class="o">.</span><span class="n">addPage</span><span class="p">(</span><span class="n">orig_pg</span><span class="p">)</span>
 
         <span class="n">pdf_dir</span><span class="p">,</span> <span class="n">pdf_basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">orig_pdf_filename</span><span class="p">)</span>
-        <span class="n">basename</span> <span class="o">=</span> <span class="n">pdf_basename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c">#basename = pdf_basename.split(&#39;.&#39;)[0]</span>
+        <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">pdf_basename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">pdf_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pdf_dir</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">_ocr.pdf&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">basename</span><span class="p">))</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -210,7 +211,8 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;hocr_filename:</span><span class="si">%s</span><span class="s">, hocr_dir:</span><span class="si">%s</span><span class="s">, hocr_basename:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hocr_filename</span><span class="p">,</span> <span class="n">hocr_dir</span><span class="p">,</span> <span class="n">hocr_basename</span><span class="p">))</span>
         <span class="k">assert</span><span class="p">(</span><span class="n">img_dir</span> <span class="o">==</span> <span class="n">hocr_dir</span><span class="p">)</span>
 
-        <span class="n">basename</span> <span class="o">=</span> <span class="n">hocr_basename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c">#basename = hocr_basename.split(&#39;.&#39;)[0]</span>
+        <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">hocr_basename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">pdf_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;text_</span><span class="si">%s</span><span class="s">_ocr.pdf&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">basename</span><span class="p">))</span>
 
         <span class="c"># Switch to the hocr directory to make this easier</span>
@@ -243,7 +245,8 @@
 <div class="viewcode-block" id="PyPdf.overlay_hocr_old"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.overlay_hocr_old">[docs]</a>    <span class="k">def</span> <span class="nf">overlay_hocr_old</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dpi</span><span class="p">,</span> <span class="n">hocr_filename</span><span class="p">):</span>
         <span class="n">hocr_dir</span><span class="p">,</span> <span class="n">hocr_basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">hocr_filename</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;hocr_filename:</span><span class="si">%s</span><span class="s">, hocr_dir:</span><span class="si">%s</span><span class="s">, hocr_basename:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hocr_filename</span><span class="p">,</span> <span class="n">hocr_dir</span><span class="p">,</span> <span class="n">hocr_basename</span><span class="p">))</span>
-        <span class="n">basename</span> <span class="o">=</span> <span class="n">hocr_basename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c">#basename = hocr_basename.split(&#39;.&#39;)[0]</span>
+        <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">hocr_basename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">pdf_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">_ocr.pdf&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">basename</span><span class="p">))</span>
         <span class="n">text_pdf_filename</span> <span class="o">=</span> <span class="n">pdf_filename</span> <span class="o">+</span> <span class="s">&quot;.tmp&quot;</span>
 
@@ -293,7 +296,8 @@
                 <span class="n">pg_num</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span>
                 <span class="c"># Do a quick assert to make sure our sorted page number matches</span>
                 <span class="c"># what&#39;s embedded in the filename</span>
-                <span class="n">file_pg_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">img_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">basename</span><span class="o">+</span><span class="s">&quot;_&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="c">#file_pg_num = int(img_file.split(basename+&quot;_&quot;)[1].split(&#39;.&#39;)[0])</span>
+                <span class="n">file_pg_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">img_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">basename</span><span class="o">+</span><span class="s">&quot;_&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">])</span>
                 <span class="k">if</span> <span class="n">file_pg_num</span> <span class="o">!=</span> <span class="n">pg_num</span><span class="p">:</span>
                     <span class="n">logging</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Page number from file (</span><span class="si">%d</span><span class="s">) does not match iteration (</span><span class="si">%d</span><span class="s">)... continuing anyway&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">file_pg_num</span><span class="p">,</span> <span class="n">pg_num</span><span class="p">))</span>
 
@@ -431,7 +435,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.7.6 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.8.0 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>

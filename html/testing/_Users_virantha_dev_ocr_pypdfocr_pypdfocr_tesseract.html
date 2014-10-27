@@ -5,7 +5,7 @@
     
     
     <meta http-equiv='X-UA-Compatible' content='IE=emulateIE7' />
-    <title>Coverage for /Users/virantha/dev/ocr/pypdfocr/pypdfocr_tesseract: 94%</title>
+    <title>Coverage for /Users/virantha/dev/ocr/pypdfocr/pypdfocr_tesseract: 93%</title>
     <link rel='stylesheet' href='style.css' type='text/css'>
     
     <script type='text/javascript' src='jquery.min.js'></script>
@@ -21,12 +21,12 @@
 <div id='header'>
     <div class='content'>
         <h1>Coverage for <b>/Users/virantha/dev/ocr/pypdfocr/pypdfocr_tesseract</b> :
-            <span class='pc_cov'>94%</span>
+            <span class='pc_cov'>93%</span>
         </h1>
         <img id='keyboard_icon' src='keybd_closed.png'>
         <h2 class='stats'>
-            77 statements &nbsp;
-            <span class='run hide_run shortkey_r button_toggle_run'>72 run</span>
+            76 statements &nbsp;
+            <span class='run hide_run shortkey_r button_toggle_run'>71 run</span>
             <span class='mis shortkey_m button_toggle_mis'>5 missing</span>
             <span class='exc shortkey_x button_toggle_exc'>0 excluded</span>
             
@@ -173,7 +173,7 @@
 <p id='n110' class='stm run hide_run'><a href='#n110'>110</a></p>
 <p id='n111' class='pln'><a href='#n111'>111</a></p>
 <p id='n112' class='pln'><a href='#n112'>112</a></p>
-<p id='n113' class='stm run hide_run'><a href='#n113'>113</a></p>
+<p id='n113' class='pln'><a href='#n113'>113</a></p>
 <p id='n114' class='stm run hide_run'><a href='#n114'>114</a></p>
 <p id='n115' class='stm run hide_run'><a href='#n115'>115</a></p>
 <p id='n116' class='stm run hide_run'><a href='#n116'>116</a></p>
@@ -322,13 +322,13 @@
 <p id='t104' class='pln'><span class='strut'>&nbsp;</span></p>
 <p id='t105' class='pln'><span class='strut'>&nbsp;</span></p>
 <p id='t106' class='pln'><span class='strut'>&nbsp;</span></p>
-<p id='t107' class='stm run hide_run'>&nbsp; &nbsp; <span class='key'>def</span> <span class='nam'>make_hocr_from_pnms</span><span class='op'>(</span><span class='nam'>self</span><span class='op'>,</span> <span class='nam'>img_filename</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
+<p id='t107' class='stm run hide_run'>&nbsp; &nbsp; <span class='key'>def</span> <span class='nam'>make_hocr_from_pnms</span><span class='op'>(</span><span class='nam'>self</span><span class='op'>,</span> <span class='nam'>fns</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t108' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>uptodate</span><span class='op'>,</span><span class='nam'>ver</span> <span class='op'>=</span>&nbsp; <span class='nam'>self</span><span class='op'>.</span><span class='nam'>_is_version_uptodate</span><span class='op'>(</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t109' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>if</span> <span class='key'>not</span> <span class='nam'>uptodate</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t110' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>error</span><span class='op'>(</span><span class='nam'>self</span><span class='op'>.</span><span class='nam'>msgs</span><span class='op'>[</span><span class='str'>&#39;TS_VERSION&#39;</span><span class='op'>]</span><span class='op'>+</span> <span class='str'>&quot; (found %s, required %s)&quot;</span> <span class='op'>%</span> <span class='op'>(</span><span class='nam'>ver</span><span class='op'>,</span> <span class='nam'>self</span><span class='op'>.</span><span class='nam'>required</span><span class='op'>)</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t111' class='pln'><span class='strut'>&nbsp;</span></p>
 <p id='t112' class='pln'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='com'># Glob it</span><span class='strut'>&nbsp;</span></p>
-<p id='t113' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>fns</span> <span class='op'>=</span> <span class='nam'>glob</span><span class='op'>.</span><span class='nam'>glob</span><span class='op'>(</span><span class='nam'>img_filename</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
+<p id='t113' class='pln'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='com'>#fns = glob.glob(img_filename)</span><span class='strut'>&nbsp;</span></p>
 <p id='t114' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>hocr_filenames</span> <span class='op'>=</span> <span class='op'>[</span><span class='op'>]</span><span class='strut'>&nbsp;</span></p>
 <p id='t115' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>for</span> <span class='nam'>fn</span> <span class='key'>in</span> <span class='nam'>fns</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t116' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>hocr_fn</span> <span class='op'>=</span> <span class='nam'>self</span><span class='op'>.</span><span class='nam'>make_hocr_from_pnm</span><span class='op'>(</span><span class='nam'>fn</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
