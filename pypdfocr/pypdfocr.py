@@ -340,7 +340,8 @@ class PyPDFOCR(object):
 
         # Clean up the files
         if not self.debug:
-            self._clean_up_files(itertools.chain(*hocr_filenames))
+            self._clean_up_files(itertools.chain(*hocr_filenames)) # splat the hocr_filenames as it is a list of pairs
+            self._clean_up_files(itertools.chain(fns, preprocess_imagefilenames))
 
         print ("Completed conversion successfully to %s" % ocr_pdf_filename)
         return ocr_pdf_filename
