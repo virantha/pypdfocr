@@ -52,7 +52,7 @@ class PyGs(object):
         # Tiff is used for the ocr, so just fix it at 300dpi
         #  The other formats will be used to create the final OCR'ed image, so determine
         #  the DPI by using pdfimages if available, o/w default to 200
-        self.gs_options = {'tiff': ['tiff', ['-sDEVICE=tiff24nc','-r%d' ]],
+        self.gs_options = {'tiff': ['tiff', ['-sDEVICE=tiff24nc','-r%(dpi)s' ]],
                             'jpg': ['jpg', ['-sDEVICE=jpeg','-dJPEGQ=75', '-r%(dpi)s']],
                             'jpggrey': ['jpg', ['-sDEVICE=jpeggray', '-dJPEGQ=75', '-r%(dpi)s']],
                             'png': ['png', ['-sDEVICE=png16m', '-r%(dpi)s']],
@@ -108,7 +108,9 @@ class PyGs(object):
         if not os.path.exists(pdf_filename):
             error(self.msgs['GS_MISSING_PDF'] + " %s" % pdf_filename)
 
-        cmd = "pdfimages -list %s" % pdf_filename
+        cmd = 'pdfimages -list "%s"' % pdf_filename
+        logging.info("Running pdfimages to figure out DPI...")
+        logging.debug(cmd)
         try:
             out = subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError as e:
@@ -131,7 +133,7 @@ class PyGs(object):
         self.greyscale = greyscale
 
         # Now, run imagemagick identify to get pdf width/height/density
-        cmd = 'identify -format "%%w %%x %%h %%y\n" %s' % pdf_filename
+        cmd = 'identify -format "%%w %%x %%h %%y\n" "%s"' % pdf_filename
         try:
             out = subprocess.check_output(cmd, shell=True)
             results = out.splitlines()[0]
@@ -141,6 +143,7 @@ class PyGs(object):
             ydpi = round(y_pt/height*ydensity)
             self.output_dpi = xdpi
             if ydpi>xdpi: self.output_dpi = ydpi
+            if self.output_dpi < 300: self.output_dpi = 300
             if abs(xdpi-ydpi) > xdpi*.05:  # Make sure the two dpi's are within 5%
                 self._warn("X-dpi is %d, Y-dpi is %d, defaulting to %d" % (xdpi, ydpi, self.output_dpi))
             else:
@@ -181,11 +184,12 @@ class PyGs(object):
         #   We no longer use these for the final image. Instead the text is merged
         #   directly with the original PDF.  Yay!
         if self.greyscale:
-            #self.img_format = 'jpggrey'
-            self.img_format = 'pnggrey'
+            self.img_format = 'jpggrey'
+            #self.img_format = 'pnggrey'
             logging.info("Detected greyscale")
         else:
-            self.img_format = 'png'
+            self.img_format = 'jpg'
+            #self.img_format = 'png'
             logging.info("Detected color")
 
         self.img_file_ext = self.gs_options[self.img_format][0]

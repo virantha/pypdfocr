@@ -104,13 +104,13 @@ class PyTesseract(object):
 
 
 
-    def make_hocr_from_pnms(self, img_filename):
+    def make_hocr_from_pnms(self, fns):
         uptodate,ver =  self._is_version_uptodate()
         if not uptodate:
             error(self.msgs['TS_VERSION']+ " (found %s, required %s)" % (ver, self.required))
 
         # Glob it
-        fns = glob.glob(img_filename)
+        #fns = glob.glob(img_filename)
         hocr_filenames = []
         for fn in fns:
             hocr_fn = self.make_hocr_from_pnm(fn)

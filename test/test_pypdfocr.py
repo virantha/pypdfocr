@@ -31,7 +31,7 @@ class TestPydfocr:
             (".", os.path.join("temp","target","recipe"), os.path.join("..","test", "pdfs", "test_recipe.pdf"), [ ["Simply Recipes"],
                                  ]),
         (".", os.path.join("temp","target","patents"), os.path.join("pdfs","test_patent.pdf"), [ 
-                           ["ASYNCHRONOUS", "subject to", "20 Claims"], # Page 1
+                           ["asynchronous", "subject to", "20 Claims"], # Page 1
                            ["FOREIGN PATENT" ], # Page 2
                             ]),
         (".", os.path.join("temp","target", "default"), os.path.join("pdfs","test_sherlock.pdf"), [ ["Bohemia", "Trincomalee"], # Page 1

@@ -17,8 +17,9 @@ import smtplib
 import argparse
 import sys, os
 import logging
-import shutil
+import shutil, glob
 import itertools
+from functools import wraps
 
 from version import __version__
 from PIL import Image
@@ -31,12 +32,30 @@ from pypdfocr_watcher import PyPdfWatcher
 from pypdfocr_pdffiler import PyPdfFiler
 from pypdfocr_filer_dirs import PyFilerDirs
 from pypdfocr_filer_evernote import PyFilerEvernote
+from pypdfocr_preprocess import PyPreprocess
 
 def error(text):
     print("ERROR: %s" % text)
     sys.exit(-1)
 
+# decorator to retry multiple times
+def retry(count=5, exc_type = Exception):
+    def decorator(func):
+        @wraps(func)
+        def result(*args, **kwargs):
+            for _ in range(count):
+                try:
+                    return func(*args, **kwargs)
+                except exc_types:
+                    pass
+                raise
+        return result
+    return decorator
 
+@retry(count=3, exc_type=IOError)
+def open_file_with_timeout(parser, arg):
+    f = open(arg, 'r')
+    return f
 
 """
     Make scanned PDFs searchable using Tesseract-OCR and autofile them
@@ -66,6 +85,7 @@ class PyPDFOCR(object):
         self.gs = PyGs()
         self.ts = PyTesseract()
         self.pdf = PyPdf(self.gs)
+        self.preprocess = PyPreprocess()
         """PDF read and generation class"""
 
     def _get_config_file(self, config_file):
@@ -132,7 +152,8 @@ class PyPDFOCR(object):
         filing_group = p.add_argument_group(title="Filing optinos")
         filing_group.add_argument('-f', '--file', action='store_true',
             default=False, dest='enable_filing', help='Enable filing of converted PDFs')
-        filing_group.add_argument('-c', '--config', type = argparse.FileType('r'),
+        #filing_group.add_argument('-c', '--config', type = argparse.FileType('r'),
+        filing_group.add_argument('-c', '--config', type = lambda x: open_file_with_timeout(p,x),
              dest='configfile', help='Configuration file for defaults and PDF filing')
         filing_group.add_argument('-e', '--evernote', action='store_true',
             default=False, dest='enable_evernote', help='Enable filing to Evernote')
@@ -303,9 +324,15 @@ class PyPDFOCR(object):
         conversion_format = "tiff"
         # Make the images for Tesseract
         img_dpi, glob_img_filename = self.gs.make_img_from_pdf(pdf_filename, conversion_format)
+
+        fns = glob.glob(glob_img_filename)
+
+        # Preprocess
+        preprocess_imagefilenames = self.preprocess.preprocess(fns)
+
         # Run teserract
         self.ts.lang = self.lang
-        hocr_filenames = self.ts.make_hocr_from_pnms(glob_img_filename)
+        hocr_filenames = self.ts.make_hocr_from_pnms(preprocess_imagefilenames)
         
         # Generate new pdf with overlayed text
         #ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename, pdf_filename)

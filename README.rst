@@ -276,6 +276,8 @@ the path:
 
 -  Tesseract OCR software https://code.google.com/p/tesseract-ocr/
 -  GhostScript http://www.ghostscript.com/
+-  ImageMagick http://www.imagemagick.org/
+-  Poppler http://poppler.freedesktop.org/  (`Windows <http://sourceforge.net/projects/poppler-win32/>`__)
 
 In addition, if you want it to figure out the original PDF resolution
 automatically, you need to have pdfimages in your path, which is part of
@@ -289,6 +291,7 @@ On Mac OS X, you can install these using homebrew:
     brew install tesseract
     brew install ghostscript
     brew install poppler
+    brew install imagemagick
 
 On Windows, please use the installers provided on their download pages.
 

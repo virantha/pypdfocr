@@ -112,7 +112,8 @@ class PyPdf(object):
             writer.addPage(orig_pg)
 
         pdf_dir, pdf_basename = os.path.split(orig_pdf_filename)
-        basename = pdf_basename.split('.')[0]
+        #basename = pdf_basename.split('.')[0]
+        basename = os.path.splitext(pdf_basename)[0]
         pdf_filename = os.path.join(pdf_dir, "%s_ocr.pdf" % (basename))
         with open(pdf_filename, 'wb') as f:
             writer.write(f)
@@ -144,7 +145,8 @@ class PyPdf(object):
         logging.debug("hocr_filename:%s, hocr_dir:%s, hocr_basename:%s" % (hocr_filename, hocr_dir, hocr_basename))
         assert(img_dir == hocr_dir)
 
-        basename = hocr_basename.split('.')[0]
+        #basename = hocr_basename.split('.')[0]
+        basename = os.path.splitext(hocr_basename)[0]
         pdf_filename = os.path.join("text_%s_ocr.pdf" % (basename))
 
         # Switch to the hocr directory to make this easier
@@ -177,7 +179,8 @@ class PyPdf(object):
     def overlay_hocr_old(self, dpi, hocr_filename):
         hocr_dir, hocr_basename = os.path.split(hocr_filename)
         logging.debug("hocr_filename:%s, hocr_dir:%s, hocr_basename:%s" % (hocr_filename, hocr_dir, hocr_basename))
-        basename = hocr_basename.split('.')[0]
+        #basename = hocr_basename.split('.')[0]
+        basename = os.path.splitext(hocr_basename)[0]
         pdf_filename = os.path.join("%s_ocr.pdf" % (basename))
         text_pdf_filename = pdf_filename + ".tmp"
 
@@ -227,7 +230,8 @@ class PyPdf(object):
                 pg_num = i+1
                 # Do a quick assert to make sure our sorted page number matches
                 # what's embedded in the filename
-                file_pg_num = int(img_file.split(basename+"_")[1].split('.')[0])
+                #file_pg_num = int(img_file.split(basename+"_")[1].split('.')[0])
+                file_pg_num = int(os.path.splitext(img_file.split(basename+"_")[1])[0])
                 if file_pg_num != pg_num:
                     logging.warn("Page number from file (%d) does not match iteration (%d)... continuing anyway" % (file_pg_num, pg_num))
 

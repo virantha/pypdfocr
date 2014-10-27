@@ -55,20 +55,24 @@ class PyFiler(object):
             # First, try appending a _v1 to it
             num = 1
             dr, fn, ext = self._split_filename_dir_filename_ext(tgtfilename)
-            tgtfilename = os.path.join(dr, "%s_%d.%s" % (fn, num, ext))
+            tgtfilename = os.path.join(dr, "%s_%d%s" % (fn, num, ext))
             while os.path.exists(tgtfilename):
                 # Add an incrementing integer to the end of the filename and Loop until we find a new filename
                 num += 1
-                tgtfilename = os.path.join(dr, "%s_%d.%s" % (fn, num, ext))
+                tgtfilename = os.path.join(dr, "%s_%d%s" % (fn, num, ext))
                 logging.info("Trying %s" % tgtfilename)
             logging.info("Using name %s instead for copying to target directory %s" % (os.path.basename(tgtfilename),os.path.dirname(tgtfilename )))
         return tgtfilename
 
     def _split_filename_dir_filename_ext(self, filename):
         dr, fn = os.path.split(filename) # Get directory and filename
-        fn_no_ext = fn.split('.')[0:-1] # Get the filename without ending extension
-        fn_no_ext = ''.join(fn_no_ext)
-        ext = fn.split('.')[-1]
+
+        # Silly me, forgot about the splitext function
+        #fn_no_ext = fn.split('.')[0:-1] # Get the filename without ending extension
+        #fn_no_ext = ''.join(fn_no_ext)
+        #ext = fn.split('.')[-1]
+
+        fn_no_ext, ext = os.path.splitext(fn)  # Get filename plus extension
         return dr, fn_no_ext, ext
 
     def get_target_folder(self):
