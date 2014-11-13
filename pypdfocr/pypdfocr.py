@@ -118,6 +118,7 @@ class PyPDFOCR(object):
             :ivar config: Dict of the config file
             :ivar watch: Whether folder watching mode is turned on
             :ivar enable_evernote: Enable filing to evernote
+            :ivar disable_preprocessing : Disable preprocessing step
 
         """
         p = argparse.ArgumentParser(
@@ -136,6 +137,10 @@ class PyPDFOCR(object):
 
         p.add_argument('-l', '--lang',
             default='eng', dest='lang', help='Language(default eng)')
+            
+        p.add_argument('-p', '--preprocessing', action='store_true',
+            default=False, dest='disable_preprocessing', help='Turn off preprocessing')
+            
         #---------
         # Single or watch mode
         #--------
@@ -183,6 +188,11 @@ class PyPDFOCR(object):
             logging.debug("Read in configuration file")
             logging.debug(self.config)
 
+        if args.disable_preprocessing:
+            self.disable_preprocessing = True 
+        else:
+            self.disable_preprocessing = False
+            
         if args.enable_evernote:
             self.enable_evernote = True
         else:
@@ -328,7 +338,12 @@ class PyPDFOCR(object):
         fns = glob.glob(glob_img_filename)
 
         # Preprocess
-        preprocess_imagefilenames = self.preprocess.preprocess(fns)
+        if self.disable_preprocessing:
+            preprocess_imagefilenames = fns
+        else:
+            preprocess_imagefilenames = self.preprocess.preprocess(fns)
+            
+            
 
         # Run teserract
         self.ts.lang = self.lang
