@@ -83,6 +83,10 @@ class PyPdf(object):
         hocr_filenames.sort(key=lambda x: self.natural_keys(x[0] ))
         logging.debug(hocr_filenames)
 
+        pdf_dir, pdf_basename = os.path.split(orig_pdf_filename)
+        basename = os.path.splitext(pdf_basename)[0]
+        pdf_filename = os.path.join(pdf_dir, "%s_ocr.pdf" % (basename))
+
         text_pdf_filenames = []
         for img_filename, hocr_filename in hocr_filenames:
             text_pdf_filename = self.overlay_hocr_page(dpi, hocr_filename, img_filename)
@@ -92,10 +96,8 @@ class PyPdf(object):
 
         writer = PdfFileWriter()
         orig = open(orig_pdf_filename, 'rb')
-        text_files = []
         for orig_pg, text_pg_filename in zip(self.iter_pdf_page(orig), text_pdf_filenames):
             text_file = open(text_pg_filename, 'rb')
-            text_files.append(text_file) # Save this to close after we write the final pdf
             text_pg = self.iter_pdf_page(text_file).next()
             orig_rotation_angle = int(orig_pg.get('/Rotate', 0))
 
@@ -111,16 +113,13 @@ class PyPdf(object):
             orig_pg.compressContentStreams()
             writer.addPage(orig_pg)
 
-        pdf_dir, pdf_basename = os.path.split(orig_pdf_filename)
-        #basename = pdf_basename.split('.')[0]
-        basename = os.path.splitext(pdf_basename)[0]
-        pdf_filename = os.path.join(pdf_dir, "%s_ocr.pdf" % (basename))
-        with open(pdf_filename, 'wb') as f:
-            writer.write(f)
-        
+            with open(pdf_filename, 'wb') as f:
+                # Flush out this page merge so we can close the text_file
+                writer.write(f)
+            text_file.close()
+
         orig.close()
-        for f in text_files:
-            f.close()
+
         for fn in text_pdf_filenames:
             os.remove(fn)
 
