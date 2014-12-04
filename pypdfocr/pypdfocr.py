@@ -136,6 +136,10 @@ class PyPDFOCR(object):
 
         p.add_argument('-l', '--lang',
             default='eng', dest='lang', help='Language(default eng)')
+
+        p.add_argument('--skip-preprocess', action='store_true',
+                default=False, dest='skip_preprocess', help='Skip preprocessing (saves time) if your pdf is in good shape already')
+
         #---------
         # Single or watch mode
         #--------
@@ -170,6 +174,7 @@ class PyPDFOCR(object):
         self.watch_dir = args.watch_dir
         self.enable_email = args.mail
         self.match_using_filename = args.match_using_filename
+        self.skip_preprocess = args.skip_preprocess
 
         if self.debug:
             logging.basicConfig(level=logging.DEBUG, format='%(message)s')
@@ -328,7 +333,11 @@ class PyPDFOCR(object):
         fns = glob.glob(glob_img_filename)
 
         # Preprocess
-        preprocess_imagefilenames = self.preprocess.preprocess(fns)
+        if not self.skip_preprocess:
+            preprocess_imagefilenames = self.preprocess.preprocess(fns)
+        else:
+            logging.info("Skipping preprocess step")
+            preprocess_imagefilenames = fns
 
         # Run teserract
         self.ts.lang = self.lang
@@ -341,7 +350,8 @@ class PyPDFOCR(object):
         # Clean up the files
         if not self.debug:
             self._clean_up_files(itertools.chain(*hocr_filenames)) # splat the hocr_filenames as it is a list of pairs
-            self._clean_up_files(itertools.chain(fns, preprocess_imagefilenames))
+            if not self.skip_preprocess:
+                self._clean_up_files(itertools.chain(fns, preprocess_imagefilenames))
 
         print ("Completed conversion successfully to %s" % ocr_pdf_filename)
         return ocr_pdf_filename
