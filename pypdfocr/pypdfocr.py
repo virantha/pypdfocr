@@ -52,7 +52,7 @@ def retry(count=5, exc_type = Exception):
         return result
     return decorator
 
-@retry(count=3, exc_type=IOError)
+@retry(count=6, exc_type=IOError)
 def open_file_with_timeout(parser, arg):
     f = open(arg, 'r')
     return f
@@ -81,7 +81,7 @@ class PyPDFOCR(object):
     def __init__ (self):
         """ Initializes the GhostScript, Tesseract, and PDF helper classes.
         """
-        self.config = None
+        self.config = {}
         self.gs = PyGs()
         self.ts = PyTesseract()
         self.pdf = PyPdf(self.gs)
@@ -221,7 +221,7 @@ class PyPDFOCR(object):
             try:
                 os.remove(f)
             except:
-                logging.info("Error removing file %s .... continuing" % file)
+                logging.info("Error removing file %s .... continuing" % f)
 
             
 
@@ -349,9 +349,13 @@ class PyPDFOCR(object):
 
         # Clean up the files
         if not self.debug:
+            logging.debug("Cleaning up %s" % hocr_filenames)
+            # clean up the hocr input (jpg) and output (html) files
             self._clean_up_files(itertools.chain(*hocr_filenames)) # splat the hocr_filenames as it is a list of pairs
             if not self.skip_preprocess:
-                self._clean_up_files(itertools.chain(fns, preprocess_imagefilenames))
+                # Need to clean up the original image files before preprocessing
+                logging.debug("Cleaning up %s" % fns)
+                self._clean_up_files(fns)
 
         print ("Completed conversion successfully to %s" % ocr_pdf_filename)
         return ocr_pdf_filename
@@ -427,7 +431,7 @@ class PyPDFOCR(object):
             self._setup_filing()
 
         if self.watch:
-            py_watcher = PyPdfWatcher(self.watch_dir)
+            py_watcher = PyPdfWatcher(self.watch_dir, self.config.get('watch'))
             for pdf_filename in py_watcher.start():
                 ocr_pdffilename = self.run_conversion(pdf_filename)
                 filing = "None"

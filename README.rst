@@ -21,7 +21,7 @@ More links:
 -  `Source @ github <https://www.github.com/virantha/pypdfocr>`__
 
 Usage:
-------
+######
 
 Single conversion:
 ~~~~~~~~~~~~~~~~~~
@@ -219,8 +219,23 @@ your configuration file:
     ghostscript:
         binary: "/usr/local/bin/gs"
 
+
+Advanced options
+----------------
+
+If you need to increase the time interval (default 3 seconds) between new
+document scans when pypdfocr is watching a directory (perhaps due to slow
+network shares, you may want to wait longer to ensure a new file is fully
+written before kicking off the conversion), you can specify the following
+option in the configuration file:
+
+::
+    
+    watch:
+        scan_interval: 6
+
 Installation
-------------
+############
 
 Using pip
 ~~~~~~~~~
@@ -314,9 +329,9 @@ for whatever language you want to scan in as ``osd.traineddata``.  If you don't 
 then any landscape document will produce garbage
 
 Disclaimer
-----------
+##########
 
-While test coverage is at 90% right now, Sphinx docs generation is at an
+While test coverage is at 84% right now, Sphinx docs generation is at an
 early stage. The software is distributed on an "AS IS" BASIS, WITHOUT
 WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
