@@ -281,7 +281,7 @@ These can all be installed via pip:
 You will also need to install the external dependencies listed below.
 
 External Dependencies
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 PyPDFOCR relies on the following (free) programs being installed and in
 the path:
