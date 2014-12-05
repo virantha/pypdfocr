@@ -22,7 +22,7 @@ class TestOptions:
         assert(self.p.verbose)
 
         assert(not self.p.enable_filing)
-        assert(self.p.config == None)
+        assert(self.p.config == {})
 
     def test_standalone_filing(self):
         opts = ["blah.pdf"]

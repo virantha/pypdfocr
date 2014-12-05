@@ -430,24 +430,25 @@ class PyPDFOCR(object):
         if self.enable_filing:
             self._setup_filing()
 
+        # Do the actual conversion followed by optional filing and email
         if self.watch:
             py_watcher = PyPdfWatcher(self.watch_dir, self.config.get('watch'))
             for pdf_filename in py_watcher.start():
-                ocr_pdffilename = self.run_conversion(pdf_filename)
-                filing = "None"
-                if self.enable_filing:
-                    filing = self.file_converted_file(ocr_pdffilename, pdf_filename)
-
-                if self.enable_email:
-                    self._send_email(pdf_filename, ocr_pdffilename, filing)
+                self._convert_and_file_email(pdf_filename)
         else:
-            ocr_pdffilename = self.run_conversion(self.pdf_filename)
-            filing = "None"
-            if self.enable_filing:
-                filing = self.file_converted_file(ocr_pdffilename, self.pdf_filename)
+            self._convert_and_file_email(self.pdf_filename)
 
-            if self.enable_email:
-                self._send_email(self.pdf_filename, ocr_pdffilename, filing)
+    def _convert_and_file_email(self, pdf_filename):
+        """
+            Helper function to run the conversion, then do the optional filing, and optional emailing.
+        """
+        ocr_pdffilename = self.run_conversion(pdf_filename)
+        filing = "None"
+        if self.enable_filing:
+            filing = self.file_converted_file(ocr_pdffilename, pdf_filename)
+
+        if self.enable_email:
+            self._send_email(pdf_filename, ocr_pdffilename, filing)
 
 def main(): # pragma: no cover 
     script = PyPDFOCR()
