@@ -496,24 +496,25 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_filing</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_setup_filing</span><span class="p">()</span>
 
+        <span class="c"># Do the actual conversion followed by optional filing and email</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">watch</span><span class="p">:</span>
             <span class="n">py_watcher</span> <span class="o">=</span> <span class="n">PyPdfWatcher</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">watch_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;watch&#39;</span><span class="p">))</span>
             <span class="k">for</span> <span class="n">pdf_filename</span> <span class="ow">in</span> <span class="n">py_watcher</span><span class="o">.</span><span class="n">start</span><span class="p">():</span>
-                <span class="n">ocr_pdffilename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_conversion</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span>
-                <span class="n">filing</span> <span class="o">=</span> <span class="s">&quot;None&quot;</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_filing</span><span class="p">:</span>
-                    <span class="n">filing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_converted_file</span><span class="p">(</span><span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">)</span>
-
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_email</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_send_email</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">filing</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_convert_and_file_email</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ocr_pdffilename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_conversion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdf_filename</span><span class="p">)</span>
-            <span class="n">filing</span> <span class="o">=</span> <span class="s">&quot;None&quot;</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_filing</span><span class="p">:</span>
-                <span class="n">filing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_converted_file</span><span class="p">(</span><span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdf_filename</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_convert_and_file_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdf_filename</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PyPDFOCR._convert_and_file_email"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.PyPDFOCR._convert_and_file_email">[docs]</a>    <span class="k">def</span> <span class="nf">_convert_and_file_email</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Helper function to run the conversion, then do the optional filing, and optional emailing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ocr_pdffilename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_conversion</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span>
+        <span class="n">filing</span> <span class="o">=</span> <span class="s">&quot;None&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_filing</span><span class="p">:</span>
+            <span class="n">filing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_converted_file</span><span class="p">(</span><span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_email</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_send_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">filing</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_email</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_send_email</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">filing</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span> <span class="c"># pragma: no cover </span>
     <span class="n">script</span> <span class="o">=</span> <span class="n">PyPDFOCR</span><span class="p">()</span>
