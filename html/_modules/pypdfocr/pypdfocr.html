@@ -118,7 +118,7 @@
         <span class="k">return</span> <span class="n">result</span>
     <span class="k">return</span> <span class="n">decorator</span>
 </div>
-<span class="nd">@retry</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">exc_type</span><span class="o">=</span><span class="ne">IOError</span><span class="p">)</span>
+<span class="nd">@retry</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">exc_type</span><span class="o">=</span><span class="ne">IOError</span><span class="p">)</span>
 <div class="viewcode-block" id="open_file_with_timeout"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.open_file_with_timeout">[docs]</a><span class="k">def</span> <span class="nf">open_file_with_timeout</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
     <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">f</span>
@@ -147,7 +147,7 @@
     <span class="k">def</span> <span class="nf">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Initializes the GhostScript, Tesseract, and PDF helper classes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gs</span> <span class="o">=</span> <span class="n">PyGs</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ts</span> <span class="o">=</span> <span class="n">PyTesseract</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pdf</span> <span class="o">=</span> <span class="n">PyPdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">)</span>
@@ -202,6 +202,10 @@
 
         <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-l&#39;</span><span class="p">,</span> <span class="s">&#39;--lang&#39;</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="s">&#39;eng&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;lang&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Language(default eng)&#39;</span><span class="p">)</span>
+
+        <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--skip-preprocess&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;skip_preprocess&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Skip preprocessing (saves time) if your pdf is in good shape already&#39;</span><span class="p">)</span>
+
         <span class="c">#---------</span>
         <span class="c"># Single or watch mode</span>
         <span class="c">#--------</span>
@@ -236,6 +240,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">watch_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">watch_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">enable_email</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">mail</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">match_using_filename</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">match_using_filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_preprocess</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_preprocess</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">)</span>
@@ -282,7 +287,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
             <span class="k">except</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Error removing file </span><span class="si">%s</span><span class="s"> .... continuing&quot;</span> <span class="o">%</span> <span class="nb">file</span><span class="p">)</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Error removing file </span><span class="si">%s</span><span class="s"> .... continuing&quot;</span> <span class="o">%</span> <span class="n">f</span><span class="p">)</span>
 
             
 </div>
@@ -394,7 +399,11 @@
         <span class="n">fns</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glob_img_filename</span><span class="p">)</span>
 
         <span class="c"># Preprocess</span>
-        <span class="n">preprocess_imagefilenames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">fns</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_preprocess</span><span class="p">:</span>
+            <span class="n">preprocess_imagefilenames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">fns</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Skipping preprocess step&quot;</span><span class="p">)</span>
+            <span class="n">preprocess_imagefilenames</span> <span class="o">=</span> <span class="n">fns</span>
 
         <span class="c"># Run teserract</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="o">.</span><span class="n">lang</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lang</span>
@@ -406,8 +415,13 @@
 
         <span class="c"># Clean up the files</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Cleaning up </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">hocr_filenames</span><span class="p">)</span>
+            <span class="c"># clean up the hocr input (jpg) and output (html) files</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_clean_up_files</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">hocr_filenames</span><span class="p">))</span> <span class="c"># splat the hocr_filenames as it is a list of pairs</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_clean_up_files</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="n">fns</span><span class="p">,</span> <span class="n">preprocess_imagefilenames</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_preprocess</span><span class="p">:</span>
+                <span class="c"># Need to clean up the original image files before preprocessing</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Cleaning up </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fns</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_clean_up_files</span><span class="p">(</span><span class="n">fns</span><span class="p">)</span>
 
         <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Completed conversion successfully to </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">ocr_pdf_filename</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ocr_pdf_filename</span>
@@ -483,7 +497,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_setup_filing</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">watch</span><span class="p">:</span>
-            <span class="n">py_watcher</span> <span class="o">=</span> <span class="n">PyPdfWatcher</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">watch_dir</span><span class="p">)</span>
+            <span class="n">py_watcher</span> <span class="o">=</span> <span class="n">PyPdfWatcher</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">watch_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;watch&#39;</span><span class="p">))</span>
             <span class="k">for</span> <span class="n">pdf_filename</span> <span class="ow">in</span> <span class="n">py_watcher</span><span class="o">.</span><span class="n">start</span><span class="p">():</span>
                 <span class="n">ocr_pdffilename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_conversion</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span>
                 <span class="n">filing</span> <span class="o">=</span> <span class="s">&quot;None&quot;</span>

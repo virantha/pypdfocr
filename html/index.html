@@ -76,7 +76,6 @@
 <li><a class="reference internal" href="#manual-install">Manual install</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#external-dependencies">External Dependencies</a></li>
 <li><a class="reference internal" href="#disclaimer">Disclaimer</a></li>
 </ul>
 </li>
@@ -429,6 +428,14 @@ your configuration file:</p>
 ghostscript:
     binary: "/usr/local/bin/gs"</pre>
 </div>
+<p>If you need to increase the time interval (default 3 seconds) between new
+document scans when pypdfocr is watching a directory (perhaps due to slow
+network shares, you may want to wait longer to ensure a new file is fully
+written before kicking off the conversion), you can specify the following
+option in the configuration file:</p>
+<div class="highlight-python"><pre>watch:
+    scan_interval: 6</pre>
+</div>
 </div>
 </div>
 <div class="section" id="installation">
@@ -466,10 +473,6 @@ pip install watchdog
 pip install pypdf2</pre>
 </div>
 <p>You will also need to install the external dependencies listed below.</p>
-</div>
-</div>
-<div class="section" id="external-dependencies">
-<h2>External Dependencies<a class="headerlink" href="#external-dependencies" title="Permalink to this headline">¶</a></h2>
 <p>PyPDFOCR relies on the following (free) programs being installed and in
 the path:</p>
 <ul class="simple">
@@ -503,9 +506,10 @@ cp eng.traineddata osd.traineddata</pre>
 for whatever language you want to scan in as <tt class="docutils literal"><span class="pre">osd.traineddata</span></tt>.  If you don&#8217;t do this step,
 then any landscape document will produce garbage</p>
 </div>
+</div>
 <div class="section" id="disclaimer">
 <h2>Disclaimer<a class="headerlink" href="#disclaimer" title="Permalink to this headline">¶</a></h2>
-<p>While test coverage is at 90% right now, Sphinx docs generation is at an
+<p>While test coverage is at 84% right now, Sphinx docs generation is at an
 early stage. The software is distributed on an &#8220;AS IS&#8221; BASIS, WITHOUT
 WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</p>
 </div>
