@@ -28,11 +28,13 @@ class PyPdfWatcher(FileSystemEventHandler):
     events = {}
     events_lock = Lock()
 
-    def __init__(self, monitor_dir):
+    def __init__(self, monitor_dir, config):
         FileSystemEventHandler.__init__(self)
 
         self.monitor_dir = monitor_dir
-        self.scan_interval = 3 # If no updates in 3 seconds process file
+        if not config: config = {}
+
+        self.scan_interval = config.get('scan_interval', 3) # If no updates in 3 seconds (or user specified option in config file) process file
 
     def start(self):
         try: 
@@ -42,6 +44,7 @@ class PyPdfWatcher(FileSystemEventHandler):
                 observer.start()
                 print("Starting to watch for new pdfs in %s" % (self.monitor_dir))
                 while True:
+                    logging.info("Sleeping for %d seconds" % self.scan_interval)
                     time.sleep(self.scan_interval)
                     newFile = self.check_queue()
                     if newFile:

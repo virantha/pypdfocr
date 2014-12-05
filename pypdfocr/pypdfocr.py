@@ -52,7 +52,7 @@ def retry(count=5, exc_type = Exception):
         return result
     return decorator
 
-@retry(count=3, exc_type=IOError)
+@retry(count=6, exc_type=IOError)
 def open_file_with_timeout(parser, arg):
     f = open(arg, 'r')
     return f
@@ -81,7 +81,7 @@ class PyPDFOCR(object):
     def __init__ (self):
         """ Initializes the GhostScript, Tesseract, and PDF helper classes.
         """
-        self.config = None
+        self.config = {}
         self.gs = PyGs()
         self.ts = PyTesseract()
         self.pdf = PyPdf(self.gs)
@@ -136,6 +136,10 @@ class PyPDFOCR(object):
 
         p.add_argument('-l', '--lang',
             default='eng', dest='lang', help='Language(default eng)')
+
+        p.add_argument('--skip-preprocess', action='store_true',
+                default=False, dest='skip_preprocess', help='Skip preprocessing (saves time) if your pdf is in good shape already')
+
         #---------
         # Single or watch mode
         #--------
@@ -170,6 +174,7 @@ class PyPDFOCR(object):
         self.watch_dir = args.watch_dir
         self.enable_email = args.mail
         self.match_using_filename = args.match_using_filename
+        self.skip_preprocess = args.skip_preprocess
 
         if self.debug:
             logging.basicConfig(level=logging.DEBUG, format='%(message)s')
@@ -216,7 +221,7 @@ class PyPDFOCR(object):
             try:
                 os.remove(f)
             except:
-                logging.info("Error removing file %s .... continuing" % file)
+                logging.info("Error removing file %s .... continuing" % f)
 
             
 
@@ -328,7 +333,11 @@ class PyPDFOCR(object):
         fns = glob.glob(glob_img_filename)
 
         # Preprocess
-        preprocess_imagefilenames = self.preprocess.preprocess(fns)
+        if not self.skip_preprocess:
+            preprocess_imagefilenames = self.preprocess.preprocess(fns)
+        else:
+            logging.info("Skipping preprocess step")
+            preprocess_imagefilenames = fns
 
         # Run teserract
         self.ts.lang = self.lang
@@ -340,8 +349,13 @@ class PyPDFOCR(object):
 
         # Clean up the files
         if not self.debug:
+            logging.debug("Cleaning up %s" % hocr_filenames)
+            # clean up the hocr input (jpg) and output (html) files
             self._clean_up_files(itertools.chain(*hocr_filenames)) # splat the hocr_filenames as it is a list of pairs
-            self._clean_up_files(itertools.chain(fns, preprocess_imagefilenames))
+            if not self.skip_preprocess:
+                # Need to clean up the original image files before preprocessing
+                logging.debug("Cleaning up %s" % fns)
+                self._clean_up_files(fns)
 
         print ("Completed conversion successfully to %s" % ocr_pdf_filename)
         return ocr_pdf_filename
@@ -416,24 +430,25 @@ class PyPDFOCR(object):
         if self.enable_filing:
             self._setup_filing()
 
+        # Do the actual conversion followed by optional filing and email
         if self.watch:
-            py_watcher = PyPdfWatcher(self.watch_dir)
+            py_watcher = PyPdfWatcher(self.watch_dir, self.config.get('watch'))
             for pdf_filename in py_watcher.start():
-                ocr_pdffilename = self.run_conversion(pdf_filename)
-                filing = "None"
-                if self.enable_filing:
-                    filing = self.file_converted_file(ocr_pdffilename, pdf_filename)
-
-                if self.enable_email:
-                    self._send_email(pdf_filename, ocr_pdffilename, filing)
+                self._convert_and_file_email(pdf_filename)
         else:
-            ocr_pdffilename = self.run_conversion(self.pdf_filename)
-            filing = "None"
-            if self.enable_filing:
-                filing = self.file_converted_file(ocr_pdffilename, self.pdf_filename)
+            self._convert_and_file_email(self.pdf_filename)
 
-            if self.enable_email:
-                self._send_email(self.pdf_filename, ocr_pdffilename, filing)
+    def _convert_and_file_email(self, pdf_filename):
+        """
+            Helper function to run the conversion, then do the optional filing, and optional emailing.
+        """
+        ocr_pdffilename = self.run_conversion(pdf_filename)
+        filing = "None"
+        if self.enable_filing:
+            filing = self.file_converted_file(ocr_pdffilename, pdf_filename)
+
+        if self.enable_email:
+            self._send_email(pdf_filename, ocr_pdffilename, filing)
 
 def main(): # pragma: no cover 
     script = PyPDFOCR()

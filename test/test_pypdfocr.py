@@ -66,7 +66,7 @@ class TestPydfocr:
 
         cwd = os.getcwd()
         os.chdir(dirname)
-        opts = [filename]
+        opts = [filename, '--skip-preprocess']
         self.p.go(opts)
 
         out_filename = filename.replace(".pdf", "_ocr.pdf")
@@ -135,7 +135,7 @@ class TestPydfocr:
         os.chdir(dirname)
         print("Current direcxtory: %s" % os.getcwd())
         #opts = [filename, "--config=test_pypdfocr_config.yaml", "-f"]
-        opts = [filename, "--config=%s" % config, "-f"]
+        opts = [filename, '--skip-preprocess', "--config=%s" % config, "-f"]
         self.p.go(opts)
 
         out_filename = filename.replace(".pdf", "_ocr.pdf")

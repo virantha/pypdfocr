@@ -25,9 +25,6 @@ import sys, os
 import logging
 import glob
 
-def error(text):
-    print("ERROR: %s" % text)
-    exit(-1)
 
 class PyPreprocess(object):
     """Class to wrap all the ImageMagick convert calls"""
@@ -38,7 +35,7 @@ class PyPreprocess(object):
 
 
 
-    def _warn(self, msg):
+    def _warn(self, msg): # pragma: no cover
         print("WARNING: %s" % msg)
 
     def cmd(self, cmd_list):
@@ -90,5 +87,4 @@ class PyPreprocess(object):
             preprocessed_filenames.append(out_fn)
         return preprocessed_filenames
 
-        self._get_dpi(pdf_filename) # No need to bother anymore
 

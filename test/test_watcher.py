@@ -28,7 +28,7 @@ class TestWatching:
         if expected == None:
             expected = filename
 
-        p = P.PyPdfWatcher('temp')
+        p = P.PyPdfWatcher('temp',{})
 
         # First, test code that does not move original
         ret = p.rename_file_with_spaces(filename)
@@ -36,7 +36,7 @@ class TestWatching:
 
     def test_check_for_new_pdf(self):
     
-        p = P.PyPdfWatcher('temp')
+        p = P.PyPdfWatcher('temp', {})
         p.check_for_new_pdf("blah_ocr.pdf")
         assert("blah_ocr.pdf" not in p.events)
         p.check_for_new_pdf("blah.pdf")
@@ -50,7 +50,7 @@ class TestWatching:
         assert(p.events['blah.pdf']-time.time() <=1) # Check that time stamp was updated
 
     def test_events(self):
-        p = P.PyPdfWatcher('temp')
+        p = P.PyPdfWatcher('temp', {})
 
         event = namedtuple('event', 'src_path, dest_path')
 
@@ -64,7 +64,7 @@ class TestWatching:
         assert('temp_recipe3.pdf' in p.events)
 
     def test_check_queue(self):
-        p = P.PyPdfWatcher('temp')
+        p = P.PyPdfWatcher('temp', {})
         now = time.time()
         p.events['blah.pdf'] = now
         f = p.check_queue()

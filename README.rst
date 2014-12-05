@@ -1,7 +1,7 @@
 PyPDFOCR - Tesseract-OCR based PDF filing
 =========================================
 
-|image0| |image1| |Coverage Status|
+|image0| |image1| |image2| |Coverage Status|
 
 This program will help manage your scanned PDFs by doing the following:
 
@@ -21,7 +21,7 @@ More links:
 -  `Source @ github <https://www.github.com/virantha/pypdfocr>`__
 
 Usage:
-------
+######
 
 Single conversion:
 ~~~~~~~~~~~~~~~~~~
@@ -219,8 +219,20 @@ your configuration file:
     ghostscript:
         binary: "/usr/local/bin/gs"
 
+Advanced options
+~~~~~~~~~~~~~~~~
+
+If you need to increase the time interval (default 3 seconds) between new
+document scans when pypdfocr is watching a directory, you can specify the following
+option in the configuration file:
+
+::
+    
+    watch:
+        scan_interval: 6
+
 Installation
-------------
+############
 
 Using pip
 ~~~~~~~~~
@@ -314,14 +326,15 @@ for whatever language you want to scan in as ``osd.traineddata``.  If you don't 
 then any landscape document will produce garbage
 
 Disclaimer
-----------
+##########
 
-While test coverage is at 90% right now, Sphinx docs generation is at an
+While test coverage is at 84% right now, Sphinx docs generation is at an
 early stage. The software is distributed on an "AS IS" BASIS, WITHOUT
 WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
 .. |image0| image:: https://badge.fury.io/py/pypdfocr.png
    :target: https://pypi.python.org/pypi/pypdfocr
 .. |image1| image:: https://pypip.in/d/pypdfocr/badge.png
+.. |image2| image:: https://pypip.in/license/pypdfocr/badge.png
 .. |Coverage Status| image:: https://coveralls.io/repos/virantha/pypdfocr/badge.png?branch=develop
    :target: https://coveralls.io/r/virantha/pypdfocr
