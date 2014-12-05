@@ -169,79 +169,10 @@ class PyPdf(object):
             logging.info("Adding text to page %s" % pdf_filename)
             self.add_text_layer(pdf,hocr_basename,pg_num,height,dpi)
             pdf.showPage()
-            #os.remove(img_filename)
             pdf.save()
 
         os.chdir(cwd)
         return os.path.join(hocr_dir, pdf_filename)
-
-    def overlay_hocr_old(self, dpi, hocr_filename):
-        hocr_dir, hocr_basename = os.path.split(hocr_filename)
-        logging.debug("hocr_filename:%s, hocr_dir:%s, hocr_basename:%s" % (hocr_filename, hocr_dir, hocr_basename))
-        #basename = hocr_basename.split('.')[0]
-        basename = os.path.splitext(hocr_basename)[0]
-        pdf_filename = os.path.join("%s_ocr.pdf" % (basename))
-        text_pdf_filename = pdf_filename + ".tmp"
-
-        # Switch to the hocr directory to make this easier
-        cwd = os.getcwd()
-        if hocr_dir != "":
-            os.chdir(hocr_dir)
-
-        with open(text_pdf_filename, "wb") as f:
-            logging.info("Overlaying hocr and creating text pdf %s" % text_pdf_filename)
-            pdf = Canvas(f, pageCompression=1)
-            pdf.setCreator('pyocr')
-            pdf.setTitle(os.path.basename(hocr_filename))
-            logging.info("Analyzing OCR and applying text to PDF...")
-
-            pdf.setPageCompression(1)
-            logging.info("Searching for %s" % ("%s*.jpg" % basename))
-
-            # Find all the jpg files, and sort them by page number
-            img_files = []
-
-            # Make the jpg search a little bit more robust
-            for f in os.listdir("."):
-                if re.match(r"^%s_\d+\.%s$" % (basename, self.gs.img_file_ext), f):
-                    img_files.append(f)
-            img_files.sort(key=self.natural_keys)
-
-            if len(img_files) == 0:
-                logging.warn("No %s files found to embed in PDF.  Please check this!" % self.gs.img_file_ext)
-
-            # We know the following loop will iterate in page order 
-            # because we sorted the jpg filenames
-            for i, img_file in enumerate(img_files):
-
-                jpg = Image.open(img_file)
-                w,h = jpg.size
-                dpi_jpg = jpg.info['dpi']
-                width = w*72.0/dpi_jpg[0]
-                height = h*72.0/dpi_jpg[1]
-                del jpg
-
-                pdf.setPageSize((width,height))
-                logging.info("Adding page image %s" % img_file)
-                logging.info("Page width=%f, height=%f" % (width, height))
-                #pdf.drawImage(img_file,0,0, width=width, height=height)
-                # Get the page number
-                pg_num = i+1
-                # Do a quick assert to make sure our sorted page number matches
-                # what's embedded in the filename
-                #file_pg_num = int(img_file.split(basename+"_")[1].split('.')[0])
-                file_pg_num = int(os.path.splitext(img_file.split(basename+"_")[1])[0])
-                if file_pg_num != pg_num:
-                    logging.warn("Page number from file (%d) does not match iteration (%d)... continuing anyway" % (file_pg_num, pg_num))
-
-                logging.info("Adding text to page %d" % pg_num)
-                self.add_text_layer(pdf, hocr_basename,pg_num,height,dpi)
-                pdf.showPage()
-                os.remove(img_file)
-
-            pdf.save()
-
-        return os.path.join(hocr_dir,pdf_filename)
 
     def iter_pdf_page(self, f):
         reader = PdfFileReader(f)
