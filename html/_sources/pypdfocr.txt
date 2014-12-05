@@ -58,6 +58,15 @@ pypdfocr.pypdfocr_watcher module
     :show-inheritance:
     :private-members:
 
+pypdfocr.pypdfocr_preprocess module
+--------------------------------
+
+.. automodule:: pypdfocr.pypdfocr_preprocess
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :private-members:
+
 pypdfocr.pypdfocr_filer module
 --------------------------------
 

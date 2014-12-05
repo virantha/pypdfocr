@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pypdfocr.pypdfocr_preprocess &mdash; pypdfocr 0.8.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.8.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="pypdfocr 0.8.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pypdfocr 0.8.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pypdfocr.pypdfocr_preprocess</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python2.7</span>
+
+<span class="c"># Copyright 2013 Virantha Ekanayake All Rights Reserved.</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrap ImageMagick calls.  Yes, this is ugly.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<div class="viewcode-block" id="error"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_preprocess.error">[docs]</a><span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;ERROR: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">text</span><span class="p">)</span>
+    <span class="nb">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PyPreprocess"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_preprocess.PyPreprocess">[docs]</a><span class="k">class</span> <span class="nc">PyPreprocess</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class to wrap all the ImageMagick convert calls&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msgs</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&#39;CV_FAILED&#39;</span><span class="p">:</span> <span class="s">&#39;convert execution failed&#39;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+
+
+<div class="viewcode-block" id="PyPreprocess._warn"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_preprocess.PyPreprocess._warn">[docs]</a>    <span class="k">def</span> <span class="nf">_warn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;WARNING: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PyPreprocess.cmd"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_preprocess.PyPreprocess.cmd">[docs]</a>    <span class="k">def</span> <span class="nf">cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_list</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">cmd_list</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd_list</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Running cmd: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">cmd_list</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd_list</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">out</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">print</span> <span class="n">e</span><span class="o">.</span><span class="n">output</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">(</span><span class="s">&quot;Could not run command </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">cmd_list</span><span class="p">)</span>
+            
+</div>
+<div class="viewcode-block" id="PyPreprocess._run_preprocess"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_preprocess.PyPreprocess._run_preprocess">[docs]</a>    <span class="k">def</span> <span class="nf">_run_preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">in_filename</span><span class="p">):</span>
+        <span class="n">basename</span><span class="p">,</span> <span class="n">filext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">in_filename</span><span class="p">)</span>
+        <span class="n">out_filename</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">_preprocess</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">basename</span><span class="p">,</span> <span class="n">filext</span><span class="p">)</span>
+        <span class="c">#-respect-parenthesis \( -clone 0 -colorspace gray -negate -lat 15x5+5% -contrast-stretch 0 \) -compose copy_opacity -composite -opaque none +matte -modulate 100,50 -adaptive-blur 2.0 -sharpen 0x1 </span>
+        <span class="n">c</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;convert&#39;</span><span class="p">,</span>
+                <span class="s">&quot;&#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">in_filename</span><span class="p">,</span>
+                <span class="s">&#39;-respect-parenthesis&#39;</span><span class="p">,</span>
+                <span class="c">#&#39;\\( $setcspace -colorspace gray -type grayscale \\)&#39;,</span>
+                <span class="s">&#39;</span><span class="se">\\</span><span class="s">(&#39;</span><span class="p">,</span>
+                <span class="s">&#39;-clone 0&#39;</span><span class="p">,</span>
+                <span class="s">&#39;-colorspace gray -negate -lat 15x15+5\</span><span class="si">% -c</span><span class="s">ontrast-stretch 0 </span><span class="se">\\</span><span class="s">) -compose copy_opacity -composite -opaque none +matte -modulate 100,100&#39;</span><span class="p">,</span>
+                <span class="c">#&#39;-adaptive-blur 1.0&#39;,</span>
+                <span class="s">&#39;-blur 1x1&#39;</span><span class="p">,</span>
+                <span class="c">#&#39;-selective-blur 4x4+5%&#39;,</span>
+                <span class="s">&#39;-adaptive-sharpen 0x2&#39;</span><span class="p">,</span>
+                <span class="s">&#39;-negate -define morphology:compose=darken -morphology Thinning Rectangle:1x30+0+0 -negate &#39;</span><span class="p">,</span>  <span class="c"># Removes vertical lines &gt;=60 pixes, reduces widht of &gt;30 (oherwise tesseract completely ignores text close to vertical lines in a table)</span>
+                <span class="s">&quot;&#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">out_filename</span><span class="p">)</span>
+                <span class="p">]</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Preprocessing image for better OCR&quot;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">in_filename</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">out_filename</span>
+
+
+</div>
+<div class="viewcode-block" id="PyPreprocess.preprocess"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_preprocess.PyPreprocess.preprocess">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_filenames</span><span class="p">):</span>
+        <span class="n">fns</span> <span class="o">=</span> <span class="n">in_filenames</span>
+        <span class="n">preprocessed_filenames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">fns</span><span class="p">:</span>
+            <span class="n">out_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_preprocess</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Created </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">out_fn</span><span class="p">)</span>
+            <span class="n">preprocessed_filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_fn</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">preprocessed_filenames</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_dpi</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span> <span class="c"># No need to bother anymore</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">pypdfocr 0.8.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b3.
+    </div>
+  </body>
+</html>
