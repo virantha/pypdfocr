@@ -219,14 +219,11 @@ your configuration file:
     ghostscript:
         binary: "/usr/local/bin/gs"
 
-
 Advanced options
-----------------
+~~~~~~~~~~~~~~~~
 
 If you need to increase the time interval (default 3 seconds) between new
-document scans when pypdfocr is watching a directory (perhaps due to slow
-network shares, you may want to wait longer to ensure a new file is fully
-written before kicking off the conversion), you can specify the following
+document scans when pypdfocr is watching a directory, you can specify the following
 option in the configuration file:
 
 ::
