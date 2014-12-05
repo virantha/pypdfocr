@@ -59,7 +59,7 @@ pypdfocr.pypdfocr_watcher module
     :private-members:
 
 pypdfocr.pypdfocr_preprocess module
---------------------------------
+-----------------------------------
 
 .. automodule:: pypdfocr.pypdfocr_preprocess
     :members:
