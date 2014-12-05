@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 PyPDFOCR API Reference (version |release|)
-====================================
+==========================================
 
 Contents:
 
