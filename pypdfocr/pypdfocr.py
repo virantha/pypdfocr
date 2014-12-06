@@ -15,7 +15,7 @@
 
 import smtplib
 import argparse
-import sys, os
+import sys, os, traceback
 import logging
 import shutil, glob
 import itertools
@@ -326,9 +326,8 @@ class PyPDFOCR(object):
             :rtype: filename string
         """
         print ("Starting conversion of %s" % pdf_filename)
-        conversion_format = "tiff"
         # Make the images for Tesseract
-        img_dpi, glob_img_filename = self.gs.make_img_from_pdf(pdf_filename, conversion_format)
+        img_dpi, glob_img_filename = self.gs.make_img_from_pdf(pdf_filename)
 
         fns = glob.glob(glob_img_filename)
 
@@ -432,9 +431,17 @@ class PyPDFOCR(object):
 
         # Do the actual conversion followed by optional filing and email
         if self.watch:
-            py_watcher = PyPdfWatcher(self.watch_dir, self.config.get('watch'))
-            for pdf_filename in py_watcher.start():
-                self._convert_and_file_email(pdf_filename)
+            while True:  # Make sure the watcher doesn't terminate
+                try:
+                    py_watcher = PyPdfWatcher(self.watch_dir, self.config.get('watch'))
+                    for pdf_filename in py_watcher.start():
+                        self._convert_and_file_email(pdf_filename)
+                except KeyboardInterrupt:
+                    break
+                except Exception as e:
+                    print traceback.print_exc(e)
+                    py_watcher.stop()
+                    
         else:
             self._convert_and_file_email(self.pdf_filename)
 

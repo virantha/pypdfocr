@@ -43,7 +43,7 @@ class TestGS:
     def test_gs_pdf_missing(self, capsys):
         p = P.PyGs()
         with pytest.raises(SystemExit):
-            p.make_img_from_pdf("missing123.pdf", "")
+            p.make_img_from_pdf("missing123.pdf")
         out,err = capsys.readouterr()
         assert p.msgs['GS_MISSING_PDF'] in out
 

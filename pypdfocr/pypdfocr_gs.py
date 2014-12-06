@@ -171,7 +171,7 @@ class PyGs(object):
                 error (self.msgs['GS_FAILED'])
 
 
-    def make_img_from_pdf(self, pdf_filename, output_format):
+    def make_img_from_pdf(self, pdf_filename):
         self._get_dpi(pdf_filename) # No need to bother anymore
 
         if not os.path.exists(pdf_filename):
