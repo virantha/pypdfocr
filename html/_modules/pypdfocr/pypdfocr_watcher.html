@@ -103,23 +103,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">scan_interval</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;scan_interval&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="c"># If no updates in 3 seconds (or user specified option in config file) process file</span>
 
 <div class="viewcode-block" id="PyPdfWatcher.start"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span> 
-            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-                <span class="n">observer</span> <span class="o">=</span> <span class="n">Observer</span><span class="p">()</span>
-                <span class="n">observer</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor_dir</span><span class="p">)</span>
-                <span class="n">observer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&quot;Starting to watch for new pdfs in </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">monitor_dir</span><span class="p">))</span>
-                <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Sleeping for </span><span class="si">%d</span><span class="s"> seconds&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">scan_interval</span><span class="p">)</span>
-                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scan_interval</span><span class="p">)</span>
-                    <span class="n">newFile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_queue</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">newFile</span><span class="p">:</span>
-                        <span class="k">yield</span> <span class="n">newFile</span>
-                <span class="n">observer</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
-        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
-            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observer</span> <span class="o">=</span> <span class="n">Observer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Starting to watch for new pdfs in </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">monitor_dir</span><span class="p">))</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Sleeping for </span><span class="si">%d</span><span class="s"> seconds&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">scan_interval</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scan_interval</span><span class="p">)</span>
+            <span class="n">newFile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_queue</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">newFile</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">newFile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
             
-
+</div>
+<div class="viewcode-block" id="PyPdfWatcher.stop"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         </div>
 <div class="viewcode-block" id="PyPdfWatcher.rename_file_with_spaces"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_watcher.PyPdfWatcher.rename_file_with_spaces">[docs]</a>    <span class="k">def</span> <span class="nf">rename_file_with_spaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>

@@ -81,7 +81,7 @@
 
 <span class="kn">import</span> <span class="nn">smtplib</span>
 <span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">traceback</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
@@ -148,11 +148,6 @@
         <span class="sd">&quot;&quot;&quot; Initializes the GhostScript, Tesseract, and PDF helper classes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gs</span> <span class="o">=</span> <span class="n">PyGs</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ts</span> <span class="o">=</span> <span class="n">PyTesseract</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pdf</span> <span class="o">=</span> <span class="n">PyPdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span> <span class="o">=</span> <span class="n">PyPreprocess</span><span class="p">()</span>
-        <span class="sd">&quot;&quot;&quot;PDF read and generation class&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="PyPDFOCR._get_config_file"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.PyPDFOCR._get_config_file">[docs]</a>    <span class="k">def</span> <span class="nf">_get_config_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -230,6 +225,8 @@
         <span class="n">filing_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-n&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;match_using_filename&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Use filename to match if contents did not match anything, before filing to default folder&#39;</span><span class="p">)</span>
 
+
+        <span class="c"># Add flow option to single mode extract_images,preprocess,ocr,write</span>
 
         <span class="n">args</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
@@ -363,19 +360,15 @@
     </div>
 <div class="viewcode-block" id="PyPDFOCR._setup_external_tools"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.PyPDFOCR._setup_external_tools">[docs]</a>    <span class="k">def</span> <span class="nf">_setup_external_tools</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Override the Tesseract and Ghostscript binary locations if</span>
-<span class="sd">            the user specified them in the config file</span>
+<span class="sd">            Instantiate the external tool wrappers with their config dicts</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span> <span class="k">return</span> 
-        <span class="n">programs</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&quot;tesseract&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="p">),</span> <span class="p">(</span><span class="s">&quot;ghostscript&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">)]</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">program</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span> <span class="ow">in</span> <span class="n">programs</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">program</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">and</span> <span class="s">&quot;binary&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">program</span><span class="p">]:</span>
-                <span class="n">binary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">program</span><span class="p">][</span><span class="s">&quot;binary&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
-                    <span class="n">binary</span> <span class="o">=</span> <span class="s">&#39;&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">binary</span>
-                    <span class="n">binary</span> <span class="o">=</span> <span class="n">binary</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\\</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\\\\</span><span class="s">&quot;</span><span class="p">)</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Setting location for </span><span class="si">%s</span><span class="s"> executable to </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">program</span><span class="p">,</span> <span class="n">binary</span><span class="p">))</span>
-                <span class="n">obj</span><span class="o">.</span><span class="n">binary</span> <span class="o">=</span> <span class="n">binary</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gs</span> <span class="o">=</span> <span class="n">PyGs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;ghostscript&#39;</span><span class="p">,{}))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ts</span> <span class="o">=</span> <span class="n">PyTesseract</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;tesseract&#39;</span><span class="p">,{}))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdf</span> <span class="o">=</span> <span class="n">PyPdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span> <span class="o">=</span> <span class="n">PyPreprocess</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;preprocess&#39;</span><span class="p">,</span> <span class="p">{}))</span>
+
+        <span class="k">return</span>
 </div>
 <div class="viewcode-block" id="PyPDFOCR.run_conversion"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.PyPDFOCR.run_conversion">[docs]</a>    <span class="k">def</span> <span class="nf">run_conversion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -392,9 +385,8 @@
 <span class="sd">            :rtype: filename string</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Starting conversion of </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pdf_filename</span><span class="p">)</span>
-        <span class="n">conversion_format</span> <span class="o">=</span> <span class="s">&quot;tiff&quot;</span>
         <span class="c"># Make the images for Tesseract</span>
-        <span class="n">img_dpi</span><span class="p">,</span> <span class="n">glob_img_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="o">.</span><span class="n">make_img_from_pdf</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="n">conversion_format</span><span class="p">)</span>
+        <span class="n">img_dpi</span><span class="p">,</span> <span class="n">glob_img_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="o">.</span><span class="n">make_img_from_pdf</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span>
 
         <span class="n">fns</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glob_img_filename</span><span class="p">)</span>
 
@@ -498,9 +490,17 @@
 
         <span class="c"># Do the actual conversion followed by optional filing and email</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">watch</span><span class="p">:</span>
-            <span class="n">py_watcher</span> <span class="o">=</span> <span class="n">PyPdfWatcher</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">watch_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;watch&#39;</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">pdf_filename</span> <span class="ow">in</span> <span class="n">py_watcher</span><span class="o">.</span><span class="n">start</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_convert_and_file_email</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span>
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>  <span class="c"># Make sure the watcher doesn&#39;t terminate</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">py_watcher</span> <span class="o">=</span> <span class="n">PyPdfWatcher</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">watch_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;watch&#39;</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">pdf_filename</span> <span class="ow">in</span> <span class="n">py_watcher</span><span class="o">.</span><span class="n">start</span><span class="p">():</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_convert_and_file_email</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                    <span class="n">py_watcher</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+                    
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_convert_and_file_email</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdf_filename</span><span class="p">)</span>
 </div>
@@ -509,9 +509,10 @@
 <span class="sd">            Helper function to run the conversion, then do the optional filing, and optional emailing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ocr_pdffilename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_conversion</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span>
-        <span class="n">filing</span> <span class="o">=</span> <span class="s">&quot;None&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_filing</span><span class="p">:</span>
             <span class="n">filing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_converted_file</span><span class="p">(</span><span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filing</span> <span class="o">=</span> <span class="s">&quot;None&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_email</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_send_email</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">filing</span><span class="p">)</span>

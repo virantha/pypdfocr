@@ -167,8 +167,7 @@
 <dl class="method">
 <dt id="pypdfocr.pypdfocr.PyPDFOCR._setup_external_tools">
 <tt class="descname">_setup_external_tools</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#PyPDFOCR._setup_external_tools"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR._setup_external_tools" title="Permalink to this definition">¶</a></dt>
-<dd><p>Override the Tesseract and Ghostscript binary locations if
-the user specified them in the config file</p>
+<dd><p>Instantiate the external tool wrappers with their config dicts</p>
 </dd></dl>
 
 <dl class="method">
@@ -261,12 +260,6 @@ moves the original PDF.</p>
 </ol>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="pypdfocr.pypdfocr.PyPDFOCR.preprocess">
-<tt class="descname">preprocess</tt><em class="property"> = None</em><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR.preprocess" title="Permalink to this definition">¶</a></dt>
-<dd><p>PDF read and generation class</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="pypdfocr.pypdfocr.PyPDFOCR.run_conversion">
 <tt class="descname">run_conversion</tt><big>(</big><em>pdf_filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr.html#PyPDFOCR.run_conversion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr.PyPDFOCR.run_conversion" title="Permalink to this definition">¶</a></dt>
@@ -319,7 +312,7 @@ moves the original PDF.</p>
 <p>Wrap ghostscript calls.  Yes, this is ugly.</p>
 <dl class="class">
 <dt id="pypdfocr.pypdfocr_gs.PyGs">
-<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_gs.</tt><tt class="descname">PyGs</tt><a class="reference internal" href="_modules/pypdfocr/pypdfocr_gs.html#PyGs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_gs.PyGs" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_gs.</tt><tt class="descname">PyGs</tt><big>(</big><em>config</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_gs.html#PyGs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_gs.PyGs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Class to wrap all the ghostscript calls</p>
 <dl class="method">
@@ -355,7 +348,7 @@ recent.</p>
 
 <dl class="method">
 <dt id="pypdfocr.pypdfocr_gs.PyGs.make_img_from_pdf">
-<tt class="descname">make_img_from_pdf</tt><big>(</big><em>pdf_filename</em>, <em>output_format</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_gs.html#PyGs.make_img_from_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_gs.PyGs.make_img_from_pdf" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">make_img_from_pdf</tt><big>(</big><em>pdf_filename</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_gs.html#PyGs.make_img_from_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_gs.PyGs.make_img_from_pdf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -475,7 +468,7 @@ on keywords</p>
 <p>Run Tesseract to generate hocr file</p>
 <dl class="class">
 <dt id="pypdfocr.pypdfocr_tesseract.PyTesseract">
-<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_tesseract.</tt><tt class="descname">PyTesseract</tt><a class="reference internal" href="_modules/pypdfocr/pypdfocr_tesseract.html#PyTesseract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_tesseract.PyTesseract" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_tesseract.</tt><tt class="descname">PyTesseract</tt><big>(</big><em>config</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_tesseract.html#PyTesseract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_tesseract.PyTesseract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Class to wrap all the tesseract calls</p>
 <dl class="method">
@@ -499,6 +492,11 @@ on keywords</p>
 <dl class="function">
 <dt id="pypdfocr.pypdfocr_tesseract.error">
 <tt class="descclassname">pypdfocr.pypdfocr_tesseract.</tt><tt class="descname">error</tt><big>(</big><em>text</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_tesseract.html#error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_tesseract.error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pypdfocr.pypdfocr_tesseract.unwrap_self">
+<tt class="descclassname">pypdfocr.pypdfocr_tesseract.</tt><tt class="descname">unwrap_self</tt><big>(</big><em>arg</em>, <em>**kwarg</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_tesseract.html#unwrap_self"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_tesseract.unwrap_self" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -562,7 +560,7 @@ for purging later.</p>
 
 <dl class="attribute">
 <dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.events_lock">
-<tt class="descname">events_lock</tt><em class="property"> = &lt;thread.lock object at 0x10c34f390&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.events_lock" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">events_lock</tt><em class="property"> = &lt;thread.lock object at 0x10a4b1430&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.events_lock" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -604,6 +602,11 @@ Does not affect spaces in the directory path.</p>
 <tt class="descname">start</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_watcher.html#PyPdfWatcher.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.start" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="pypdfocr.pypdfocr_watcher.PyPdfWatcher.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_watcher.html#PyPdfWatcher.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_watcher.PyPdfWatcher.stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -612,7 +615,7 @@ Does not affect spaces in the directory path.</p>
 <p>Wrap ImageMagick calls.  Yes, this is ugly.</p>
 <dl class="class">
 <dt id="pypdfocr.pypdfocr_preprocess.PyPreprocess">
-<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_preprocess.</tt><tt class="descname">PyPreprocess</tt><a class="reference internal" href="_modules/pypdfocr/pypdfocr_preprocess.html#PyPreprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_preprocess.PyPreprocess" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pypdfocr.pypdfocr_preprocess.</tt><tt class="descname">PyPreprocess</tt><big>(</big><em>config</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_preprocess.html#PyPreprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_preprocess.PyPreprocess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Class to wrap all the ImageMagick convert calls</p>
 <dl class="method">
@@ -637,6 +640,11 @@ Does not affect spaces in the directory path.</p>
 
 </dd></dl>
 
+<dl class="function">
+<dt id="pypdfocr.pypdfocr_preprocess.unwrap_self">
+<tt class="descclassname">pypdfocr.pypdfocr_preprocess.</tt><tt class="descname">unwrap_self</tt><big>(</big><em>arg</em>, <em>**kwarg</em><big>)</big><a class="reference internal" href="_modules/pypdfocr/pypdfocr_preprocess.html#unwrap_self"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypdfocr.pypdfocr_preprocess.unwrap_self" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 <div class="section" id="module-pypdfocr.pypdfocr_filer">
 <span id="pypdfocr-pypdfocr-filer-module"></span><h2>pypdfocr.pypdfocr_filer module<a class="headerlink" href="#module-pypdfocr.pypdfocr_filer" title="Permalink to this headline">¶</a></h2>
@@ -648,12 +656,12 @@ Does not affect spaces in the directory path.</p>
 save to a file-system/directory structure or to something like Evernote</p>
 <dl class="attribute">
 <dt id="pypdfocr.pypdfocr_filer.PyFiler._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10c5c4c50&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10a72b310&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pypdfocr.pypdfocr_filer.PyFiler._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10c5c4cd0&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10a72b390&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -663,7 +671,7 @@ save to a file-system/directory structure or to something like Evernote</p>
 
 <dl class="attribute">
 <dt id="pypdfocr.pypdfocr_filer.PyFiler._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10c5c4b90&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10a72b250&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer.PyFiler._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -795,12 +803,12 @@ then use <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler.de
 <dd><p>Bases: <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler" title="pypdfocr.pypdfocr_filer.PyFiler"><tt class="xref py py-class docutils literal"><span class="pre">pypdfocr.pypdfocr_filer.PyFiler</span></tt></a></p>
 <dl class="attribute">
 <dt id="pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10c5c4ed0&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10a72b590&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10c5c4f50&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10a72b610&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -810,7 +818,7 @@ then use <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler.de
 
 <dl class="attribute">
 <dt id="pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10c5c4e10&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10a72b4d0&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_dirs.PyFilerDirs._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -839,12 +847,12 @@ then use <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler.de
 <dd><p>Bases: <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler" title="pypdfocr.pypdfocr_filer.PyFiler"><tt class="xref py py-class docutils literal"><span class="pre">pypdfocr.pypdfocr_filer.PyFiler</span></tt></a></p>
 <dl class="attribute">
 <dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_cache">
-<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10c720090&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10a88c850&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_negative_cache">
-<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10c7203d0&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_negative_cache</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10a88cb90&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_negative_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -854,7 +862,7 @@ then use <a class="reference internal" href="#pypdfocr.pypdfocr_filer.PyFiler.de
 
 <dl class="attribute">
 <dt id="pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_registry">
-<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10c714e90&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_registry" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">_abc_registry</tt><em class="property"> = &lt;_weakrefset.WeakSet object at 0x10a88c690&gt;</em><a class="headerlink" href="#pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote._abc_registry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">

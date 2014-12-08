@@ -90,25 +90,42 @@
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">CalledProcessError</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span>
 
 <div class="viewcode-block" id="error"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_tesseract.error">[docs]</a><span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="k">print</span><span class="p">(</span><span class="s">&quot;ERROR: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">text</span><span class="p">)</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c"># Ugly hack to pass in object method to the multiprocessing library</span>
+<span class="c"># From http://www.rueckstiess.net/research/snippets/show/ca1d7d90</span>
+<span class="c"># Basically gets passed in a pair of (self, arg), and calls the method</span></div>
+<div class="viewcode-block" id="unwrap_self"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_tesseract.unwrap_self">[docs]</a><span class="k">def</span> <span class="nf">unwrap_self</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwarg</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">PyTesseract</span><span class="o">.</span><span class="n">make_hocr_from_pnm</span><span class="p">(</span><span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwarg</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="PyTesseract"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_tesseract.PyTesseract">[docs]</a><span class="k">class</span> <span class="nc">PyTesseract</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class to wrap all the tesseract calls&quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">           Detect windows tesseract location.  The main script overrides self.binary</span>
-<span class="sd">           if it is set in the config file</span>
+<span class="sd">           Detect windows tesseract location.  </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lang</span> <span class="o">=</span> <span class="s">&#39;eng&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="s">&quot;3.02.02&quot;</span>
-        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
-            <span class="c"># Explicit str here to get around some MagicMock stuff for testing that I don&#39;t quite understand</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">binary</span> <span class="o">=</span> <span class="s">&#39;&quot;c:</span><span class="se">\\</span><span class="s">Program Files (x86)</span><span class="se">\\</span><span class="s">Tesseract-OCR</span><span class="se">\\</span><span class="s">tesseract.exe&quot;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threads</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;threads&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s">&quot;binary&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>  <span class="c"># Override location of binary</span>
+            <span class="n">binary</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">&#39;binary&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
+                <span class="n">binary</span> <span class="o">=</span> <span class="s">&#39;&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">binary</span>
+                <span class="n">binary</span> <span class="o">=</span> <span class="n">binary</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\\</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\\\\</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Setting location for tesseracdt executable to </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">binary</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">binary</span> <span class="o">=</span> <span class="s">&quot;tesseract&quot;</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
+                <span class="c"># Explicit str here to get around some MagicMock stuff for testing that I don&#39;t quite understand</span>
+                <span class="n">binary</span> <span class="o">=</span> <span class="s">&#39;&quot;c:</span><span class="se">\\</span><span class="s">Program Files (x86)</span><span class="se">\\</span><span class="s">Tesseract-OCR</span><span class="se">\\</span><span class="s">tesseract.exe&quot;&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">binary</span> <span class="o">=</span> <span class="s">&quot;tesseract&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">binary</span> <span class="o">=</span> <span class="n">binary</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">msgs</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s">&#39;TS_MISSING&#39;</span><span class="p">:</span> <span class="s">&quot;&quot;&quot; </span>
@@ -119,6 +136,7 @@
             <span class="s">&#39;TS_img_MISSING&#39;</span><span class="p">:</span><span class="s">&#39;Cannot find specified tiff file&#39;</span><span class="p">,</span>
             <span class="s">&#39;TS_FAILED&#39;</span><span class="p">:</span> <span class="s">&#39;Tesseract-OCR execution failed!&#39;</span><span class="p">,</span>
         <span class="p">}</span>
+
 
 <div class="viewcode-block" id="PyTesseract._is_version_uptodate"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_tesseract.PyTesseract._is_version_uptodate">[docs]</a>    <span class="k">def</span> <span class="nf">_is_version_uptodate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -177,12 +195,12 @@
 
         <span class="c"># Glob it</span>
         <span class="c">#fns = glob.glob(img_filename)</span>
-        <span class="n">hocr_filenames</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">fns</span><span class="p">:</span>
-            <span class="n">hocr_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_hocr_from_pnm</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
-            <span class="n">hocr_filenames</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fn</span><span class="p">,</span><span class="n">hocr_fn</span><span class="p">))</span>
-
-        <span class="k">return</span> <span class="n">hocr_filenames</span>
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">threads</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Making pool&quot;</span><span class="p">)</span>
+        <span class="n">hocr_filenames</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">unwrap_self</span><span class="p">,</span> <span class="nb">zip</span><span class="p">([</span><span class="bp">self</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">fns</span><span class="p">),</span> <span class="n">fns</span><span class="p">))</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="n">fns</span><span class="p">,</span><span class="n">hocr_filenames</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="PyTesseract.make_hocr_from_pnm"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_tesseract.PyTesseract.make_hocr_from_pnm">[docs]</a>    <span class="k">def</span> <span class="nf">make_hocr_from_pnm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_filename</span><span class="p">):</span>

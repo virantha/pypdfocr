@@ -97,20 +97,30 @@
 </div>
 <div class="viewcode-block" id="PyGs"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_gs.PyGs">[docs]</a><span class="k">class</span> <span class="nc">PyGs</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class to wrap all the ghostscript calls&quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">msgs</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s">&#39;GS_FAILED&#39;</span><span class="p">:</span> <span class="s">&#39;Ghostscript execution failed&#39;</span><span class="p">,</span>
                 <span class="s">&#39;GS_MISSING_PDF&#39;</span><span class="p">:</span> <span class="s">&#39;Cannot find specified pdf file&#39;</span><span class="p">,</span>
                 <span class="s">&#39;GS_OUTDATED&#39;</span><span class="p">:</span> <span class="s">&#39;Your Ghostscript version is probably out of date.  Please upgrade to the latest version&#39;</span><span class="p">,</span>
                 <span class="s">&#39;GS_MISSING_BINARY&#39;</span><span class="p">:</span> <span class="s">&#39;Could not find Ghostscript in the usual place; please specify it using your config file&#39;</span><span class="p">,</span>
             <span class="p">}</span>
-        <span class="c"># Detect windows gs binary (make this smarter in the future)</span>
-        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
-	    <span class="n">win_binary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_windows_gs</span><span class="p">()</span>
-	    <span class="bp">self</span><span class="o">.</span><span class="n">binary</span> <span class="o">=</span> <span class="s">&#39;&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">win_binary</span>
-	    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Using Ghostscript: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">binary</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threads</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;threads&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s">&quot;binary&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>  <span class="c"># Override location of binary</span>
+            <span class="n">binary</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">&#39;binary&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
+                <span class="n">binary</span> <span class="o">=</span> <span class="s">&#39;&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">binary</span>
+                <span class="n">binary</span> <span class="o">=</span> <span class="n">binary</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\\</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\\\\</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Setting location for executable to </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">binary</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">binary</span> <span class="o">=</span> <span class="s">&quot;gs&quot;</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
+                <span class="n">win_binary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_windows_gs</span><span class="p">()</span>
+                <span class="n">binary</span> <span class="o">=</span> <span class="s">&#39;&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">win_binary</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Using Ghostscript: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">binary</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">binary</span> <span class="o">=</span> <span class="s">&quot;gs&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binary</span> <span class="o">=</span> <span class="n">binary</span>
 
         <span class="c">#self.tiff_dpi = 300</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_dpi</span> <span class="o">=</span> <span class="mi">300</span>
@@ -237,7 +247,7 @@
                 <span class="n">error</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="s">&#39;GS_FAILED&#39;</span><span class="p">])</span>
 
 </div>
-<div class="viewcode-block" id="PyGs.make_img_from_pdf"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_gs.PyGs.make_img_from_pdf">[docs]</a>    <span class="k">def</span> <span class="nf">make_img_from_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">,</span> <span class="n">output_format</span><span class="p">):</span>
+<div class="viewcode-block" id="PyGs.make_img_from_pdf"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_gs.PyGs.make_img_from_pdf">[docs]</a>    <span class="k">def</span> <span class="nf">make_img_from_pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_dpi</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span> <span class="c"># No need to bother anymore</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">):</span>

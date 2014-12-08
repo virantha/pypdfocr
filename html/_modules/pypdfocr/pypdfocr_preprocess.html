@@ -90,16 +90,24 @@
 <span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">functools</span>
 
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span>
 
+<span class="c"># Ugly hack to pass in object method to the multiprocessing library</span>
+<span class="c"># From http://www.rueckstiess.net/research/snippets/show/ca1d7d90</span>
+<span class="c"># Basically gets passed in a pair of (self, arg), and calls the method</span>
+<div class="viewcode-block" id="unwrap_self"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_preprocess.unwrap_self">[docs]</a><span class="k">def</span> <span class="nf">unwrap_self</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwarg</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">PyPreprocess</span><span class="o">.</span><span class="n">_run_preprocess</span><span class="p">(</span><span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwarg</span><span class="p">)</span>
+
+</div>
 <div class="viewcode-block" id="PyPreprocess"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_preprocess.PyPreprocess">[docs]</a><span class="k">class</span> <span class="nc">PyPreprocess</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class to wrap all the ImageMagick convert calls&quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">msgs</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s">&#39;CV_FAILED&#39;</span><span class="p">:</span> <span class="s">&#39;convert execution failed&#39;</span><span class="p">,</span>
             <span class="p">}</span>
-
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">threads</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;threads&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PyPreprocess._warn"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_preprocess.PyPreprocess._warn">[docs]</a>    <span class="k">def</span> <span class="nf">_warn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span> <span class="c"># pragma: no cover</span>
         <span class="k">print</span><span class="p">(</span><span class="s">&quot;WARNING: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">)</span>
@@ -121,36 +129,43 @@
         <span class="n">basename</span><span class="p">,</span> <span class="n">filext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">in_filename</span><span class="p">)</span>
         <span class="n">out_filename</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">_preprocess</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">basename</span><span class="p">,</span> <span class="n">filext</span><span class="p">)</span>
         <span class="c">#-respect-parenthesis \( -clone 0 -colorspace gray -negate -lat 15x5+5% -contrast-stretch 0 \) -compose copy_opacity -composite -opaque none +matte -modulate 100,50 -adaptive-blur 2.0 -sharpen 0x1 </span>
+        <span class="c"># When using Windows, can&#39;t use backslash parenthesis in the shell, so omit the backslash</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
+            <span class="n">backslash</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">backslash</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\\</span><span class="s">&#39;</span>
+
         <span class="n">c</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;convert&#39;</span><span class="p">,</span>
-                <span class="s">&quot;&#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">in_filename</span><span class="p">,</span>
+                <span class="s">&#39;&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="n">in_filename</span><span class="p">,</span>
                 <span class="s">&#39;-respect-parenthesis&#39;</span><span class="p">,</span>
                 <span class="c">#&#39;\\( $setcspace -colorspace gray -type grayscale \\)&#39;,</span>
-                <span class="s">&#39;</span><span class="se">\\</span><span class="s">(&#39;</span><span class="p">,</span>
+                <span class="n">backslash</span><span class="o">+</span><span class="s">&#39;(&#39;</span><span class="p">,</span>
                 <span class="s">&#39;-clone 0&#39;</span><span class="p">,</span>
-                <span class="s">&#39;-colorspace gray -negate -lat 15x15+5\</span><span class="si">% -c</span><span class="s">ontrast-stretch 0 </span><span class="se">\\</span><span class="s">) -compose copy_opacity -composite -opaque none +matte -modulate 100,100&#39;</span><span class="p">,</span>
+                <span class="s">&#39;-colorspace gray -negate -lat 15x15+5\</span><span class="si">% -c</span><span class="s">ontrast-stretch 0&#39;</span><span class="p">,</span>
+                <span class="n">backslash</span><span class="o">+</span><span class="s">&#39;) -compose copy_opacity -composite -opaque none +matte -modulate 100,100&#39;</span><span class="p">,</span>
                 <span class="c">#&#39;-adaptive-blur 1.0&#39;,</span>
                 <span class="s">&#39;-blur 1x1&#39;</span><span class="p">,</span>
                 <span class="c">#&#39;-selective-blur 4x4+5%&#39;,</span>
                 <span class="s">&#39;-adaptive-sharpen 0x2&#39;</span><span class="p">,</span>
                 <span class="s">&#39;-negate -define morphology:compose=darken -morphology Thinning Rectangle:1x30+0+0 -negate &#39;</span><span class="p">,</span>  <span class="c"># Removes vertical lines &gt;=60 pixes, reduces widht of &gt;30 (oherwise tesseract completely ignores text close to vertical lines in a table)</span>
-                <span class="s">&quot;&#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">out_filename</span><span class="p">)</span>
+                <span class="s">&#39;&quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">out_filename</span><span class="p">)</span>
                 <span class="p">]</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Preprocessing image for better OCR&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Preprocessing image </span><span class="si">%s</span><span class="s"> for better OCR&quot;</span> <span class="o">%</span> <span class="n">in_filename</span><span class="p">)</span>
         <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">in_filename</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">out_filename</span>
-
-
 </div>
 <div class="viewcode-block" id="PyPreprocess.preprocess"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_preprocess.PyPreprocess.preprocess">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_filenames</span><span class="p">):</span>
         <span class="n">fns</span> <span class="o">=</span> <span class="n">in_filenames</span>
-        <span class="n">preprocessed_filenames</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">fns</span><span class="p">:</span>
-            <span class="n">out_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_preprocess</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Created </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">out_fn</span><span class="p">)</span>
-            <span class="n">preprocessed_filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_fn</span><span class="p">)</span>
+
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">threads</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Starting preprocessing parallel execution&quot;</span><span class="p">)</span>
+        <span class="n">preprocessed_filenames</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">unwrap_self</span><span class="p">,</span><span class="nb">zip</span><span class="p">([</span><span class="bp">self</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">fns</span><span class="p">),</span><span class="n">fns</span><span class="p">))</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span> <span class="p">(</span><span class="s">&quot;Completed preprocessing&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">preprocessed_filenames</span>
 </pre></div></div></div>
 
