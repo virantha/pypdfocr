@@ -67,8 +67,11 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#auto-email">Auto email</a></li>
-<li><a class="reference internal" href="#fine-tuning-tesseract-ghostscript">Fine-tuning Tesseract/Ghostscript</a></li>
-<li><a class="reference internal" href="#advanced-options">Advanced options</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#advanced-options">Advanced options</a><ul>
+<li><a class="reference internal" href="#fine-tuning-tesseract-ghostscript-others">Fine-tuning Tesseract/Ghostscript/others</a></li>
+<li><a class="reference internal" href="#handling-disk-time-outs">Handling disk time-outs</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#installation">Installation</a><ul>
@@ -348,20 +351,27 @@ mail_to_list:
     - "person2@gmail.com"</pre>
 </div>
 </div>
-<div class="section" id="fine-tuning-tesseract-ghostscript">
-<h3>Fine-tuning Tesseract/Ghostscript<a class="headerlink" href="#fine-tuning-tesseract-ghostscript" title="Permalink to this headline">¶</a></h3>
-<p>At the moment, the only options allowed for Tesseract and Ghostscript
-are specifying their executable locations manually. Use the following in
-your configuration file:</p>
-<div class="highlight-python"><pre>tesseract:
-    binary: "/usr/bin/tesseract"
-
-ghostscript:
-    binary: "/usr/local/bin/gs"</pre>
-</div>
 </div>
 <div class="section" id="advanced-options">
-<h3>Advanced options<a class="headerlink" href="#advanced-options" title="Permalink to this headline">¶</a></h3>
+<h2>Advanced options<a class="headerlink" href="#advanced-options" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="fine-tuning-tesseract-ghostscript-others">
+<h3>Fine-tuning Tesseract/Ghostscript/others<a class="headerlink" href="#fine-tuning-tesseract-ghostscript-others" title="Permalink to this headline">¶</a></h3>
+<p>You can specify Tesseract and Ghostscript executable locations manually, as
+well as the number of concurrent processes allowed during preprocessing and
+tesseract.  Use the following in your configuration file:</p>
+<div class="highlight-python"><pre>tesseract:
+    binary: "/usr/bin/tesseract"
+    threads: 8
+
+ghostscript:
+    binary: "/usr/local/bin/gs"
+
+preprocess:
+    threads: 8</pre>
+</div>
+</div>
+<div class="section" id="handling-disk-time-outs">
+<h3>Handling disk time-outs<a class="headerlink" href="#handling-disk-time-outs" title="Permalink to this headline">¶</a></h3>
 <p>If you need to increase the time interval (default 3 seconds) between new
 document scans when pypdfocr is watching a directory, you can specify the following
 option in the configuration file:</p>
@@ -381,7 +391,7 @@ option in the configuration file:</p>
 and PDF dependencies installed, I&#8217;ve gone ahead and made an executable
 called
 <a class="reference external" href="https://github.com/virantha/pypdfocr/blob/master/dist/pypdfocr.exe?raw=true">pypdfocr.exe</a></p>
-<p>You still need to install Tesseract and GhostScript as detailed below in
+<p>You still need to install Tesseract, GhostScript, etc. as detailed below in
 the external dependencies list.</p>
 </div>
 <div class="section" id="manual-install">
@@ -416,10 +426,10 @@ the path:</p>
 <li>ImageMagick <a class="reference external" href="http://www.imagemagick.org/">http://www.imagemagick.org/</a></li>
 <li>Poppler <a class="reference external" href="http://poppler.freedesktop.org/">http://poppler.freedesktop.org/</a>  (<a class="reference external" href="http://sourceforge.net/projects/poppler-win32/">Windows</a>)</li>
 </ul>
-<p>In addition, if you want it to figure out the original PDF resolution
-automatically, you need to have pdfimages in your path, which is part of
-the <a class="reference external" href="http://www.foolabs.com/xpdf/download.html">xpdf</a> or poppler
-packages.</p>
+<p>Poppler is only required if you want pypdfocr to figure out the original PDF resolution
+automatically; just make sure you have <tt class="docutils literal"><span class="pre">pdfimages</span></tt> in your path.   Note that the
+<a class="reference external" href="http://www.foolabs.com/xpdf/download.html">xpdf</a> provided <tt class="docutils literal"><span class="pre">pdfimages</span></tt> does not work for this,
+because it does not support the <tt class="docutils literal"><span class="pre">-list</span></tt> option to list the table of images in a PDF file.</p>
 <p>On Mac OS X, you can install these using homebrew:</p>
 <div class="highlight-python"><pre>brew install tesseract
 brew install ghostscript
