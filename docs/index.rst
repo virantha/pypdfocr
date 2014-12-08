@@ -13,17 +13,22 @@ Contents:
 
    pypdfocr
 
-Changelog
-=========
-.. include:: ../CHANGES.rst
+Recent Changes
+==============
+.. include:: ../CHANGES_RECENT.rst
 
-.. include:: ../TODO.rst
 
 Testing
 ================
     `Coverage <http://virantha.github.io/pypdfocr/html/testing/index.html>`_
 
 .. include:: ../README.rst
+
+Changelog
+=========
+.. include:: ../CHANGES.rst
+
+.. include:: ../TODO.rst
 
 Indices and tables
 ==================

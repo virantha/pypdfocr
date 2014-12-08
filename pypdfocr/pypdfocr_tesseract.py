@@ -24,25 +24,42 @@ import logging
 import subprocess
 import glob
 from subprocess import CalledProcessError
+from multiprocessing import Pool
 
 def error(text):
     print("ERROR: %s" % text)
     sys.exit(-1)
 
+# Ugly hack to pass in object method to the multiprocessing library
+# From http://www.rueckstiess.net/research/snippets/show/ca1d7d90
+# Basically gets passed in a pair of (self, arg), and calls the method
+def unwrap_self(arg, **kwarg):
+    return PyTesseract.make_hocr_from_pnm(*arg, **kwarg)
+
 class PyTesseract(object):
     """Class to wrap all the tesseract calls"""
-    def __init__(self):
+    def __init__(self, config):
         """
-           Detect windows tesseract location.  The main script overrides self.binary
-           if it is set in the config file
+           Detect windows tesseract location.  
         """
         self.lang = 'eng'
         self.required = "3.02.02"
-        if str(os.name) == 'nt':
-            # Explicit str here to get around some MagicMock stuff for testing that I don't quite understand
-            self.binary = '"c:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe"'
+        self.threads = config.get('threads',4)
+
+        if "binary" in config:  # Override location of binary
+            binary = config['binary']
+            if os.name == 'nt':
+                binary = '"%s"' % binary
+                binary = binary.replace("\\", "\\\\")
+            logging.info("Setting location for tesseracdt executable to %s" % (binary))
         else:
-            self.binary = "tesseract"
+            if str(os.name) == 'nt':
+                # Explicit str here to get around some MagicMock stuff for testing that I don't quite understand
+                binary = '"c:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe"'
+            else:
+                binary = "tesseract"
+
+        self.binary = binary
 
         self.msgs = {
             'TS_MISSING': """ 
@@ -53,6 +70,7 @@ class PyTesseract(object):
             'TS_img_MISSING':'Cannot find specified tiff file',
             'TS_FAILED': 'Tesseract-OCR execution failed!',
         }
+
 
     def _is_version_uptodate(self):
         """
@@ -111,12 +129,12 @@ class PyTesseract(object):
 
         # Glob it
         #fns = glob.glob(img_filename)
-        hocr_filenames = []
-        for fn in fns:
-            hocr_fn = self.make_hocr_from_pnm(fn)
-            hocr_filenames.append((fn,hocr_fn))
-
-        return hocr_filenames
+        pool = Pool(processes=self.threads)
+        print("Making pool")
+        hocr_filenames = pool.map(unwrap_self, zip([self]*len(fns), fns))
+        pool.close()
+        pool.join()
+        return zip(fns,hocr_filenames)
 
 
     def make_hocr_from_pnm(self, img_filename):

@@ -31,20 +31,30 @@ def error(text):
 
 class PyGs(object):
     """Class to wrap all the ghostscript calls"""
-    def __init__(self):
+
+    def __init__(self, config):
         self.msgs = {
                 'GS_FAILED': 'Ghostscript execution failed',
                 'GS_MISSING_PDF': 'Cannot find specified pdf file',
                 'GS_OUTDATED': 'Your Ghostscript version is probably out of date.  Please upgrade to the latest version',
                 'GS_MISSING_BINARY': 'Could not find Ghostscript in the usual place; please specify it using your config file',
             }
-        # Detect windows gs binary (make this smarter in the future)
-        if str(os.name) == 'nt':
-	    win_binary = self._find_windows_gs()
-	    self.binary = '"%s"' % win_binary
-	    logging.info("Using Ghostscript: %s" % self.binary)
+        self.threads = config.get('threads',4)
+
+        if "binary" in config:  # Override location of binary
+            binary = config['binary']
+            if os.name == 'nt':
+                binary = '"%s"' % binary
+                binary = binary.replace("\\", "\\\\")
+            logging.info("Setting location for executable to %s" % (binary))
         else:
-            self.binary = "gs"
+            if str(os.name) == 'nt':
+                win_binary = self._find_windows_gs()
+                binary = '"%s"' % win_binary
+                logging.info("Using Ghostscript: %s" % binary)
+            else:
+                binary = "gs"
+        self.binary = binary
 
         #self.tiff_dpi = 300
         self.output_dpi = 300
