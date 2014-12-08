@@ -204,24 +204,31 @@ file and then use the ``-m`` option when invoking ``pypdfocr``:
         - "virantha@gmail.com"
         - "person2@gmail.com"
 
-Fine-tuning Tesseract/Ghostscript
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-At the moment, the only options allowed for Tesseract and Ghostscript
-are specifying their executable locations manually. Use the following in
-your configuration file:
+Advanced options
+################
+
+Fine-tuning Tesseract/Ghostscript/others
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can specify Tesseract and Ghostscript executable locations manually, as
+well as the number of concurrent processes allowed during preprocessing and
+tesseract.  Use the following in your configuration file:
 
 ::
 
     tesseract:
         binary: "/usr/bin/tesseract"
+        threads: 8
 
     ghostscript:
         binary: "/usr/local/bin/gs"
 
-Advanced options
-~~~~~~~~~~~~~~~~
+    preprocess:
+        threads: 8
 
+Handling disk time-outs
+~~~~~~~~~~~~~~~~~~~~~~~
 If you need to increase the time interval (default 3 seconds) between new
 document scans when pypdfocr is watching a directory, you can specify the following
 option in the configuration file:
@@ -248,7 +255,7 @@ and PDF dependencies installed, I've gone ahead and made an executable
 called
 `pypdfocr.exe <https://github.com/virantha/pypdfocr/blob/master/dist/pypdfocr.exe?raw=true>`__
 
-You still need to install Tesseract and GhostScript as detailed below in
+You still need to install Tesseract, GhostScript, etc. as detailed below in
 the external dependencies list.
 
 Manual install
@@ -281,7 +288,7 @@ These can all be installed via pip:
 You will also need to install the external dependencies listed below.
 
 External Dependencies
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 PyPDFOCR relies on the following (free) programs being installed and in
 the path:
@@ -291,10 +298,10 @@ the path:
 -  ImageMagick http://www.imagemagick.org/
 -  Poppler http://poppler.freedesktop.org/  (`Windows <http://sourceforge.net/projects/poppler-win32/>`__)
 
-In addition, if you want it to figure out the original PDF resolution
-automatically, you need to have pdfimages in your path, which is part of
-the `xpdf <http://www.foolabs.com/xpdf/download.html>`__ or poppler
-packages.
+Poppler is only required if you want pypdfocr to figure out the original PDF resolution
+automatically; just make sure you have ``pdfimages`` in your path.   Note that the 
+`xpdf <http://www.foolabs.com/xpdf/download.html>`__ provided ``pdfimages`` does not work for this, 
+because it does not support the ``-list`` option to list the table of images in a PDF file.
 
 On Mac OS X, you can install these using homebrew:
 

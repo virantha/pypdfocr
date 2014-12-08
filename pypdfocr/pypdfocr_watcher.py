@@ -37,23 +37,21 @@ class PyPdfWatcher(FileSystemEventHandler):
         self.scan_interval = config.get('scan_interval', 3) # If no updates in 3 seconds (or user specified option in config file) process file
 
     def start(self):
-        try: 
-            while True:
-                observer = Observer()
-                observer.schedule(self, self.monitor_dir)
-                observer.start()
-                print("Starting to watch for new pdfs in %s" % (self.monitor_dir))
-                while True:
-                    logging.info("Sleeping for %d seconds" % self.scan_interval)
-                    time.sleep(self.scan_interval)
-                    newFile = self.check_queue()
-                    if newFile:
-                        yield newFile
-                observer.join()
-        except KeyboardInterrupt:
-            return
+        self.observer = Observer()
+        self.observer.schedule(self, self.monitor_dir)
+        self.observer.start()
+        print("Starting to watch for new pdfs in %s" % (self.monitor_dir))
+        while True:
+            logging.info("Sleeping for %d seconds" % self.scan_interval)
+            time.sleep(self.scan_interval)
+            newFile = self.check_queue()
+            if newFile:
+                yield newFile
+        self.observer.join()
             
 
+    def stop(self):
+        self.observer.stop()
         
     def rename_file_with_spaces(self, pdf_filename):
         """

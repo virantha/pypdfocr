@@ -15,7 +15,7 @@
 
 import smtplib
 import argparse
-import sys, os
+import sys, os, traceback
 import logging
 import shutil, glob
 import itertools
@@ -82,11 +82,6 @@ class PyPDFOCR(object):
         """ Initializes the GhostScript, Tesseract, and PDF helper classes.
         """
         self.config = {}
-        self.gs = PyGs()
-        self.ts = PyTesseract()
-        self.pdf = PyPdf(self.gs)
-        self.preprocess = PyPreprocess()
-        """PDF read and generation class"""
 
     def _get_config_file(self, config_file):
         """
@@ -164,6 +159,8 @@ class PyPDFOCR(object):
         filing_group.add_argument('-n', action='store_true',
             default=False, dest='match_using_filename', help='Use filename to match if contents did not match anything, before filing to default folder')
 
+
+        # Add flow option to single mode extract_images,preprocess,ocr,write
 
         args = p.parse_args(argv)
 
@@ -297,19 +294,15 @@ class PyPDFOCR(object):
     
     def _setup_external_tools(self):
         """
-            Override the Tesseract and Ghostscript binary locations if
-            the user specified them in the config file
+            Instantiate the external tool wrappers with their config dicts
         """
-        if not self.config: return 
-        programs = [("tesseract", self.ts), ("ghostscript", self.gs)]
-        for (program, obj) in programs:
-            if program in self.config and "binary" in self.config[program]:
-                binary = self.config[program]["binary"]
-                if os.name == 'nt':
-                    binary = '"%s"' % binary
-                    binary = binary.replace("\\", "\\\\")
-                logging.info("Setting location for %s executable to %s" % (program, binary))
-                obj.binary = binary
+
+        self.gs = PyGs(self.config.get('ghostscript',{}))
+        self.ts = PyTesseract(self.config.get('tesseract',{}))
+        self.pdf = PyPdf(self.gs)
+        self.preprocess = PyPreprocess(self.config.get('preprocess', {}))
+
+        return
 
     def run_conversion(self, pdf_filename):
         """
@@ -326,9 +319,8 @@ class PyPDFOCR(object):
             :rtype: filename string
         """
         print ("Starting conversion of %s" % pdf_filename)
-        conversion_format = "tiff"
         # Make the images for Tesseract
-        img_dpi, glob_img_filename = self.gs.make_img_from_pdf(pdf_filename, conversion_format)
+        img_dpi, glob_img_filename = self.gs.make_img_from_pdf(pdf_filename)
 
         fns = glob.glob(glob_img_filename)
 
@@ -432,9 +424,17 @@ class PyPDFOCR(object):
 
         # Do the actual conversion followed by optional filing and email
         if self.watch:
-            py_watcher = PyPdfWatcher(self.watch_dir, self.config.get('watch'))
-            for pdf_filename in py_watcher.start():
-                self._convert_and_file_email(pdf_filename)
+            while True:  # Make sure the watcher doesn't terminate
+                try:
+                    py_watcher = PyPdfWatcher(self.watch_dir, self.config.get('watch'))
+                    for pdf_filename in py_watcher.start():
+                        self._convert_and_file_email(pdf_filename)
+                except KeyboardInterrupt:
+                    break
+                except Exception as e:
+                    print traceback.print_exc(e)
+                    py_watcher.stop()
+                    
         else:
             self._convert_and_file_email(self.pdf_filename)
 
@@ -443,9 +443,10 @@ class PyPDFOCR(object):
             Helper function to run the conversion, then do the optional filing, and optional emailing.
         """
         ocr_pdffilename = self.run_conversion(pdf_filename)
-        filing = "None"
         if self.enable_filing:
             filing = self.file_converted_file(ocr_pdffilename, pdf_filename)
+        else:
+            filing = "None"
 
         if self.enable_email:
             self._send_email(pdf_filename, ocr_pdffilename, filing)

@@ -30,6 +30,8 @@ def push_docs():
     with lcd(githubpages):
         local("git checkout gh-pages")
         local("git pull origin gh-pages")
+    local("head CHANGES.rst > CHANGES_RECENT.rst")
+    local("tail -n 1 CHANGES.rst >> CHANGES_RECENT.rst")
     with lcd("docs"):
         print("Running sphinx in docs/ and building to ~/dev/githubpages/pypdfocr")
         local("make clean")
