@@ -56,7 +56,7 @@ class PyPreprocess(object):
         out_filename = '%s_preprocess%s' % (basename, filext)
         #-respect-parenthesis \( -clone 0 -colorspace gray -negate -lat 15x5+5% -contrast-stretch 0 \) -compose copy_opacity -composite -opaque none +matte -modulate 100,50 -adaptive-blur 2.0 -sharpen 0x1 
         c = ['convert',
-                "'%s'" % in_filename,
+                '"%s"' % in_filename,
                 '-respect-parenthesis',
                 #'\\( $setcspace -colorspace gray -type grayscale \\)',
                 '\\(',
@@ -67,7 +67,7 @@ class PyPreprocess(object):
                 #'-selective-blur 4x4+5%',
                 '-adaptive-sharpen 0x2',
                 '-negate -define morphology:compose=darken -morphology Thinning Rectangle:1x30+0+0 -negate ',  # Removes vertical lines >=60 pixes, reduces widht of >30 (oherwise tesseract completely ignores text close to vertical lines in a table)
-                "'%s'" % (out_filename)
+                '"%s"' % (out_filename)
                 ]
         logging.info("Preprocessing image for better OCR")
         res = self.cmd(c)
