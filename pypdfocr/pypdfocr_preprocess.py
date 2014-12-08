@@ -55,13 +55,20 @@ class PyPreprocess(object):
         basename, filext = os.path.splitext(in_filename)
         out_filename = '%s_preprocess%s' % (basename, filext)
         #-respect-parenthesis \( -clone 0 -colorspace gray -negate -lat 15x5+5% -contrast-stretch 0 \) -compose copy_opacity -composite -opaque none +matte -modulate 100,50 -adaptive-blur 2.0 -sharpen 0x1 
+        # When using Windows, can't use backslash parenthesis in the shell, so omit the backslash
+        if str(os.name) == 'nt':
+            backslash = ''
+        else:
+            backslash = '\\'
+
         c = ['convert',
                 '"%s"' % in_filename,
                 '-respect-parenthesis',
                 #'\\( $setcspace -colorspace gray -type grayscale \\)',
-                '\\(',
+                backslash+'(',
                 '-clone 0',
-                '-colorspace gray -negate -lat 15x15+5\% -contrast-stretch 0 \\) -compose copy_opacity -composite -opaque none +matte -modulate 100,100',
+                '-colorspace gray -negate -lat 15x15+5\% -contrast-stretch 0',
+                backslash+') -compose copy_opacity -composite -opaque none +matte -modulate 100,100',
                 #'-adaptive-blur 1.0',
                 '-blur 1x1',
                 #'-selective-blur 4x4+5%',
