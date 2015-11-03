@@ -48,6 +48,15 @@ Folder monitoring:
 
     --> Every time a pdf file is added to `watch_directory` it will be OCR'ed
 
+    pypdfocr -w watch_directory --archive --archive_suffix _orig.pdf
+
+    --> Every time a pdf file is added to `watch_directory` it will be OCR'ed.  The original will move to _orig and the
+    OCR'ed version will have its name
+
+    pypdfocr -w watch_directory --archive --archive_suffix _orig.pdf --initial_scan
+    --> Every time a pdf file is added to `watch_directory` it will be OCR'ed.  The original will move to _orig and the
+    OCR'ed version will have its name.  All PDF's in the folder will be scanned and OCR'ed if they have not been already.
+
 Automatic filing:
 ~~~~~~~~~~~~~~~~~
 

@@ -174,12 +174,12 @@ class PyGs(object):
             out = subprocess.check_output(cmd, shell=True)
 
         except subprocess.CalledProcessError as e:
-            print e.output
-            if "undefined in .getdeviceparams" in e.output:
-                error(self.msgs['GS_OUTDATED'])
-            else:
-                error (self.msgs['GS_FAILED'])
+            print "Exception running Ghostscript:\n\n", e.output
 
+            if "undefined in .getdeviceparams" in e.output:
+                raise(self.msgs['GS_OUTDATED'])
+            else:
+                raise(self.msgs['GS_FAILED'])
 
     def make_img_from_pdf(self, pdf_filename):
         self._get_dpi(pdf_filename) # No need to bother anymore
@@ -188,7 +188,6 @@ class PyGs(object):
             error(self.msgs['GS_MISSING_PDF'] + " %s" % pdf_filename)
 
         filename, filext = os.path.splitext(pdf_filename)
-
 
         # Create ancillary jpeg files to use later to calculate image dpi etc
         #   We no longer use these for the final image. Instead the text is merged
@@ -213,6 +212,7 @@ class PyGs(object):
         options = ' '.join(self.gs_options[self.img_format][1]) % {'dpi':self.output_dpi}
         output_filename = '%s_%%d.%s' % (filename, self.img_file_ext)
         self._run_gs(options, output_filename, pdf_filename)
+
         for fn in glob.glob(globable_filename):
             logging.info("Created image %s" % fn)
         return (self.output_dpi, globable_filename)
