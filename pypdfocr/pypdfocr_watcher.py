@@ -15,6 +15,7 @@ from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler
 from watchdog.events import FileSystemEventHandler
 
+from PyPDF2 import PdfFileReader
 
 class PyPdfWatcher(FileSystemEventHandler):
     """
@@ -107,6 +108,13 @@ class PyPdfWatcher(FileSystemEventHandler):
         if ev_path.endswith("_ocr.pdf"):
             return
 
+        with open(ev_path, "rb") as f:
+            pdf = PdfFileReader(f)
+            pdf_info = pdf.getDocumentInfo()
+
+            # It has been OCR'ed'
+            if '/PyPDFOCR' in pdf_info:
+                return
 
         PyPdfWatcher.events_lock.acquire()
         if not ev_path in PyPdfWatcher.events:
