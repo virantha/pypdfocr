@@ -167,7 +167,7 @@ class PyPDFOCR(object):
              dest='archive_document', help='Move the source document to an archive')
         single_or_watch_group.add_argument('--initial_scan', action='store_true',
              dest='initial_scan', help='Include PDF documents already in folder if not processed')
-        single_or_watch_group.add_argument('--archive_suffix',
+        single_or_watch_group.add_argument('--archive_suffix', nargs=1,
              dest='archive_suffix', help='Include PDF documents already in folder if not processed', default='_orig.pdf')
 
 
