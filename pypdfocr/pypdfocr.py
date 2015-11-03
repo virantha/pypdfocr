@@ -164,7 +164,7 @@ class PyPDFOCR(object):
         # Watch Options
         #--------------
         p.add_argument('--archive', action='store_true',
-             dest='archive_document', help='Move the source document to an archive')
+             dest='archive', help='Move the source document to an archive')
         p.add_argument('--initial_scan', action='store_true',
              dest='initial_scan', help='Include PDF documents already in folder if not processed')
         p.add_argument('--archive_suffix',
@@ -186,7 +186,7 @@ class PyPDFOCR(object):
 
         self.archive = args.archive
         self.archive_suffix = args.archive_suffix
-        self.initial_scan = args.inital_scan
+        self.initial_scan = args.initial_scan
 
         if self.debug:
             logging.basicConfig(level=logging.DEBUG, format='%(message)s')
@@ -335,7 +335,11 @@ class PyPDFOCR(object):
         """
         print ("Starting conversion of %s" % pdf_filename)
         # Make the images for Tesseract
-        img_dpi, glob_img_filename = self.gs.make_img_from_pdf(pdf_filename)
+        try:
+            img_dpi, glob_img_filename = self.gs.make_img_from_pdf(pdf_filename)
+        except Exception, e:
+            print "Exception occurred in processing %s: %s" % (pdf_filename, e)
+            return
 
         fns = glob.glob(glob_img_filename)
 

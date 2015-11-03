@@ -87,6 +87,7 @@ class PyPdf(object):
         basename = os.path.splitext(pdf_basename)[0]
         pdf_filename = os.path.join(pdf_dir, "%s_ocr.pdf" % (basename))
 
+
         text_pdf_filenames = []
         for img_filename, hocr_filename in hocr_filenames:
             text_pdf_filename = self.overlay_hocr_page(dpi, hocr_filename, img_filename)

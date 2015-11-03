@@ -29,13 +29,12 @@ class PyPdfWatcher(FileSystemEventHandler):
     events = {}
     events_lock = Lock()
 
-    def __init__(self, monitor_dir, config, archive=False, archive_folder='archive', initial_scan=False,
+    def __init__(self, monitor_dir, config, archive=False, initial_scan=False,
                  archive_suffix="_orig.pdf"):
         FileSystemEventHandler.__init__(self)
 
         self.monitor_dir = monitor_dir
         self.archive_suffix = archive_suffix
-        self.archive_folder = archive_folder
         self.archive = archive
 
         if not config: config = {}
@@ -83,6 +82,36 @@ class PyPdfWatcher(FileSystemEventHandler):
         else:
             return pdf_filename
 
+    def check_file_for_processing(self, ev_path):
+        """
+        This checks a path to see if it we should process it.
+
+        :param ev_path: Fully qualified path to file to check
+        :return: True if it should be convertred. False if not
+        """
+        if not ev_path.endswith(".pdf"):
+            return False
+
+        if ev_path.endswith("_ocr.pdf"):
+            return False
+
+        if self.archive_suffix and ev_path.endswith(self.archive_suffix):
+            return False
+
+        try:
+            with open(ev_path, "rb") as f:
+                pdf = PdfFileReader(f)
+                pdf_info = pdf.getDocumentInfo()
+
+                # It has been OCR'ed'
+                if '/PyPDFOCR' in pdf_info:
+                    return False
+        except IOError:
+            return False
+
+        return True
+
+
     def check_for_new_pdf(self,ev_path):
         """
             Called by the file watching api on any file creations/modifications.
@@ -102,19 +131,9 @@ class PyPdfWatcher(FileSystemEventHandler):
                 - Else, update the time in the dict to the current time
 
         """
-        if not ev_path.endswith(".pdf"):
+        result = self.check_file_for_processing(ev_path)
+        if not result:
             return
-
-        if ev_path.endswith("_ocr.pdf"):
-            return
-
-        with open(ev_path, "rb") as f:
-            pdf = PdfFileReader(f)
-            pdf_info = pdf.getDocumentInfo()
-
-            # It has been OCR'ed'
-            if '/PyPDFOCR' in pdf_info:
-                return
 
         PyPdfWatcher.events_lock.acquire()
         if not ev_path in PyPdfWatcher.events:
@@ -129,8 +148,6 @@ class PyPdfWatcher(FileSystemEventHandler):
                 logging.debug ( "%s already in event queue, updating timestamp to %d" % (ev_path, newTime))
                 PyPdfWatcher.events[ev_path]  = newTime
         PyPdfWatcher.events_lock.release()
-
-
 
     def on_created(self, event):
         logging.debug ("on_created: %s at time %d" % (event.src_path, time.time()))
@@ -170,7 +187,6 @@ class PyPdfWatcher(FileSystemEventHandler):
         PyPdfWatcher.events_lock.release()
         return None
 
-
     def scan_folder(self):
         path = os.path.abspath(self.monitor_dir)
         dirs, files = self.separate_folder_contents(path)[:2]
@@ -181,6 +197,11 @@ class PyPdfWatcher(FileSystemEventHandler):
         if files:
             for name in files:
                 path = os.path.join(root, name)
+
+                result = self.check_file_for_processing(path)
+                if not result:
+                    continue
+
                 PyPdfWatcher.events[path] = time.time()
 
         for pos, neg, name in self.enumerate2(dirs):

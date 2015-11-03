@@ -22,6 +22,7 @@
 import os, sys
 import logging
 import subprocess
+import signal
 import glob
 from subprocess import CalledProcessError
 from multiprocessing import Pool
@@ -36,6 +37,9 @@ def error(text):
 def unwrap_self(arg, **kwarg):
     return PyTesseract.make_hocr_from_pnm(*arg, **kwarg)
 
+def init_worker():
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
 class PyTesseract(object):
     """Class to wrap all the tesseract calls"""
     def __init__(self, config):
@@ -44,7 +48,7 @@ class PyTesseract(object):
         """
         self.lang = 'eng'
         self.required = "3.02.02"
-        self.threads = config.get('threads',4)
+        self.threads = config.get('threads', 4)
 
         if "binary" in config:  # Override location of binary
             binary = config['binary']
@@ -129,12 +133,12 @@ class PyTesseract(object):
 
         # Glob it
         #fns = glob.glob(img_filename)
-        pool = Pool(processes=self.threads)
-        print("Making pool")
+        pool = Pool(processes=self.threads, initializer=init_worker)
+        print("Making pool", fns)
         hocr_filenames = pool.map(unwrap_self, zip([self]*len(fns), fns))
         pool.close()
         pool.join()
-        return zip(fns,hocr_filenames)
+        return zip(fns, hocr_filenames)
 
 
     def make_hocr_from_pnm(self, img_filename):
