@@ -160,6 +160,17 @@ class PyPDFOCR(object):
             default=False, dest='match_using_filename', help='Use filename to match if contents did not match anything, before filing to default folder')
 
 
+        #--------------
+        # Watch Options
+        #--------------
+        single_or_watch_group.add_argument('--archive', action='store_true',
+             dest='archive_document', help='Move the source document to an archive')
+        single_or_watch_group.add_argument('--initial_scan', action='store_true',
+             dest='initial_scan', help='Include PDF documents already in folder if not processed')
+        single_or_watch_group.add_argument('--archive_suffix',
+             dest='archive_suffix', help='Include PDF documents already in folder if not processed', default='_orig.pdf')
+
+
         # Add flow option to single mode extract_images,preprocess,ocr,write
 
         args = p.parse_args(argv)
@@ -172,6 +183,10 @@ class PyPDFOCR(object):
         self.enable_email = args.mail
         self.match_using_filename = args.match_using_filename
         self.skip_preprocess = args.skip_preprocess
+
+        self.archive = args.archive
+        self.archive_suffix = args.archive_suffix
+        self.initial_scan = args.inital_scan
 
         if self.debug:
             logging.basicConfig(level=logging.DEBUG, format='%(message)s')
@@ -337,7 +352,8 @@ class PyPDFOCR(object):
         
         # Generate new pdf with overlayed text
         #ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename, pdf_filename)
-        ocr_pdf_filename = self.pdf.overlay_hocr_pages(img_dpi, hocr_filenames, pdf_filename)
+        ocr_pdf_filename = self.pdf.overlay_hocr_pages(img_dpi, hocr_filenames, pdf_filename,
+                                                       archive=self.archive, archive_suffix=self.archive_suffix)
 
         # Clean up the files
         if not self.debug:
@@ -426,7 +442,9 @@ class PyPDFOCR(object):
         if self.watch:
             while True:  # Make sure the watcher doesn't terminate
                 try:
-                    py_watcher = PyPdfWatcher(self.watch_dir, self.config.get('watch'))
+                    py_watcher = PyPdfWatcher(self.watch_dir, self.config.get('watch'),
+                                              archive=self.archive, initial_scan=self.initial_scan,
+                                              archive_suffix=self.archive_suffix)
                     for pdf_filename in py_watcher.start():
                         self._convert_and_file_email(pdf_filename)
                 except KeyboardInterrupt:

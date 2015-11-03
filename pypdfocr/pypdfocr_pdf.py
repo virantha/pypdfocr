@@ -76,7 +76,7 @@ class PyPdf(object):
                                                  ctm[1][0], ctm[1][1],
                                                  ctm[2][0], ctm[2][1]])
 
-    def overlay_hocr_pages(self, dpi, hocr_filenames, orig_pdf_filename):
+    def overlay_hocr_pages(self, dpi, hocr_filenames, orig_pdf_filename, archive=False, archive_suffix="_orig.pdf"):
         
         logging.debug("Going to overlay following files onto %s" % orig_pdf_filename)
         # Sort the hocr_filenames into natural keys!
@@ -96,6 +96,14 @@ class PyPdf(object):
 
         writer = PdfFileWriter()
         orig = open(orig_pdf_filename, 'rb')
+        orig_reader = PdfFileReader(orig)
+
+        # Save  the properties
+        pdf_info = orig_reader.getDocumentInfo()
+        writer.addMetadata(pdf_info)
+        writer.addMetadata({ '/PyPDFOCR': 'True' })
+
+        # Loop through the pages
         for orig_pg, text_pg_filename in zip(self.iter_pdf_page(orig), text_pdf_filenames):
             text_file = open(text_pg_filename, 'rb')
             text_pg = self.iter_pdf_page(text_file).next()
@@ -122,6 +130,12 @@ class PyPdf(object):
 
         for fn in text_pdf_filenames:
             os.remove(fn)
+
+        if archive:
+            original_filename = pdf_filename = os.path.join(pdf_dir, "%s%s" % (basename, archive_suffix))
+            ocr_filename = orig_pdf_filename
+            os.rename(orig_pdf_filename, original_filename)
+            os.rename(pdf_filename, ocr_filename)
 
         logging.info("Created OCR'ed pdf as %s" % (pdf_filename))
         return pdf_filename
