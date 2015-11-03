@@ -29,7 +29,7 @@ import signal
 
 from multiprocessing import Pool
 
-TIMEOUT = 120
+TIMEOUT = 500
 
 # Ugly hack to pass in object method to the multiprocessing library
 # From http://www.rueckstiess.net/research/snippets/show/ca1d7d90
@@ -78,7 +78,6 @@ class PyPreprocess(object):
             cmd_list = ' '.join(cmd_list)
         logging.debug("Running cmd: %s" % cmd_list)
         try:
-            print("Running cmd: %s" % cmd_list)
             signal.signal(signal.SIGALRM, handler)
             signal.alarm(TIMEOUT)
             proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
@@ -92,19 +91,15 @@ class PyPreprocess(object):
             self._warn("Could not run command %s" % cmd_list)
         except TimeoutError, te:
             print "Timeout exceeded PID", pid, cmd_list
-            print "Sending Signals to PID", pid
             os.killpg(pid, signal.SIGTERM)
             # os.kill(pid, signal.SIGTERM)
         finally:
             signal.alarm(0)
 
         if proc:
-
             proc.terminate()
             proc.kill()
             print "Killing processes"
-        else:
-            print "No process to kill"
 
         return None
 
@@ -142,7 +137,6 @@ class PyPreprocess(object):
         if res is None:
             return in_filename
         else:
-            print "Checking file: ", out_filename
             # Make sure the convert process did not die on us
             if os.path.isfile(out_filename):
                 print "Filename does not exist: ", in_filename, " using ", out_filename

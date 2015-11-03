@@ -134,7 +134,6 @@ class PyTesseract(object):
         # Glob it
         #fns = glob.glob(img_filename)
         pool = Pool(processes=self.threads, initializer=init_worker)
-        print("Making pool", fns)
         hocr_filenames = pool.map(unwrap_self, zip([self]*len(fns), fns))
         pool.close()
         pool.join()

@@ -132,11 +132,14 @@ class PyPdf(object):
         for fn in text_pdf_filenames:
             os.remove(fn)
 
+        print "Done on conversion: ", orig_pdf_filename
         if archive:
-            original_filename = pdf_filename = os.path.join(pdf_dir, "%s%s" % (basename, archive_suffix))
+            original_filename = os.path.join(pdf_dir, "%s%s" % (basename, archive_suffix))
             ocr_filename = orig_pdf_filename
+            print "Archiving PDF %s -> %s, %s -> %s" % (orig_pdf_filename, original_filename, pdf_filename, ocr_filename)
             os.rename(orig_pdf_filename, original_filename)
             os.rename(pdf_filename, ocr_filename)
+
 
         logging.info("Created OCR'ed pdf as %s" % (pdf_filename))
         return pdf_filename
