@@ -464,14 +464,17 @@ class PyPDFOCR(object):
         """
             Helper function to run the conversion, then do the optional filing, and optional emailing.
         """
-        ocr_pdffilename = self.run_conversion(pdf_filename)
-        if self.enable_filing:
-            filing = self.file_converted_file(ocr_pdffilename, pdf_filename)
-        else:
-            filing = "None"
+        try:
+            ocr_pdffilename = self.run_conversion(pdf_filename)
+            if self.enable_filing:
+                filing = self.file_converted_file(ocr_pdffilename, pdf_filename)
+            else:
+                filing = "None"
 
-        if self.enable_email:
-            self._send_email(pdf_filename, ocr_pdffilename, filing)
+            if self.enable_email:
+                self._send_email(pdf_filename, ocr_pdffilename, filing)
+        except Exception, e:
+            print traceback.print_exc(e)
 
 def main(): # pragma: no cover 
     script = PyPDFOCR()
