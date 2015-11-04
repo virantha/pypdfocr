@@ -139,7 +139,7 @@ class PyPreprocess(object):
         else:
             # Make sure the convert process did not die on us
             if os.path.isfile(out_filename):
-                print "Filename does not exist: ", in_filename, " using ", out_filename
+                print "Filename does not exist: ", out_filename, " using ", in_filename
                 return out_filename
 
             return in_filename
