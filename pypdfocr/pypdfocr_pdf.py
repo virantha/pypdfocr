@@ -101,7 +101,9 @@ class PyPdf(object):
 
         # Save  the properties
         pdf_info = orig_reader.getDocumentInfo()
-        writer.addMetadata(pdf_info)
+        if pdf_info is not None:
+            writer.addMetadata(pdf_info)
+
         writer.addMetadata({ '/PyPDFOCR': 'True' })
 
         # Loop through the pages

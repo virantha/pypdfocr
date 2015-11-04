@@ -104,7 +104,7 @@ class PyPdfWatcher(FileSystemEventHandler):
                 pdf_info = pdf.getDocumentInfo()
 
                 # It has been OCR'ed'
-                if '/PyPDFOCR' in pdf_info:
+                if pdf_info is not None and '/PyPDFOCR' in pdf_info:
                     return False
         except IOError:
             return False
