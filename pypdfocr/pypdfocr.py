@@ -454,7 +454,7 @@ class PyPDFOCR(object):
                 except KeyboardInterrupt:
                     break
                 except Exception as e:
-                    print traceback.print_exc(e)
+                    traceback.print_exc(e)
                     py_watcher.stop()
                     
         else:

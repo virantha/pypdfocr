@@ -16,6 +16,7 @@ from watchdog.events import LoggingEventHandler
 from watchdog.events import FileSystemEventHandler
 
 from PyPDF2 import PdfFileReader
+from PyPDF2.utils import PdfReadError
 
 class PyPdfWatcher(FileSystemEventHandler):
     """
@@ -107,6 +108,8 @@ class PyPdfWatcher(FileSystemEventHandler):
                 if pdf_info is not None and '/PyPDFOCR' in pdf_info:
                     return False
         except IOError:
+            return False
+        except PdfReadError:
             return False
 
         return True
