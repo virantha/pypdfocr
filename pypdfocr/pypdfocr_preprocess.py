@@ -25,8 +25,11 @@ import sys, os
 import logging
 import glob
 import functools
+import signal
 
 from multiprocessing import Pool
+
+TIMEOUT = 500
 
 # Ugly hack to pass in object method to the multiprocessing library
 # From http://www.rueckstiess.net/research/snippets/show/ca1d7d90
@@ -34,6 +37,30 @@ from multiprocessing import Pool
 def unwrap_self(arg, **kwarg):
     return PyPreprocess._run_preprocess(*arg, **kwarg)
 
+class TimeoutError(Exception):
+    pass
+
+
+def handler(signum, frame):
+    raise TimeoutError()
+
+def which(program):
+    import os
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
 
 class PyPreprocess(object):
     """Class to wrap all the ImageMagick convert calls"""
@@ -51,12 +78,31 @@ class PyPreprocess(object):
             cmd_list = ' '.join(cmd_list)
         logging.debug("Running cmd: %s" % cmd_list)
         try:
-            out = subprocess.check_output(cmd_list, stderr=subprocess.STDOUT, shell=True)
+            signal.signal(signal.SIGALRM, handler)
+            signal.alarm(TIMEOUT)
+            proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
+            pid = proc.pid
+            (out, error) = proc.communicate()
+            signal.alarm(0)
             logging.debug(out)
             return out
         except subprocess.CalledProcessError as e:
             print e.output
             self._warn("Could not run command %s" % cmd_list)
+        except TimeoutError, te:
+            print "Timeout exceeded PID", pid, cmd_list
+            os.killpg(pid, signal.SIGTERM)
+            # os.kill(pid, signal.SIGTERM)
+        finally:
+            signal.alarm(0)
+
+        if proc:
+            proc.terminate()
+            proc.kill()
+            print "Killing processes"
+
+        return None
+
             
 
     def _run_preprocess(self,  in_filename):
@@ -69,7 +115,8 @@ class PyPreprocess(object):
         else:
             backslash = '\\'
 
-        c = ['convert',
+        convert = which('convert');
+        c = [convert,
                 '"%s"' % in_filename,
                 '-respect-parenthesis',
                 #'\\( $setcspace -colorspace gray -type grayscale \\)',
@@ -86,17 +133,23 @@ class PyPreprocess(object):
                 ]
         logging.info("Preprocessing image %s for better OCR" % in_filename)
         res = self.cmd(c)
+
         if res is None:
             return in_filename
         else:
-            return out_filename
+            # Make sure the convert process did not die on us
+            if os.path.isfile(out_filename):
+                print "Filename does not exist: ", out_filename, " using ", in_filename
+                return out_filename
+
+            return in_filename
 
     def preprocess(self, in_filenames):
         fns = in_filenames
 
         pool = Pool(processes=self.threads)
         logging.info("Starting preprocessing parallel execution")
-        preprocessed_filenames = pool.map(unwrap_self,zip([self]*len(fns),fns))
+        preprocessed_filenames = pool.map(unwrap_self, zip([self]*len(fns),fns))
         pool.close()
         pool.join()
         logging.info ("Completed preprocessing")

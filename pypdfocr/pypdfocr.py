@@ -160,6 +160,17 @@ class PyPDFOCR(object):
             default=False, dest='match_using_filename', help='Use filename to match if contents did not match anything, before filing to default folder')
 
 
+        #--------------
+        # Watch Options
+        #--------------
+        p.add_argument('--archive', action='store_true',
+             dest='archive', help='Move the source document to an archive')
+        p.add_argument('--initial_scan', action='store_true',
+             dest='initial_scan', help='Include PDF documents already in folder if not processed')
+        p.add_argument('--archive_suffix',
+             dest='archive_suffix', help='Include PDF documents already in folder if not processed', default='_orig.pdf')
+
+
         # Add flow option to single mode extract_images,preprocess,ocr,write
 
         args = p.parse_args(argv)
@@ -172,6 +183,10 @@ class PyPDFOCR(object):
         self.enable_email = args.mail
         self.match_using_filename = args.match_using_filename
         self.skip_preprocess = args.skip_preprocess
+
+        self.archive = args.archive
+        self.archive_suffix = args.archive_suffix
+        self.initial_scan = args.initial_scan
 
         if self.debug:
             logging.basicConfig(level=logging.DEBUG, format='%(message)s')
@@ -320,7 +335,11 @@ class PyPDFOCR(object):
         """
         print ("Starting conversion of %s" % pdf_filename)
         # Make the images for Tesseract
-        img_dpi, glob_img_filename = self.gs.make_img_from_pdf(pdf_filename)
+        try:
+            img_dpi, glob_img_filename = self.gs.make_img_from_pdf(pdf_filename)
+        except Exception, e:
+            print "Exception occurred in processing %s: %s" % (pdf_filename, e)
+            return
 
         fns = glob.glob(glob_img_filename)
 
@@ -337,7 +356,8 @@ class PyPDFOCR(object):
         
         # Generate new pdf with overlayed text
         #ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename, pdf_filename)
-        ocr_pdf_filename = self.pdf.overlay_hocr_pages(img_dpi, hocr_filenames, pdf_filename)
+        ocr_pdf_filename = self.pdf.overlay_hocr_pages(img_dpi, hocr_filenames, pdf_filename,
+                                                       archive=self.archive, archive_suffix=self.archive_suffix)
 
         # Clean up the files
         if not self.debug:
@@ -426,13 +446,15 @@ class PyPDFOCR(object):
         if self.watch:
             while True:  # Make sure the watcher doesn't terminate
                 try:
-                    py_watcher = PyPdfWatcher(self.watch_dir, self.config.get('watch'))
+                    py_watcher = PyPdfWatcher(self.watch_dir, self.config.get('watch'),
+                                              archive=self.archive, initial_scan=self.initial_scan,
+                                              archive_suffix=self.archive_suffix)
                     for pdf_filename in py_watcher.start():
                         self._convert_and_file_email(pdf_filename)
                 except KeyboardInterrupt:
                     break
                 except Exception as e:
-                    print traceback.print_exc(e)
+                    traceback.print_exc(e)
                     py_watcher.stop()
                     
         else:
@@ -442,14 +464,17 @@ class PyPDFOCR(object):
         """
             Helper function to run the conversion, then do the optional filing, and optional emailing.
         """
-        ocr_pdffilename = self.run_conversion(pdf_filename)
-        if self.enable_filing:
-            filing = self.file_converted_file(ocr_pdffilename, pdf_filename)
-        else:
-            filing = "None"
+        try:
+            ocr_pdffilename = self.run_conversion(pdf_filename)
+            if self.enable_filing:
+                filing = self.file_converted_file(ocr_pdffilename, pdf_filename)
+            else:
+                filing = "None"
 
-        if self.enable_email:
-            self._send_email(pdf_filename, ocr_pdffilename, filing)
+            if self.enable_email:
+                self._send_email(pdf_filename, ocr_pdffilename, filing)
+        except Exception, e:
+            print traceback.print_exc(e)
 
 def main(): # pragma: no cover 
     script = PyPDFOCR()
