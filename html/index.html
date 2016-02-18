@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>PyPDFOCR API Reference (version 0.8.2) &mdash; pypdfocr 0.8.2 documentation</title>
+    <title>PyPDFOCR API Reference (version 0.8.3) &mdash; pypdfocr 0.8.3 documentation</title>
     
     <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.8.2',
+        VERSION:     '0.8.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.8.2 documentation" href="#" />
+    <link rel="top" title="pypdfocr 0.8.3 documentation" href="#" />
     <link rel="next" title="pypdfocr package" href="pypdfocr.html" /> 
   </head>
   <body>
@@ -39,14 +39,14 @@
         <li class="right" >
           <a href="pypdfocr.html" title="pypdfocr package"
              accesskey="N">next</a> |</li>
-        <li><a href="#">pypdfocr 0.8.2 documentation</a> &raquo;</li> 
+        <li><a href="#">pypdfocr 0.8.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">PyPDFOCR API Reference (version 0.8.2)</a><ul>
+<li><a class="reference internal" href="#">PyPDFOCR API Reference (version 0.8.3)</a><ul>
 </ul>
 </li>
 <li><a class="reference internal" href="#recent-changes">Recent Changes</a></li>
@@ -118,7 +118,7 @@
           <div class="body">
             
   <div class="section" id="pypdfocr-api-reference-version-release">
-<h1>PyPDFOCR API Reference (version 0.8.2)<a class="headerlink" href="#pypdfocr-api-reference-version-release" title="Permalink to this headline">¶</a></h1>
+<h1>PyPDFOCR API Reference (version 0.8.3)<a class="headerlink" href="#pypdfocr-api-reference-version-release" title="Permalink to this headline">¶</a></h1>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
 <ul>
@@ -153,29 +153,29 @@
 <td>Date</td>
 <td>Changes</td>
 </tr>
-<tr class="row-even"><td>v0.8.2</td>
+<tr class="row-even"><td>v0.8.3</td>
+<td>2/18/16</td>
+<td>Bug fix for multiprocessing on windows, ctrl-c interrupt, and integer keywords</td>
+</tr>
+<tr class="row-odd"><td>v0.8.2</td>
 <td>12/8/14</td>
 <td>Fixed imagemagick invocation on windows.  Parallelized preprocessing and tesseract execution</td>
 </tr>
-<tr class="row-odd"><td>v0.8.1</td>
+<tr class="row-even"><td>v0.8.1</td>
 <td>12/5/14</td>
 <td>Added &#8211;skip-preprocess option, scan_interval option, and fixed too many open files bug during page overlay</td>
 </tr>
-<tr class="row-even"><td>v0.8.0</td>
+<tr class="row-odd"><td>v0.8.0</td>
 <td>10/27/14</td>
 <td>Added preprocessing to clean up prior to tesseract, bug fixes on file names with spaces/dots</td>
 </tr>
-<tr class="row-odd"><td>v0.7.6</td>
+<tr class="row-even"><td>v0.7.6</td>
 <td>9/10/14</td>
 <td>Fixed issue 17 rotation bug</td>
 </tr>
-<tr class="row-even"><td>v0.7.5</td>
+<tr class="row-odd"><td>v0.7.5</td>
 <td>8/18/14</td>
 <td>Update for Tesseract 3.03 .hocr filename change</td>
-</tr>
-<tr class="row-odd"><td>v0.7.4</td>
-<td>3/28/14</td>
-<td>Bug fix on pdf assembly</td>
 </tr>
 </tbody>
 </table>
@@ -187,7 +187,7 @@
 </div>
 <div class="section" id="pypdfocr-tesseract-ocr-based-pdf-filing">
 <h1>PyPDFOCR - Tesseract-OCR based PDF filing<a class="headerlink" href="#pypdfocr-tesseract-ocr-based-pdf-filing" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="https://pypi.python.org/pypi/pypdfocr"><img alt="image0" src="https://badge.fury.io/py/pypdfocr.png" /></a> <img alt="image1" src="https://pypip.in/d/pypdfocr/badge.png" /> <img alt="image2" src="https://pypip.in/license/pypdfocr/badge.png" /> <a class="reference external" href="https://coveralls.io/r/virantha/pypdfocr"><img alt="Coverage Status" src="https://coveralls.io/repos/virantha/pypdfocr/badge.png?branch=develop" /></a></p>
+<p><a class="reference external" href="https://pypi.python.org/pypi/pypdfocr"><img alt="image0" src="https://badge.fury.io/py/pypdfocr.png" /></a> <img alt="image1" src="https://pypip.in/d/pypdfocr/badge.png" /> <img alt="image2" src="https://pypip.in/license/pypdfocr/badge.png" /> <img alt="passing" src="https://scrutinizer-ci.com/g/virantha/pypdfocr/badges/build.png?b=master" /> <img alt="quality" src="https://scrutinizer-ci.com/g/virantha/pypdfocr/badges/quality-score.png?b=master" /> <a class="reference external" href="https://coveralls.io/r/virantha/pypdfocr"><img alt="Coverage Status" src="https://coveralls.io/repos/virantha/pypdfocr/badge.png?branch=develop" /></a></p>
 <p>This program will help manage your scanned PDFs by doing the following:</p>
 <ul class="simple">
 <li>Take a scanned PDF file and run OCR on it (using the Tesseract OCR
@@ -387,6 +387,17 @@ option in the configuration file:</p>
 <p>PyPDFOCR is available in PyPI, so you can just run:</p>
 <div class="highlight-python"><pre>pip install pypdfocr</pre>
 </div>
+<p>Please note that some of the 3rd-party libraries required by PyPDFOCR wiill
+require some build tools, especially on a default Ubuntu system.  If you run
+into any issues using pip install, you may want to install the
+following packages on Ubuntu and try again:</p>
+<ul class="simple">
+<li>gcc</li>
+<li>libjpeg-dev</li>
+<li>zlib-bin</li>
+<li>zlib1g-dev</li>
+<li>python-dev</li>
+</ul>
 <p>For those on <strong>Windows</strong>, because it&#8217;s such a pain to get all the PIL
 and PDF dependencies installed, I&#8217;ve gone ahead and made an executable
 called
@@ -401,7 +412,7 @@ the external dependencies list.</p>
 </div>
 <p>Then, install the following third-party python libraries:</p>
 <ul class="simple">
-<li>PIL (Python Imaging Library) <a class="reference external" href="http://www.pythonware.com/products/pil/">http://www.pythonware.com/products/pil/</a></li>
+<li>Pillow (Python Imaging Library) <a class="reference external" href="https://pillow.readthedocs.org/en/3.1.x/">https://pillow.readthedocs.org/en/3.1.x/</a></li>
 <li>ReportLab (PDF generation library)
 <a class="reference external" href="http://www.reportlab.com/opensource/">http://www.reportlab.com/opensource/</a></li>
 <li>Watchdog (Cross-platform fhlesystem events monitoring)
@@ -409,7 +420,7 @@ the external dependencies list.</p>
 <li>PyPDF2 (Pure python pdf library)</li>
 </ul>
 <p>These can all be installed via pip:</p>
-<div class="highlight-python"><pre>pip install pil
+<div class="highlight-python"><pre>pip install Pillow
 pip install reportlab
 pip install watchdog
 pip install pypdf2</pre>
@@ -472,99 +483,103 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</p>
 <td>Date</td>
 <td>Changes</td>
 </tr>
-<tr class="row-even"><td>v0.8.2</td>
+<tr class="row-even"><td>v0.8.3</td>
+<td>2/18/16</td>
+<td>Bug fix for multiprocessing on windows, ctrl-c interrupt, and integer keywords</td>
+</tr>
+<tr class="row-odd"><td>v0.8.2</td>
 <td>12/8/14</td>
 <td>Fixed imagemagick invocation on windows.  Parallelized preprocessing and tesseract execution</td>
 </tr>
-<tr class="row-odd"><td>v0.8.1</td>
+<tr class="row-even"><td>v0.8.1</td>
 <td>12/5/14</td>
 <td>Added &#8211;skip-preprocess option, scan_interval option, and fixed too many open files bug during page overlay</td>
 </tr>
-<tr class="row-even"><td>v0.8.0</td>
+<tr class="row-odd"><td>v0.8.0</td>
 <td>10/27/14</td>
 <td>Added preprocessing to clean up prior to tesseract, bug fixes on file names with spaces/dots</td>
 </tr>
-<tr class="row-odd"><td>v0.7.6</td>
+<tr class="row-even"><td>v0.7.6</td>
 <td>9/10/14</td>
 <td>Fixed issue 17 rotation bug</td>
 </tr>
-<tr class="row-even"><td>v0.7.5</td>
+<tr class="row-odd"><td>v0.7.5</td>
 <td>8/18/14</td>
 <td>Update for Tesseract 3.03 .hocr filename change</td>
 </tr>
-<tr class="row-odd"><td>v0.7.4</td>
+<tr class="row-even"><td>v0.7.4</td>
 <td>3/28/14</td>
 <td>Bug fix on pdf assembly</td>
 </tr>
-<tr class="row-even"><td>v0.7.3</td>
+<tr class="row-odd"><td>v0.7.3</td>
 <td>3/27/14</td>
 <td>Modified internals to use single image per page (instead of multipage tiff). Also enabled orientation detection</td>
 </tr>
-<tr class="row-odd"><td>v0.7.2</td>
+<tr class="row-even"><td>v0.7.2</td>
 <td>3/26/14</td>
 <td>Switched from Pil to Pillow. Now uses original images from PDF in output pdf (no dpi/color/quality changes!)</td>
 </tr>
-<tr class="row-even"><td>v0.7.1</td>
+<tr class="row-odd"><td>v0.7.1</td>
 <td>3/25/14</td>
 <td>OCR Language is now an option</td>
 </tr>
-<tr class="row-odd"><td>v0.7.0</td>
+<tr class="row-even"><td>v0.7.0</td>
 <td>3/25/14</td>
 <td>Now honors original pdf resolution</td>
 </tr>
-<tr class="row-even"><td>v0.6.1</td>
+<tr class="row-odd"><td>v0.6.1</td>
 <td>2/16/14</td>
 <td>Bug fix for pdfs with only numbers in the filename</td>
 </tr>
-<tr class="row-odd"><td>v0.6.0</td>
+<tr class="row-even"><td>v0.6.0</td>
 <td>1/16/14</td>
 <td>Added filing based on filename match as fallback, added tesseract version check</td>
 </tr>
-<tr class="row-even"><td>v0.5.4</td>
+<tr class="row-odd"><td>v0.5.4</td>
 <td>1/12/14</td>
 <td>Fixed bug with reordering of text pages on certain platforms(glob)</td>
 </tr>
-<tr class="row-odd"><td>v0.5.3</td>
+<tr class="row-even"><td>v0.5.3</td>
 <td>12/12/13</td>
 <td>Fix to evernote server specification</td>
 </tr>
-<tr class="row-even"><td>v0.5.2</td>
+<tr class="row-odd"><td>v0.5.2</td>
 <td>12/08/13</td>
 <td>Fix to lowercase keywords</td>
 </tr>
-<tr class="row-odd"><td>v0.5.1</td>
+<tr class="row-even"><td>v0.5.1</td>
 <td>11/02/13</td>
 <td>Fixed a bunch of windows critical path handling issues</td>
 </tr>
-<tr class="row-even"><td>v0.5.0</td>
+<tr class="row-odd"><td>v0.5.0</td>
 <td>10/30/13</td>
 <td>Email status added, 90% test coverage</td>
 </tr>
-<tr class="row-odd"><td>v0.4.1</td>
+<tr class="row-even"><td>v0.4.1</td>
 <td>10/28/13</td>
 <td>Made HOCR parsing more robust</td>
 </tr>
-<tr class="row-even"><td>v0.4.0</td>
+<tr class="row-odd"><td>v0.4.0</td>
 <td>10/28/13</td>
 <td>Added early Evernote upload support</td>
 </tr>
-<tr class="row-odd"><td>v0.3.1</td>
+<tr class="row-even"><td>v0.3.1</td>
 <td>10/24/13</td>
 <td>Path fix on windows</td>
 </tr>
-<tr class="row-even"><td>v0.3.0</td>
+<tr class="row-odd"><td>v0.3.0</td>
 <td>10/23/13</td>
 <td>Added filing of converted pdfs using a configuration file to specify target directories based on keyword matches in the pdf text</td>
 </tr>
-<tr class="row-odd"><td>v0.2.2</td>
+<tr class="row-even"><td>v0.2.2</td>
 <td>10/22/13</td>
 <td>Added a console script to put the pypdfocr script into your bin</td>
 </tr>
-<tr class="row-even"><td>v0.2.1</td>
+<tr class="row-odd"><td>v0.2.1</td>
 <td>10/22/13</td>
 <td>Fix to initial packaging problem.</td>
 </tr>
-<tr class="row-odd"><td>v0.2.0</td>
+<tr class="row-even"><td>v0.2.0</td>
 <td>10/21/13</td>
 <td>Initial release.</td>
 </tr>
@@ -607,7 +622,7 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</p>
         <li class="right" >
           <a href="pypdfocr.html" title="pypdfocr package"
              >next</a> |</li>
-        <li><a href="#">pypdfocr 0.8.2 documentation</a> &raquo;</li> 
+        <li><a href="#">pypdfocr 0.8.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

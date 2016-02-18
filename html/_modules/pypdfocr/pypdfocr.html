@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr &mdash; pypdfocr 0.8.2 documentation</title>
+    <title>pypdfocr.pypdfocr &mdash; pypdfocr 0.8.3 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.8.2',
+        VERSION:     '0.8.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.8.2 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.8.3 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.8.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.8.3 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -90,6 +90,12 @@
 <span class="kn">from</span> <span class="nn">version</span> <span class="kn">import</span> <span class="n">__version__</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="c"># Replace the Popen routine to allow win32 pyinstaller to build</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">forking</span>
+<span class="kn">from</span> <span class="nn">pypdfocr_multiprocessing</span> <span class="kn">import</span> <span class="n">_Popen</span>
+<span class="n">forking</span><span class="o">.</span><span class="n">Popen</span> <span class="o">=</span> <span class="n">_Popen</span>
 
 <span class="kn">from</span> <span class="nn">pypdfocr_pdf</span> <span class="kn">import</span> <span class="n">PyPdf</span>
 <span class="kn">from</span> <span class="nn">pypdfocr_tesseract</span> <span class="kn">import</span> <span class="n">PyTesseract</span>
@@ -350,7 +356,7 @@
                 <span class="n">folder_count</span> <span class="o">+=</span><span class="mi">1</span>
                 <span class="n">keyword_count</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span>
                 <span class="c"># Make sure keywords are lower-cased before adding</span>
-                <span class="n">keywords</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">keywords</span><span class="p">]</span>
+                <span class="n">keywords</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">keywords</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">filer</span><span class="o">.</span><span class="n">add_folder_target</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">keywords</span><span class="p">)</span>
 
         <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Filing of PDFs is enabled&quot;</span><span class="p">)</span>
@@ -518,6 +524,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_send_email</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="n">ocr_pdffilename</span><span class="p">,</span> <span class="n">filing</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span> <span class="c"># pragma: no cover </span>
+    <span class="n">multiprocessing</span><span class="o">.</span><span class="n">freeze_support</span><span class="p">()</span>
     <span class="n">script</span> <span class="o">=</span> <span class="n">PyPDFOCR</span><span class="p">()</span>
     <span class="n">script</span><span class="o">.</span><span class="n">go</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
 </div>
@@ -539,7 +546,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.8.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.8.3 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>

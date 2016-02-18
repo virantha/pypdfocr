@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr_pdffiler &mdash; pypdfocr 0.8.2 documentation</title>
+    <title>pypdfocr.pypdfocr_pdffiler &mdash; pypdfocr 0.8.3 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.8.2',
+        VERSION:     '0.8.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.8.2 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.8.3 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.8.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.8.3 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -91,6 +91,7 @@
 
 <span class="kn">from</span> <span class="nn">PyPDF2</span> <span class="kn">import</span> <span class="n">PdfFileReader</span>
 <span class="kn">from</span> <span class="nn">pypdfocr_filer</span> <span class="kn">import</span> <span class="n">PyFiler</span>
+<span class="kn">from</span> <span class="nn">pypdfocr_filer_dirs</span> <span class="kn">import</span> <span class="n">PyFilerDirs</span>
 
 <span class="k">class</span> <span class="nc">PyPdfFiler</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <div class="viewcode-block" id="PyPdfFiler"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdffiler.PyPdfFiler">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filer</span><span class="p">):</span>
@@ -137,7 +138,11 @@
         <span class="n">tgt_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filer</span><span class="o">.</span><span class="n">move_to_matching_folder</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">tgt_folder</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tgt_file</span>
         
-</pre></div></div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span></div></div>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">PyPdfFiler</span><span class="p">(</span><span class="n">PyFilerDirs</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">page_text</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">iter_pdf_page_text</span><span class="p">(</span><span class="s">&quot;scan_ocr.pdf&quot;</span><span class="p">):</span>
+        <span class="k">print</span> <span class="p">(</span><span class="n">page_text</span><span class="p">)</span>
+</pre></div>
 
           </div>
         </div>
@@ -153,7 +158,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.8.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.8.3 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
