@@ -22,10 +22,20 @@
 import os, sys
 import logging
 import subprocess
+import signal
 import glob
 from subprocess import CalledProcessError
 
 from multiprocessing import Pool
+
+def signal_handle(_signal, frame):
+    print("Stopping job")
+    print frame.f_locals
+
+def init_worker():
+    """ used for catching ctrl-c
+    """
+    signal.signal(signal.SIGINT, signal_handle)
 
 
 def error(text):
@@ -122,6 +132,8 @@ class PyTesseract(object):
             
         return version_good, ver_str
 
+    def _warn(self, msg): # pragma: no cover
+        print("WARNING: %s" % msg)
 
 
     def make_hocr_from_pnms(self, fns):
@@ -132,10 +144,18 @@ class PyTesseract(object):
         # Glob it
         #fns = glob.glob(img_filename)
         logging.debug("Making pool for tesseract")
-        pool = Pool(processes=self.threads)
-        hocr_filenames = pool.map(unwrap_self, zip([self]*len(fns), fns))
-        pool.close()
-        pool.join()
+        pool = Pool(processes=self.threads, initializer=init_worker)
+
+        try:
+            hocr_filenames = pool.map(unwrap_self, zip([self]*len(fns), fns))
+            pool.close()
+            pool.join()
+        except KeyboardInterrupt:
+            print("Caught keyboard interrupt... terminating")
+            pool.terminate()
+            pool.join()
+            sys,exit(-1)
+
         return zip(fns,hocr_filenames)
 
 
@@ -152,10 +172,10 @@ class PyTesseract(object):
         logging.info(cmd)
         try:
             ret_output = subprocess.check_output(cmd, shell=True,  stderr=subprocess.STDOUT)
-        except CalledProcessError as e:
+        except subprocess.CalledProcessError as e:
             # Could not run tesseract
             print e.output
-            error (self.msgs['TS_FAILED'])
+            self._warn (self.msgs['TS_FAILED'])
                 
         if os.path.isfile(hocr_filename):
             # Output format is html for old versions of tesseract
