@@ -24,7 +24,9 @@ import logging
 import subprocess
 import glob
 from subprocess import CalledProcessError
+
 from multiprocessing import Pool
+
 
 def error(text):
     print("ERROR: %s" % text)
@@ -129,8 +131,8 @@ class PyTesseract(object):
 
         # Glob it
         #fns = glob.glob(img_filename)
+        logging.debug("Making pool for tesseract")
         pool = Pool(processes=self.threads)
-        print("Making pool")
         hocr_filenames = pool.map(unwrap_self, zip([self]*len(fns), fns))
         pool.close()
         pool.join()

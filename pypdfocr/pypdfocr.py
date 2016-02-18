@@ -25,6 +25,12 @@ from version import __version__
 from PIL import Image
 import yaml
 
+import multiprocessing
+# Replace the Popen routine to allow win32 pyinstaller to build
+from multiprocessing import forking
+from pypdfocr_multiprocessing import _Popen
+forking.Popen = _Popen
+
 from pypdfocr_pdf import PyPdf
 from pypdfocr_tesseract import PyTesseract
 from pypdfocr_gs import PyGs
@@ -452,6 +458,7 @@ class PyPDFOCR(object):
             self._send_email(pdf_filename, ocr_pdffilename, filing)
 
 def main(): # pragma: no cover 
+    multiprocessing.freeze_support()
     script = PyPDFOCR()
     script.go(sys.argv[1:])
 
