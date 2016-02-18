@@ -85,7 +85,7 @@ class PyPreprocess(object):
                 #'\\( $setcspace -colorspace gray -type grayscale \\)',
                 backslash+'(',
                 '-clone 0',
-                '-colorspace gray -negate -lat 15x15+5\% -contrast-stretch 0',
+                '-colorspace gray -negate -lat 15x15+5% -contrast-stretch 0',
                 backslash+') -compose copy_opacity -composite -opaque none +matte -modulate 100,100',
                 #'-adaptive-blur 1.0',
                 '-blur 1x1',
