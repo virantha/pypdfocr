@@ -290,7 +290,7 @@ class PyPDFOCR(object):
                 folder_count +=1
                 keyword_count += len(keywords)
                 # Make sure keywords are lower-cased before adding
-                keywords = [x.lower() for x in keywords]
+                keywords = [str(x).lower() for x in keywords]
                 self.filer.add_folder_target(folder, keywords)
 
         print ("Filing of PDFs is enabled")
