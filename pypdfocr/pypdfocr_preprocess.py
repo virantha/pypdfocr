@@ -25,6 +25,7 @@ import sys, os
 import logging
 import glob
 import functools
+import signal
 
 from multiprocessing import Pool
 
@@ -33,6 +34,15 @@ from multiprocessing import Pool
 # Basically gets passed in a pair of (self, arg), and calls the method
 def unwrap_self(arg, **kwarg):
     return PyPreprocess._run_preprocess(*arg, **kwarg)
+
+
+def signal_handle(_signal, frame):
+    print("Stopping job")
+
+def init_worker():
+    """ used for catching ctrl-c
+    """
+    signal.signal(signal.SIGINT, signal_handle)
 
 
 class PyPreprocess(object):
@@ -75,7 +85,7 @@ class PyPreprocess(object):
                 #'\\( $setcspace -colorspace gray -type grayscale \\)',
                 backslash+'(',
                 '-clone 0',
-                '-colorspace gray -negate -lat 15x15+5\% -contrast-stretch 0',
+                '-colorspace gray -negate -lat 15x15+5% -contrast-stretch 0',
                 backslash+') -compose copy_opacity -composite -opaque none +matte -modulate 100,100',
                 #'-adaptive-blur 1.0',
                 '-blur 1x1',
@@ -94,12 +104,19 @@ class PyPreprocess(object):
     def preprocess(self, in_filenames):
         fns = in_filenames
 
-        pool = Pool(processes=self.threads)
-        logging.info("Starting preprocessing parallel execution")
-        preprocessed_filenames = pool.map(unwrap_self,zip([self]*len(fns),fns))
-        pool.close()
-        pool.join()
-        logging.info ("Completed preprocessing")
+        pool = Pool(processes=self.threads, initializer=init_worker)
+        try:
+            logging.info("Starting preprocessing parallel execution")
+            preprocessed_filenames = pool.map(unwrap_self,zip([self]*len(fns),fns))
+            pool.close()
+            pool.join()
+            logging.info ("Completed preprocessing")
+        except KeyboardInterrupt:
+            print("Caught keyboard interrupt... terminating")
+            pool.terminate()
+            pool.join()
+            sys,exit(-1)
+
         return preprocessed_filenames
 
 

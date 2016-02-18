@@ -1,7 +1,7 @@
 PyPDFOCR - Tesseract-OCR based PDF filing
 =========================================
 
-|image0| |image1| |image2| |Coverage Status|
+|image0| |image1| |image2| |passing| |quality| |Coverage Status|
 
 This program will help manage your scanned PDFs by doing the following:
 
@@ -250,6 +250,17 @@ PyPDFOCR is available in PyPI, so you can just run:
 
     pip install pypdfocr
 
+Please note that some of the 3rd-party libraries required by PyPDFOCR wiill
+require some build tools, especially on a default Ubuntu system.  If you run
+into any issues using pip install, you may want to install the
+following packages on Ubuntu and try again:
+
+- gcc
+- libjpeg-dev
+- zlib-bin
+- zlib1g-dev
+- python-dev
+
 For those on **Windows**, because it's such a pain to get all the PIL
 and PDF dependencies installed, I've gone ahead and made an executable
 called
@@ -269,7 +280,7 @@ Clone the source directly from github (you need to have git installed):
 
 Then, install the following third-party python libraries:
 
--  PIL (Python Imaging Library) http://www.pythonware.com/products/pil/
+-  Pillow (Python Imaging Library) https://pillow.readthedocs.org/en/3.1.x/
 -  ReportLab (PDF generation library)
    http://www.reportlab.com/opensource/
 -  Watchdog (Cross-platform fhlesystem events monitoring)
@@ -280,10 +291,11 @@ These can all be installed via pip:
 
 ::
 
-    pip install pil
+    pip install Pillow
     pip install reportlab
     pip install watchdog
     pip install pypdf2
+
 
 You will also need to install the external dependencies listed below.
 
@@ -343,5 +355,7 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    :target: https://pypi.python.org/pypi/pypdfocr
 .. |image1| image:: https://pypip.in/d/pypdfocr/badge.png
 .. |image2| image:: https://pypip.in/license/pypdfocr/badge.png
+.. |passing| image:: https://scrutinizer-ci.com/g/virantha/pypdfocr/badges/build.png?b=master
+.. |quality| image:: https://scrutinizer-ci.com/g/virantha/pypdfocr/badges/quality-score.png?b=master
 .. |Coverage Status| image:: https://coveralls.io/repos/virantha/pypdfocr/badge.png?branch=develop
    :target: https://coveralls.io/r/virantha/pypdfocr

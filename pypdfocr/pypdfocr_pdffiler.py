@@ -26,6 +26,7 @@ import shutil
 
 from PyPDF2 import PdfFileReader
 from pypdfocr_filer import PyFiler
+from pypdfocr_filer_dirs import PyFilerDirs
 
 class PyPdfFiler(object):
     def __init__(self, filer):
@@ -72,3 +73,8 @@ class PyPdfFiler(object):
         tgt_file = self.filer.move_to_matching_folder(filename, tgt_folder)
         return tgt_file
         
+if __name__ == '__main__':
+    p = PyPdfFiler(PyFilerDirs())
+    for page_text in p.iter_pdf_page_text("scan_ocr.pdf"):
+        print (page_text)
+
