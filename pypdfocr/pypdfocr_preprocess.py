@@ -28,6 +28,7 @@ import functools
 import signal
 
 from multiprocessing import Pool
+from pypdfocr_interrupts import init_worker
 
 # Ugly hack to pass in object method to the multiprocessing library
 # From http://www.rueckstiess.net/research/snippets/show/ca1d7d90
@@ -35,14 +36,6 @@ from multiprocessing import Pool
 def unwrap_self(arg, **kwarg):
     return PyPreprocess._run_preprocess(*arg, **kwarg)
 
-
-def signal_handle(_signal, frame):
-    print("Stopping job")
-
-def init_worker():
-    """ used for catching ctrl-c
-    """
-    signal.signal(signal.SIGINT, signal_handle)
 
 
 class PyPreprocess(object):
@@ -109,13 +102,14 @@ class PyPreprocess(object):
             logging.info("Starting preprocessing parallel execution")
             preprocessed_filenames = pool.map(unwrap_self,zip([self]*len(fns),fns))
             pool.close()
-            pool.join()
-            logging.info ("Completed preprocessing")
-        except KeyboardInterrupt:
+        except KeyboardInterrupt or Exception:
             print("Caught keyboard interrupt... terminating")
             pool.terminate()
+            #sys,exit(-1)
+            raise
+        finally:
             pool.join()
-            sys,exit(-1)
+            logging.info ("Completed preprocessing")
 
         return preprocessed_filenames
 

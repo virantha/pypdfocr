@@ -22,21 +22,11 @@
 import os, sys
 import logging
 import subprocess
-import signal
 import glob
 from subprocess import CalledProcessError
 
 from multiprocessing import Pool
-
-def signal_handle(_signal, frame):
-    print("Stopping job")
-    print frame.f_locals
-
-def init_worker():
-    """ used for catching ctrl-c
-    """
-    signal.signal(signal.SIGINT, signal_handle)
-
+from pypdfocr_interrupts import init_worker
 
 def error(text):
     print("ERROR: %s" % text)
@@ -149,12 +139,12 @@ class PyTesseract(object):
         try:
             hocr_filenames = pool.map(unwrap_self, zip([self]*len(fns), fns))
             pool.close()
-            pool.join()
-        except KeyboardInterrupt:
+        except KeyboardInterrupt or Exception:
             print("Caught keyboard interrupt... terminating")
             pool.terminate()
+            raise
+        finally:
             pool.join()
-            sys,exit(-1)
 
         return zip(fns,hocr_filenames)
 
