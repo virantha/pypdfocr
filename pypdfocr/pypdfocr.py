@@ -15,7 +15,7 @@
 
 import smtplib
 import argparse
-import sys, os, traceback
+import sys, os, traceback, time
 import logging
 import shutil, glob
 import itertools
@@ -224,7 +224,7 @@ class PyPDFOCR(object):
             try:
                 os.remove(f)
             except:
-                logging.info("Error removing file %s .... continuing" % f)
+                logging.debug("Error removing file %s .... continuing" % f)
 
             
 
@@ -325,35 +325,51 @@ class PyPDFOCR(object):
             :rtype: filename string
         """
         print ("Starting conversion of %s" % pdf_filename)
-        # Make the images for Tesseract
-        img_dpi, glob_img_filename = self.gs.make_img_from_pdf(pdf_filename)
+        try:
+            # Make the images for Tesseract
+            img_dpi, glob_img_filename = self.gs.make_img_from_pdf(pdf_filename)
 
-        fns = glob.glob(glob_img_filename)
-
-        # Preprocess
-        if not self.skip_preprocess:
-            preprocess_imagefilenames = self.preprocess.preprocess(fns)
-        else:
-            logging.info("Skipping preprocess step")
-            preprocess_imagefilenames = fns
-
-        # Run teserract
-        self.ts.lang = self.lang
-        hocr_filenames = self.ts.make_hocr_from_pnms(preprocess_imagefilenames)
+            fns = glob.glob(glob_img_filename)
         
-        # Generate new pdf with overlayed text
-        #ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename, pdf_filename)
-        ocr_pdf_filename = self.pdf.overlay_hocr_pages(img_dpi, hocr_filenames, pdf_filename)
+        except Exception:
+            raise
 
-        # Clean up the files
-        if not self.debug:
-            logging.debug("Cleaning up %s" % hocr_filenames)
-            # clean up the hocr input (jpg) and output (html) files
-            self._clean_up_files(itertools.chain(*hocr_filenames)) # splat the hocr_filenames as it is a list of pairs
+        try:
+            # Preprocess
             if not self.skip_preprocess:
+                preprocess_imagefilenames = self.preprocess.preprocess(fns)
+            else:
+                logging.info("Skipping preprocess step")
+                preprocess_imagefilenames = fns
+            # Run teserract
+            self.ts.lang = self.lang
+            hocr_filenames = self.ts.make_hocr_from_pnms(preprocess_imagefilenames)
+            
+            # Generate new pdf with overlayed text
+            #ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename, pdf_filename)
+            ocr_pdf_filename = self.pdf.overlay_hocr_pages(img_dpi, hocr_filenames, pdf_filename)
+
+        finally:
+            # Clean up the files
+            time.sleep(1)
+            if not self.debug:
                 # Need to clean up the original image files before preprocessing
-                logging.debug("Cleaning up %s" % fns)
-                self._clean_up_files(fns)
+                if locals().has_key("fns"): # Have to check if this was set before exception raised
+                    logging.info("Cleaning up %s" % fns)
+                    self._clean_up_files(fns)
+
+                if locals().has_key("preprocess_imagefilenames"):  # Have to check if this was set before exception raised
+                    logging.info("Cleaning up %s" % preprocess_imagefilenames)
+                    self._clean_up_files(preprocess_imagefilenames) # splat the hocr_filenames as it is a list of pairs
+                    for ext in [".hocr", ".html", ".txt"]:
+                        fns_to_remove = [os.path.splitext(fn)[0]+ext for fn in preprocess_imagefilenames]
+                        logging.info("Cleaning up %s" % fns_to_remove)
+                        self._clean_up_files(fns_to_remove) # splat the hocr_filenames as it is a list of pairs
+                    # clean up the hocr input (jpg) and output (html) files
+                    #self._clean_up_files(itertools.chain(*hocr_filenames)) # splat the hocr_filenames as it is a list of pairs
+                    # Seems like newer tessearct > 3.03 is now creating .txt files with the OCR text?/?
+                    #self._clean_up_files([x[1].replace(".hocr", ".txt") for x in hocr_filenames])
+
 
         print ("Completed conversion successfully to %s" % ocr_pdf_filename)
         return ocr_pdf_filename
