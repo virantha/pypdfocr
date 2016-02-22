@@ -26,8 +26,8 @@
         <img id='keyboard_icon' src='keybd_closed.png'>
         <h2 class='stats'>
             123 statements &nbsp;
-            <span class='run hide_run shortkey_r button_toggle_run'>78 run</span>
-            <span class='mis shortkey_m button_toggle_mis'>45 missing</span>
+            <span class='run hide_run shortkey_r button_toggle_run'>77 run</span>
+            <span class='mis shortkey_m button_toggle_mis'>46 missing</span>
             <span class='exc shortkey_x button_toggle_exc'>0 excluded</span>
             
         </h2>
@@ -271,7 +271,7 @@
 <p id='n208' class='stm run hide_run'><a href='#n208'>208</a></p>
 <p id='n209' class='pln'><a href='#n209'>209</a></p>
 <p id='n210' class='stm run hide_run'><a href='#n210'>210</a></p>
-<p id='n211' class='stm run hide_run'><a href='#n211'>211</a></p>
+<p id='n211' class='stm mis'><a href='#n211'>211</a></p>
 <p id='n212' class='pln'><a href='#n212'>212</a></p>
 <p id='n213' class='stm run hide_run'><a href='#n213'>213</a></p>
 <p id='n214' class='stm run hide_run'><a href='#n214'>214</a></p>
@@ -493,7 +493,7 @@
 <p id='t208' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>globable_filename</span> <span class='op'>=</span> <span class='str'>&#39;%s_*.%s&#39;</span> <span class='op'>%</span> <span class='op'>(</span><span class='nam'>filename</span><span class='op'>,</span> <span class='nam'>self</span><span class='op'>.</span><span class='nam'>img_file_ext</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t209' class='pln'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='com'># Delete any img files already existing</span><span class='strut'>&nbsp;</span></p>
 <p id='t210' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>for</span> <span class='nam'>fn</span> <span class='key'>in</span> <span class='nam'>glob</span><span class='op'>.</span><span class='nam'>glob</span><span class='op'>(</span><span class='nam'>globable_filename</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
-<p id='t211' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>os</span><span class='op'>.</span><span class='nam'>remove</span><span class='op'>(</span><span class='nam'>fn</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
+<p id='t211' class='stm mis'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>os</span><span class='op'>.</span><span class='nam'>remove</span><span class='op'>(</span><span class='nam'>fn</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t212' class='pln'><span class='strut'>&nbsp;</span></p>
 <p id='t213' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>options</span> <span class='op'>=</span> <span class='str'>&#39; &#39;</span><span class='op'>.</span><span class='nam'>join</span><span class='op'>(</span><span class='nam'>self</span><span class='op'>.</span><span class='nam'>gs_options</span><span class='op'>[</span><span class='nam'>self</span><span class='op'>.</span><span class='nam'>img_format</span><span class='op'>]</span><span class='op'>[</span><span class='num'>1</span><span class='op'>]</span><span class='op'>)</span> <span class='op'>%</span> <span class='op'>{</span><span class='str'>&#39;dpi&#39;</span><span class='op'>:</span><span class='nam'>self</span><span class='op'>.</span><span class='nam'>output_dpi</span><span class='op'>}</span><span class='strut'>&nbsp;</span></p>
 <p id='t214' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>output_filename</span> <span class='op'>=</span> <span class='str'>&#39;%s_%%d.%s&#39;</span> <span class='op'>%</span> <span class='op'>(</span><span class='nam'>filename</span><span class='op'>,</span> <span class='nam'>self</span><span class='op'>.</span><span class='nam'>img_file_ext</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>

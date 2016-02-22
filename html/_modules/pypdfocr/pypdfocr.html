@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr &mdash; pypdfocr 0.8.4 documentation</title>
+    <title>pypdfocr.pypdfocr &mdash; pypdfocr 0.8.5 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.8.4',
+        VERSION:     '0.8.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.8.4 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.8.5 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.8.4 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.8.5 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -81,7 +81,7 @@
 
 <span class="kn">import</span> <span class="nn">smtplib</span>
 <span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">traceback</span><span class="o">,</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
@@ -290,7 +290,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
             <span class="k">except</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Error removing file </span><span class="si">%s</span><span class="s"> .... continuing&quot;</span> <span class="o">%</span> <span class="n">f</span><span class="p">)</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Error removing file </span><span class="si">%s</span><span class="s"> .... continuing&quot;</span> <span class="o">%</span> <span class="n">f</span><span class="p">)</span>
 
             
 </div>
@@ -391,35 +391,51 @@
 <span class="sd">            :rtype: filename string</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Starting conversion of </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pdf_filename</span><span class="p">)</span>
-        <span class="c"># Make the images for Tesseract</span>
-        <span class="n">img_dpi</span><span class="p">,</span> <span class="n">glob_img_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="o">.</span><span class="n">make_img_from_pdf</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c"># Make the images for Tesseract</span>
+            <span class="n">img_dpi</span><span class="p">,</span> <span class="n">glob_img_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gs</span><span class="o">.</span><span class="n">make_img_from_pdf</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">)</span>
 
-        <span class="n">fns</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glob_img_filename</span><span class="p">)</span>
-
-        <span class="c"># Preprocess</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_preprocess</span><span class="p">:</span>
-            <span class="n">preprocess_imagefilenames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">fns</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Skipping preprocess step&quot;</span><span class="p">)</span>
-            <span class="n">preprocess_imagefilenames</span> <span class="o">=</span> <span class="n">fns</span>
-
-        <span class="c"># Run teserract</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="o">.</span><span class="n">lang</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lang</span>
-        <span class="n">hocr_filenames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="o">.</span><span class="n">make_hocr_from_pnms</span><span class="p">(</span><span class="n">preprocess_imagefilenames</span><span class="p">)</span>
+            <span class="n">fns</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">glob_img_filename</span><span class="p">)</span>
         
-        <span class="c"># Generate new pdf with overlayed text</span>
-        <span class="c">#ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename, pdf_filename)</span>
-        <span class="n">ocr_pdf_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">overlay_hocr_pages</span><span class="p">(</span><span class="n">img_dpi</span><span class="p">,</span> <span class="n">hocr_filenames</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span>
 
-        <span class="c"># Clean up the files</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Cleaning up </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">hocr_filenames</span><span class="p">)</span>
-            <span class="c"># clean up the hocr input (jpg) and output (html) files</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_clean_up_files</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">hocr_filenames</span><span class="p">))</span> <span class="c"># splat the hocr_filenames as it is a list of pairs</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c"># Preprocess</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_preprocess</span><span class="p">:</span>
+                <span class="n">preprocess_imagefilenames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">fns</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Skipping preprocess step&quot;</span><span class="p">)</span>
+                <span class="n">preprocess_imagefilenames</span> <span class="o">=</span> <span class="n">fns</span>
+            <span class="c"># Run teserract</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="o">.</span><span class="n">lang</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lang</span>
+            <span class="n">hocr_filenames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ts</span><span class="o">.</span><span class="n">make_hocr_from_pnms</span><span class="p">(</span><span class="n">preprocess_imagefilenames</span><span class="p">)</span>
+            
+            <span class="c"># Generate new pdf with overlayed text</span>
+            <span class="c">#ocr_pdf_filename = self.pdf.overlay_hocr(tiff_dpi, hocr_filename, pdf_filename)</span>
+            <span class="n">ocr_pdf_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">overlay_hocr_pages</span><span class="p">(</span><span class="n">img_dpi</span><span class="p">,</span> <span class="n">hocr_filenames</span><span class="p">,</span> <span class="n">pdf_filename</span><span class="p">)</span>
+
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c"># Clean up the files</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
                 <span class="c"># Need to clean up the original image files before preprocessing</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Cleaning up </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fns</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_clean_up_files</span><span class="p">(</span><span class="n">fns</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s">&quot;fns&quot;</span><span class="p">):</span> <span class="c"># Have to check if this was set before exception raised</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Cleaning up </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fns</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_clean_up_files</span><span class="p">(</span><span class="n">fns</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s">&quot;preprocess_imagefilenames&quot;</span><span class="p">):</span>  <span class="c"># Have to check if this was set before exception raised</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Cleaning up </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">preprocess_imagefilenames</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_clean_up_files</span><span class="p">(</span><span class="n">preprocess_imagefilenames</span><span class="p">)</span> <span class="c"># splat the hocr_filenames as it is a list of pairs</span>
+                    <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;.hocr&quot;</span><span class="p">,</span> <span class="s">&quot;.html&quot;</span><span class="p">,</span> <span class="s">&quot;.txt&quot;</span><span class="p">]:</span>
+                        <span class="n">fns_to_remove</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fn</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">ext</span> <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">preprocess_imagefilenames</span><span class="p">]</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Cleaning up </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fns_to_remove</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_clean_up_files</span><span class="p">(</span><span class="n">fns_to_remove</span><span class="p">)</span> <span class="c"># splat the hocr_filenames as it is a list of pairs</span>
+                    <span class="c"># clean up the hocr input (jpg) and output (html) files</span>
+                    <span class="c">#self._clean_up_files(itertools.chain(*hocr_filenames)) # splat the hocr_filenames as it is a list of pairs</span>
+                    <span class="c"># Seems like newer tessearct &gt; 3.03 is now creating .txt files with the OCR text?/?</span>
+                    <span class="c">#self._clean_up_files([x[1].replace(&quot;.hocr&quot;, &quot;.txt&quot;) for x in hocr_filenames])</span>
+
 
         <span class="k">print</span> <span class="p">(</span><span class="s">&quot;Completed conversion successfully to </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">ocr_pdf_filename</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ocr_pdf_filename</span>
@@ -546,7 +562,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.8.4 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.8.5 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
