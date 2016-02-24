@@ -158,7 +158,7 @@ class PyTesseract(object):
             error(self.msgs['TS_img_MISSING'] + " %s" % (img_filename))
 
         logging.info("Running OCR on %s to create %s.html" % (img_filename, basename))
-        cmd = '%s "%s" "%s" -psm 1 -l %s hocr' % (self.binary, img_filename, basename, self.lang)
+        cmd = '%s "%s" "%s" -psm 1 -c hocr_font_info=1 -l %s hocr' % (self.binary, img_filename, basename, self.lang)
         logging.info(cmd)
         try:
             ret_output = subprocess.check_output(cmd, shell=True,  stderr=subprocess.STDOUT)

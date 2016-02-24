@@ -49,11 +49,37 @@ from PyPDF2 import PdfFileMerger, PdfFileReader, PdfFileWriter, utils
 
 class PyPdf(object):
     """Class to create pdfs from images"""
+    # Some regexes to compile once
+    regex_bbox = re.compile('bbox((\s+\d+){4})')
+    regex_baseline = re.compile('baseline((\s+[\d\.\-]+){2})')
+    regex_fontspec = re.compile('x_font\s+(.+);\s+x_fsize\s+(\d+)')
+    regex_textangle = re.compile('textangle\s+(\d+)')
 
     def __init__(self, gs):
         self.load_invisible_font()
         self.gs = gs # Pointer to ghostscript object
+
+
         pass
+
+    def get_transform(self, rotation, tx, ty):
+        # Code taken from here:
+        # http://stackoverflow.com/questions/6041244/how-to-merge-two-landscape-pdf-pages-using-pypdf/17392824#17392824
+        # Unclear why PyPDF2 builtin page rotation functions don't work
+        translation = [[1, 0, 0],
+                       [0, 1, 0],
+                       [-tx,-ty,1]]
+        rotation = math.radians(rotation)
+        rotating = [[math.cos(rotation), math.sin(rotation),0],
+                    [-math.sin(rotation),math.cos(rotation), 0],
+                    [0,                  0,                  1]]
+        rtranslation = [[1, 0, 0],
+                       [0, 1, 0],
+                       [tx,ty,1]]
+        ctm = utils.matrixMultiply(translation, rotating)
+        ctm = utils.matrixMultiply(ctm, rtranslation)
+
+        return ctm[0][0], ctm[0][1], ctm[1][0], ctm[1][1], ctm[2][0], ctm[2][1]
 
     def mergeRotateAroundPointPage(self,page, page2, rotation, tx, ty):
         # Code taken from here:
@@ -103,7 +129,7 @@ class PyPdf(object):
 
             if orig_rotation_angle != 0:
                 logging.info("Original Rotation: %s" % orig_pg.get("/Rotate", 0))
-                self.mergeRotateAroundPointPage(orig_pg, text_pg, orig_rotation_angle, text_pg.mediaBox.getWidth()/2, text_pg.mediaBox.getWidth()/2)
+                self.mergeRotateAroundPointPage(orig_pg, text_pg, orig_rotation_angle, text_pg.mediaBox.getWidth()/2, text_pg.mediaBox.getHeight()/2)
 
                 # None of these commands worked for me:
                     #orig_pg.rotateCounterClockwise(orig_rotation_angle)
@@ -125,6 +151,21 @@ class PyPdf(object):
 
         logging.info("Created OCR'ed pdf as %s" % (pdf_filename))
         return pdf_filename
+
+    def _merge_and_write_single_page(self, original_page, ocr_text_page):
+        """
+            Take two page objects, rotate the text page if necessary, and return the merged page
+        """
+        orig_rotation_angle = int(original_page.get('/Rotate', 0))
+
+        if orig_rotation_angle != 0:
+            logging.info("Original Rotation: %s" % orig_rotation_angle)
+            self.mergeRotateAroundPointPage(original_page, ocr_text_page, orig_rotation_angle, ocr_text_page.mediaBox.getWidth()/2, ocr_text_page.mediaBox.getHeight()/2)
+        else:
+            original_page.mergePage(ocr_text_page)
+        original_page.compressContentStreams()
+        return original_page
+
 
     def _get_img_dims(self, img_filename):
         """
@@ -193,8 +234,6 @@ class PyPdf(object):
 
     def add_text_layer(self,pdf, hocrfile, page_num,height, dpi):
       """Draw an invisible text layer for OCR data"""
-      p1 = re.compile('bbox((\s+\d+){4})')
-      p2 = re.compile('baseline((\s+[\d\.\-]+){2})')
       hocr = ElementTree()
       hocr.parse(hocrfile)
       logging.debug(xml.etree.ElementTree.tostring(hocr.getroot()))
@@ -211,10 +250,17 @@ class PyPdf(object):
       #for line in page.findall(".//span"):
         if line.attrib['class'] != 'ocr_line':
           continue
-        linebox = p1.search(line.attrib['title']).group(1).split()
+        linebox = self.regex_bbox.search(line.attrib['title']).group(1).split()
+        textangle = self.regex_textangle.search(line.attrib['title'])
+        if textangle:
+            textangle = self._atoi(textangle.group(1))
+            print("---------------BOOOOOOM--------------------")
+            print(textangle)
+        else:
+            textangle = 0
 
         try:
-          baseline = p2.search(line.attrib['title']).group(1).split()
+          baseline = self.regex_baseline.search(line.attrib['title']).group(1).split()
         except AttributeError:
           baseline = [ 0, 0 ]
 
@@ -236,24 +282,44 @@ class PyPdf(object):
 
           if word.text is None:
             continue
-          font_width = pdf.stringWidth(word.text.strip(), 'invisible', 8)
-          if font_width <= 0:
-            continue
-          box = p1.search(word.attrib['title']).group(1).split()
+          #font_width = pdf.stringWidth(word.text.strip(), 'invisible', 8)
+          #if font_width <= 0:
+            #continue
+          box = self.regex_bbox.search(word.attrib['title']).group(1).split()
           box = [float(i) for i in box]
           b = self.polyval(baseline, (box[0] + box[2]) / 2 - linebox[0]) + linebox[3]
           text = pdf.beginText()
-          text.setTextRenderMode(3)  # double invisible
-          text.setFont('invisible', 8)
+          #text.setTextRenderMode(3)  # double invisible
+          text.setTextRenderMode(0)  
+          #text.setFont('invisible', 8)
+          font_name, font_size = self._get_font_spec(word.attrib['title'])
+          #logging.debug(font_name, font_size)
+          text.setFont('Helvetica', font_size)
           text.setTextOrigin(box[0] * 72 / dpi, height - b * 72 / dpi)
-          box_width = (box[2] - box[0]) * 72 / dpi
-          text.setHorizScale(100.0 * box_width / font_width)
+          #box_width = (box[2] - box[0]) * 72 / dpi
+          #text.setHorizScale(100.0 * box_width / font_width)
           text.textLine(word.text.strip())
           #logging.debug( "Pg%s: %s" % (page_num,word.text.strip()))
+          #pdf.saveState()
+          if textangle != 0:
+              #pdf.rotate(textangle)
+              text.setTextTransform(*(self.get_transform(90,0,0)))
+              pass
           pdf.drawText(text)
+          #pdf.restoreState()
 
     def polyval(self,poly, x):
       return x * poly[0] + poly[1]
+
+
+    def _get_font_spec(self, tag):
+        fontspec = self.regex_fontspec.search(tag).groups()
+        if len(fontspec) != 2:
+            fontname = ""
+            fontsize = 8
+        else:
+            fontname, fontsize = fontspec
+        return (fontname, self._atoi(fontsize))
 
 # Glyphless variation of vedaal's invisible font retrieved from
 # http://www.angelfire.com/pr/pgpf/if.html, which says:
