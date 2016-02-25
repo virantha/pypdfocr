@@ -349,10 +349,10 @@ class PyPdf(object):
 
 
     def _get_font_spec(self, tag):
-        fontspec = self.regex_fontspec.search(tag).groups()
-        if fontspec == None or len(fontspec) != 2:
+        try:
+            fontspec = self.regex_fontspec.search(tag).groups()
+            fontname, fontsize = fontspec
+        except Exception:
             fontname = ""
             fontsize = 8
-        else:
-            fontname, fontsize = fontspec
         return (fontname, self._atoi(fontsize))
