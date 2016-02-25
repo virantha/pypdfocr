@@ -47,6 +47,33 @@ import xml.etree
 # Import Pypdf2
 from PyPDF2 import PdfFileMerger, PdfFileReader, PdfFileWriter, utils
 
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.enums import TA_LEFT
+from reportlab.platypus.paragraph import Paragraph
+
+
+
+class RotatedPara(Paragraph):
+    """
+        Used for rotating text, since the low-level rotate method in textobject's don't seem to 
+        do anything
+    """
+
+    def __init__ (self, text, style, angle):
+        Paragraph.__init__(self, text, style)
+        self.angle = angle
+
+    def draw(self):
+        self.canv.saveState()
+        self.canv.translate(0,0)
+        self.canv.rotate(self.angle)
+        Paragraph.draw(self)
+        self.canv.restoreState()
+    def beginText(self, x, y):
+        t = self.canv.beginText(x,y)
+        t.setTextRenderMode(3)  # Set to zero if you want the text to appear
+        return t
+
 class PyPdf(object):
     """Class to create pdfs from images"""
     # Some regexes to compile once
@@ -56,11 +83,8 @@ class PyPdf(object):
     regex_textangle = re.compile('textangle\s+(\d+)')
 
     def __init__(self, gs):
-        self.load_invisible_font()
         self.gs = gs # Pointer to ghostscript object
 
-
-        pass
 
     def get_transform(self, rotation, tx, ty):
         # Code taken from here:
@@ -233,7 +257,11 @@ class PyPdf(object):
         return [ self._atoi(c) for c in re.split('(\d+)', text) ]
 
     def add_text_layer(self,pdf, hocrfile, page_num,height, dpi):
-      """Draw an invisible text layer for OCR data"""
+      """Draw an invisible text layer for OCR data.
+
+        This function really needs to get cleaned up
+        
+      """
       hocr = ElementTree()
       hocr.parse(hocrfile)
       logging.debug(xml.etree.ElementTree.tostring(hocr.getroot()))
@@ -254,8 +282,6 @@ class PyPdf(object):
         textangle = self.regex_textangle.search(line.attrib['title'])
         if textangle:
             textangle = self._atoi(textangle.group(1))
-            print("---------------BOOOOOOM--------------------")
-            print(textangle)
         else:
             textangle = 0
 
@@ -275,38 +301,38 @@ class PyPdf(object):
               if child.text:
                   word_text.append(child.text)
           word.text = ' '.join(word_text)
-          logging.debug(word.text)
-          #for child in word:
-             #if child.tag:
-                 #word.text = child.text
-
           if word.text is None:
             continue
-          #font_width = pdf.stringWidth(word.text.strip(), 'invisible', 8)
-          #if font_width <= 0:
-            #continue
+          logging.debug("word: %s, angle: %d" % ( word.text.strip(), textangle))
+
+
           box = self.regex_bbox.search(word.attrib['title']).group(1).split()
+          #b = self.polyval(baseline, (box[0] + box[2]) / 2 - linebox[0]) + linebox[3]
           box = [float(i) for i in box]
-          b = self.polyval(baseline, (box[0] + box[2]) / 2 - linebox[0]) + linebox[3]
-          text = pdf.beginText()
-          #text.setTextRenderMode(3)  # double invisible
-          text.setTextRenderMode(0)  
-          #text.setFont('invisible', 8)
+
+          # Transform angle to x,y co-ords needed for proper text placement
+          # We only support 0, 90, 180, 270!.  Anything else, we'll just use the normal orientation for now
+
+          coords = { 0: (box[0], box[1]),
+                    90: (box[0], box[3]),  # facing right
+                    180: (box[2], box[3]), # upside down
+                    270: (box[2], box[1]), # facing left
+                    }
+          x,y = coords.get(textangle, (box[0], box[1]))
+
+          style = getSampleStyleSheet()
+          normal = style["BodyText"]
+          normal.alignment = TA_LEFT
+          normal.leading = 0
           font_name, font_size = self._get_font_spec(word.attrib['title'])
-          #logging.debug(font_name, font_size)
-          text.setFont('Helvetica', font_size)
-          text.setTextOrigin(box[0] * 72 / dpi, height - b * 72 / dpi)
-          #box_width = (box[2] - box[0]) * 72 / dpi
-          #text.setHorizScale(100.0 * box_width / font_width)
-          text.textLine(word.text.strip())
-          #logging.debug( "Pg%s: %s" % (page_num,word.text.strip()))
-          #pdf.saveState()
-          if textangle != 0:
-              #pdf.rotate(textangle)
-              text.setTextTransform(*(self.get_transform(90,0,0)))
-              pass
-          pdf.drawText(text)
-          #pdf.restoreState()
+          normal.fontName = "Helvetica"
+          normal.fontSize = font_size
+
+          para = RotatedPara(word.text.strip(), normal, textangle)
+          para.wrapOn(pdf, para.minWidth(), 100)  # Not sure what to use as the height  here
+          para.drawOn(pdf, x*72/dpi, height - y*72/dpi)
+
+
 
     def polyval(self,poly, x):
       return x * poly[0] + poly[1]
@@ -314,39 +340,9 @@ class PyPdf(object):
 
     def _get_font_spec(self, tag):
         fontspec = self.regex_fontspec.search(tag).groups()
-        if len(fontspec) != 2:
+        if fontspec == None or len(fontspec) != 2:
             fontname = ""
             fontsize = 8
         else:
             fontname, fontsize = fontspec
         return (fontname, self._atoi(fontsize))
-
-# Glyphless variation of vedaal's invisible font retrieved from
-# http://www.angelfire.com/pr/pgpf/if.html, which says:
-# 'Invisible font' is unrestricted freeware. Enjoy, Improve, Distribute freely
-    def load_invisible_font(self):
-      font = """
-    eJzdlk1sG0UUx/+zs3btNEmrUKpCPxikSqRS4jpfFURUagmkEQQoiRXgAl07Y3vL2mvt2ml8APXG
-    hQPiUEGEVDhWVHyIC1REPSAhBOWA+BCgSoULUqsKcWhVBKjhzfPU+VCi3Flrdn7vzZv33ryZ3TUE
-    gC6chsTx8fHck1ONd98D0jnS7jn26GPjyMIleZhk9fT0wcHFl1/9GRDPkTxTqHg1dMkzJH9CbbTk
-    xbWlJfKEdB+Np0pBswi+nH/Nvay92VtfJp4nvEztUJkUHXsdksUOkveXK/X5FNuLD838ICx4dv4N
-    I1e8+ZqbxwCNP2jyqXoV/fmhy+WW/2SqFsb1pX68SfEpZ/TCrI3aHzcP//jitodvYmvL+6Xcr5mV
-    vb1ScCzRnPRPfz+LsRSWNasuwRrZlh1sx0E8AriddyzEDfE6EkglFhJDJO5u9fJbFJ0etEMB78D5
-    4Djm/7kjT0wqhSNURyS+u/2MGJKRu+0ExNkrt1pJti9p2x6b3TBJgmUXuzgnDmI8UWMbkVxeinCw
-    Mo311/l/v3rF7+01D+OkZYE0PrbsYAu+sSyxU0jLLtIiYzmBrFiwnCT9FcsdOOK8ZHbFleSn0znP
-    nDCnxbnAnGT9JeYtrP+FOcV8nTlNnsoc3bBAD85adtCNRcsSffjBsoseca/lBE7Q09LiJOm/ttyB
-    0+IqcwfncJt5q4krO5k7jV7uY+5m7mPebuLKUea7iHvk48w72OYF5rvZT8C8k/WvMN/Dc19j3s02
-    bzPvZZv3me9j/ox5P9t/xdzPzPVJcc7yGnPL/1+GO1lPVTXM+VNWOTRRg0YRHgrUK5yj1kvaEA1E
-    xAWiCtl4qJL2ADKkG6Q3XxYjzEcR0E9hCj5KtBd1xCxp6jV5mKP7LJBr1nTRK2h1TvU2w0akCmGl
-    5lWbBzJqMJsdyaijQaCm/FK5HqspHetoTtMsn4LO0T2mlqcwmlTVOT/28wGhCVKiNANKLiJRlxqB
-    F603axQznIzRhDSq6EWZ4UUs+xud0VHsh1U1kMlmNwu9kTuFaRqpURU0VS3PVmZ0iE7gct0MG/8+
-    2fmUvKlfRLYmisd1w8pk1LSu1XUlryM1MNTH9epTftWv+16gIh1oL9abJZyjrfF5a4qccp3oFAcz
-    Wxxx4DpvlaKKxuytRDzeth5rW4W8qBFesvEX8RFRmLBHoB+TpCmRVCCb1gFCruzHqhhW6+qUF6tC
-    pL26nlWN2K+W1LhRjxlVGKmRTFYVo7CiJug09E+GJb+QocMCPMWBK1wvEOfRFF2U0klK8CppqqvG
-    pylRc2Zn+XDQWZIL8iO5KC9S+1RekOex1uOyZGR/w/Hf1lhzqVfFsxE39B/ws7Rm3N3nDrhPuMfc
-    w3R/aE28KsfY2J+RPNp+j+KaOoCey4h+Dd48b9O5G0v2K7j0AM6s+5WQ/E0wVoK+pA6/3bup7bJf
-    CMGjwvxTsr74/f/F95m3TH9x8o0/TU//N+7/D/ScVcA=
-    """
-      ttf = cStringIO.StringIO(zlib.decompress(base64.decodestring(font)))
-      pdfmetrics.registerFont(TTFont('invisible', ttf))
-

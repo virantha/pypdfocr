@@ -84,7 +84,7 @@ class PyPreprocess(object):
                 '-blur 1x1',
                 #'-selective-blur 4x4+5%',
                 '-adaptive-sharpen 0x2',
-                '-negate -define morphology:compose=darken -morphology Thinning Rectangle:1x30+0+0 -negate ',  # Removes vertical lines >=60 pixes, reduces widht of >30 (oherwise tesseract completely ignores text close to vertical lines in a table)
+                '-negate -define morphology:compose=darken -morphology Thinning Rectangle:1x30+0+0 -negate ',  # Removes vertical lines >=60 pixes, reduces widht of >30 (oherwise tesseract < 3.03 completely ignores text close to vertical lines in a table)
                 '"%s"' % (out_filename)
                 ]
         logging.info("Preprocessing image %s for better OCR" % in_filename)
