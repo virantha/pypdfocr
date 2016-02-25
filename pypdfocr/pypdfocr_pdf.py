@@ -354,5 +354,5 @@ class PyPdf(object):
             fontname, fontsize = fontspec
         except Exception:
             fontname = ""
-            fontsize = 8
+            fontsize = "8"
         return (fontname, self._atoi(fontsize))
