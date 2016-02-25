@@ -143,12 +143,21 @@ class PyPdf(object):
             logging.info("Created temp OCR'ed pdf containing only the text as %s" % (text_pdf_filename))
             text_pdf_filenames.append(text_pdf_filename)
 
+        # Now, concatenate this text_pdfs into one single file.
+        # This is a hack to save memory/running time when we have to do the actual merge with a writer
+
+        all_text_filename = os.path.join(pdf_dir, "%s_text.pdf" % (basename))
+        merger = PdfFileMerger()
+        for text_pdf_filename in text_pdf_filenames:
+            merger.append(PdfFileReader(file(text_pdf_filename, 'rb')))
+        merger.write(all_text_filename)
+
 
         writer = PdfFileWriter()
         orig = open(orig_pdf_filename, 'rb')
-        for orig_pg, text_pg_filename in zip(self.iter_pdf_page(orig), text_pdf_filenames):
-            text_file = open(text_pg_filename, 'rb')
-            text_pg = self.iter_pdf_page(text_file).next()
+        text_file = open(all_text_filename, 'rb')
+
+        for orig_pg, text_pg in zip(self.iter_pdf_page(orig), self.iter_pdf_page(text_file)):
             orig_rotation_angle = int(orig_pg.get('/Rotate', 0))
 
             if orig_rotation_angle != 0:
@@ -162,16 +171,17 @@ class PyPdf(object):
                 orig_pg.mergePage(text_pg)
             orig_pg.compressContentStreams()
             writer.addPage(orig_pg)
+            #text_file.close()
 
-            with open(pdf_filename, 'wb') as f:
-                # Flush out this page merge so we can close the text_file
-                writer.write(f)
-            text_file.close()
-
+        with open(pdf_filename, 'wb') as f:
+            # Flush out this page merge so we can close the text_file
+            writer.write(f)
         orig.close()
+        text_file.close()
 
         for fn in text_pdf_filenames:
             os.remove(fn)
+        os.remove(all_text_filename)
 
         logging.info("Created OCR'ed pdf as %s" % (pdf_filename))
         return pdf_filename
