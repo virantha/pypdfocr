@@ -273,7 +273,13 @@ class PyPdf(object):
         
       """
       hocr = ElementTree()
-      hocr.parse(hocrfile)
+      try: 
+        # It's possible tesseract has failed and written garbage to this hocr file, so we need to catch any exceptions
+          hocr.parse(hocrfile)
+      except Exception:
+          logging.info("Error loading hocr, not adding any text")
+          return 
+
       logging.debug(xml.etree.ElementTree.tostring(hocr.getroot()))
       for c in hocr.getroot():  # Find the <body> tag
           if c.tag != 'body':
