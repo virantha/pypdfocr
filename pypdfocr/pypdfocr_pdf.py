@@ -180,8 +180,19 @@ class PyPdf(object):
         orig.close()
         text_file.close()
 
+        # Windows sometimes locks the temp text file for no reason, so we need to retry a few times to delete
         for fn in text_pdf_filenames:
-            os.remove(fn)
+            tries_left = 3
+            while tries_left > 0:
+                try:
+                    os.remove(fn)
+                    tries_left = 0
+                except WindowsError:
+                    logging.info("Problem removing temp file %s... pausing for a second before retrying" % fn)
+                    sleep(1)
+                    logging.info("Retrying...")
+                    tries_left -= 1
+
         os.remove(all_text_filename)
 
         logging.info("Created OCR'ed pdf as %s" % (pdf_filename))
