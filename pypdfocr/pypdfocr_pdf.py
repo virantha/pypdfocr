@@ -36,6 +36,7 @@ import base64
 import zlib
 import math
 
+from cgi import escape
 # Pkg to read multiple image tiffs
 from PIL import Image
 from reportlab.pdfgen.canvas import Canvas
@@ -344,7 +345,7 @@ class PyPdf(object):
           normal.fontName = "Helvetica"
           normal.fontSize = font_size
 
-          para = RotatedPara(word.text.strip(), normal, textangle)
+          para = RotatedPara(escape(word.text.strip()), normal, textangle)
           para.wrapOn(pdf, para.minWidth(), 100)  # Not sure what to use as the height  here
           para.drawOn(pdf, x*72/dpi, height - y*72/dpi)
 
