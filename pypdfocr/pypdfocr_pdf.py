@@ -153,6 +153,7 @@ class PyPdf(object):
         for text_pdf_filename in text_pdf_filenames:
             merger.append(PdfFileReader(file(text_pdf_filename, 'rb')))
         merger.write(all_text_filename)
+        merger.close()
 
 
         writer = PdfFileWriter()
@@ -183,7 +184,8 @@ class PyPdf(object):
 
         # Windows sometimes locks the temp text file for no reason, so we need to retry a few times to delete
         for fn in text_pdf_filenames:
-            Retry(partial(os.remove, fn), tries=10, pause=3).call_with_retry() 
+            os.remove(fn)
+            #Retry(partial(os.remove, fn), tries=10, pause=3).call_with_retry() 
 
         os.remove(all_text_filename)
 
