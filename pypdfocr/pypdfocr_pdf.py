@@ -52,7 +52,8 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.enums import TA_LEFT
 from reportlab.platypus.paragraph import Paragraph
 
-
+from pypdfocr_util import Retry
+from functools import partial
 
 class RotatedPara(Paragraph):
     """
@@ -182,16 +183,7 @@ class PyPdf(object):
 
         # Windows sometimes locks the temp text file for no reason, so we need to retry a few times to delete
         for fn in text_pdf_filenames:
-            tries_left = 3
-            while tries_left > 0:
-                try:
-                    os.remove(fn)
-                    tries_left = 0
-                except WindowsError:
-                    logging.info("Problem removing temp file %s... pausing for a second before retrying" % fn)
-                    sleep(1)
-                    logging.info("Retrying...")
-                    tries_left -= 1
+            Retry(partial(os.remove, fn), tries=10, pause=3).call_with_retry() 
 
         os.remove(all_text_filename)
 
