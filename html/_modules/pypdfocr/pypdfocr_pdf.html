@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.8.5 documentation</title>
+    <title>pypdfocr.pypdfocr_pdf &mdash; pypdfocr 0.9.0 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.8.5',
+        VERSION:     '0.9.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.8.5 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.9.0 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.8.5 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.9.0 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -102,6 +102,7 @@
 <span class="kn">import</span> <span class="nn">zlib</span>
 <span class="kn">import</span> <span class="nn">math</span>
 
+<span class="kn">from</span> <span class="nn">cgi</span> <span class="kn">import</span> <span class="n">escape</span>
 <span class="c"># Pkg to read multiple image tiffs</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="kn">from</span> <span class="nn">reportlab.pdfgen.canvas</span> <span class="kn">import</span> <span class="n">Canvas</span>
@@ -113,14 +114,66 @@
 <span class="c"># Import Pypdf2</span>
 <span class="kn">from</span> <span class="nn">PyPDF2</span> <span class="kn">import</span> <span class="n">PdfFileMerger</span><span class="p">,</span> <span class="n">PdfFileReader</span><span class="p">,</span> <span class="n">PdfFileWriter</span><span class="p">,</span> <span class="n">utils</span>
 
+<span class="kn">from</span> <span class="nn">reportlab.lib.styles</span> <span class="kn">import</span> <span class="n">getSampleStyleSheet</span>
+<span class="kn">from</span> <span class="nn">reportlab.lib.enums</span> <span class="kn">import</span> <span class="n">TA_LEFT</span>
+<span class="kn">from</span> <span class="nn">reportlab.platypus.paragraph</span> <span class="kn">import</span> <span class="n">Paragraph</span>
+
+<span class="kn">from</span> <span class="nn">pypdfocr_util</span> <span class="kn">import</span> <span class="n">Retry</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+
+<div class="viewcode-block" id="RotatedPara"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.RotatedPara">[docs]</a><span class="k">class</span> <span class="nc">RotatedPara</span><span class="p">(</span><span class="n">Paragraph</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Used for rotating text, since the low-level rotate method in textobject&#39;s don&#39;t seem to </span>
+<span class="sd">        do anything</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+        <span class="n">Paragraph</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">style</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">=</span> <span class="n">angle</span>
+
+<div class="viewcode-block" id="RotatedPara.draw"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.RotatedPara.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canv</span><span class="o">.</span><span class="n">saveState</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canv</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canv</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span><span class="p">)</span>
+        <span class="n">Paragraph</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canv</span><span class="o">.</span><span class="n">restoreState</span><span class="p">()</span></div>
+<div class="viewcode-block" id="RotatedPara.beginText"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.RotatedPara.beginText">[docs]</a>    <span class="k">def</span> <span class="nf">beginText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canv</span><span class="o">.</span><span class="n">beginText</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">setTextRenderMode</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c"># Set to zero if you want the text to appear</span>
+        <span class="c">#t.setTextRenderMode(0)  # Set to zero if you want the text to appear</span>
+        <span class="k">return</span> <span class="n">t</span>
+</div></div>
 <div class="viewcode-block" id="PyPdf"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf">[docs]</a><span class="k">class</span> <span class="nc">PyPdf</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class to create pdfs from images&quot;&quot;&quot;</span>
+    <span class="c"># Some regexes to compile once</span>
+    <span class="n">regex_bbox</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;bbox((\s+\d+){4})&#39;</span><span class="p">)</span>
+    <span class="n">regex_baseline</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;baseline((\s+[\d\.\-]+){2})&#39;</span><span class="p">)</span>
+    <span class="n">regex_fontspec</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;x_font\s+(.+);\s+x_fsize\s+(\d+)&#39;</span><span class="p">)</span>
+    <span class="n">regex_textangle</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;textangle\s+(\d+)&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">load_invisible_font</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gs</span> <span class="o">=</span> <span class="n">gs</span> <span class="c"># Pointer to ghostscript object</span>
-        <span class="k">pass</span>
 
+
+<div class="viewcode-block" id="PyPdf.get_transform"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.get_transform">[docs]</a>    <span class="k">def</span> <span class="nf">get_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rotation</span><span class="p">,</span> <span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">):</span>
+        <span class="c"># Code taken from here:</span>
+        <span class="c"># http://stackoverflow.com/questions/6041244/how-to-merge-two-landscape-pdf-pages-using-pypdf/17392824#17392824</span>
+        <span class="c"># Unclear why PyPDF2 builtin page rotation functions don&#39;t work</span>
+        <span class="n">translation</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                       <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                       <span class="p">[</span><span class="o">-</span><span class="n">tx</span><span class="p">,</span><span class="o">-</span><span class="n">ty</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">rotation</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">rotation</span><span class="p">)</span>
+        <span class="n">rotating</span> <span class="o">=</span> <span class="p">[[</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rotation</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rotation</span><span class="p">),</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="p">[</span><span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rotation</span><span class="p">),</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rotation</span><span class="p">),</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span>                  <span class="mi">0</span><span class="p">,</span>                  <span class="mi">1</span><span class="p">]]</span>
+        <span class="n">rtranslation</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                       <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                       <span class="p">[</span><span class="n">tx</span><span class="p">,</span><span class="n">ty</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">ctm</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">matrixMultiply</span><span class="p">(</span><span class="n">translation</span><span class="p">,</span> <span class="n">rotating</span><span class="p">)</span>
+        <span class="n">ctm</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">matrixMultiply</span><span class="p">(</span><span class="n">ctm</span><span class="p">,</span> <span class="n">rtranslation</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ctm</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">ctm</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">ctm</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">ctm</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">ctm</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">ctm</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+</div>
 <div class="viewcode-block" id="PyPdf.mergeRotateAroundPointPage"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.mergeRotateAroundPointPage">[docs]</a>    <span class="k">def</span> <span class="nf">mergeRotateAroundPointPage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">page</span><span class="p">,</span> <span class="n">page2</span><span class="p">,</span> <span class="n">rotation</span><span class="p">,</span> <span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">):</span>
         <span class="c"># Code taken from here:</span>
         <span class="c"># http://stackoverflow.com/questions/6041244/how-to-merge-two-landscape-pdf-pages-using-pypdf/17392824#17392824</span>
@@ -159,38 +212,60 @@
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Created temp OCR&#39;ed pdf containing only the text as </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">text_pdf_filename</span><span class="p">))</span>
             <span class="n">text_pdf_filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text_pdf_filename</span><span class="p">)</span>
 
+        <span class="c"># Now, concatenate this text_pdfs into one single file.</span>
+        <span class="c"># This is a hack to save memory/running time when we have to do the actual merge with a writer</span>
+
+        <span class="n">all_text_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pdf_dir</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">_text.pdf&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">basename</span><span class="p">))</span>
+        <span class="n">merger</span> <span class="o">=</span> <span class="n">PdfFileMerger</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">text_pdf_filename</span> <span class="ow">in</span> <span class="n">text_pdf_filenames</span><span class="p">:</span>
+            <span class="n">merger</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PdfFileReader</span><span class="p">(</span><span class="nb">file</span><span class="p">(</span><span class="n">text_pdf_filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)))</span>
+        <span class="n">merger</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">all_text_filename</span><span class="p">)</span>
+        <span class="n">merger</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+	<span class="k">del</span> <span class="n">merger</span>
+
 
         <span class="n">writer</span> <span class="o">=</span> <span class="n">PdfFileWriter</span><span class="p">()</span>
         <span class="n">orig</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">orig_pdf_filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">orig_pg</span><span class="p">,</span> <span class="n">text_pg_filename</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_pdf_page</span><span class="p">(</span><span class="n">orig</span><span class="p">),</span> <span class="n">text_pdf_filenames</span><span class="p">):</span>
-            <span class="n">text_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">text_pg_filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span>
-            <span class="n">text_pg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_pdf_page</span><span class="p">(</span><span class="n">text_file</span><span class="p">)</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
-            <span class="n">orig_rotation_angle</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">orig_pg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;/Rotate&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">text_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">all_text_filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">orig_rotation_angle</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Original Rotation: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">orig_pg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;/Rotate&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">mergeRotateAroundPointPage</span><span class="p">(</span><span class="n">orig_pg</span><span class="p">,</span> <span class="n">text_pg</span><span class="p">,</span> <span class="n">orig_rotation_angle</span><span class="p">,</span> <span class="n">text_pg</span><span class="o">.</span><span class="n">mediaBox</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">text_pg</span><span class="o">.</span><span class="n">mediaBox</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
-
-                <span class="c"># None of these commands worked for me:</span>
-                    <span class="c">#orig_pg.rotateCounterClockwise(orig_rotation_angle)</span>
-                    <span class="c">#orig_pg.mergeRotatedPage(text_pg,text_rotation_angle)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">orig_pg</span><span class="o">.</span><span class="n">mergePage</span><span class="p">(</span><span class="n">text_pg</span><span class="p">)</span>
-            <span class="n">orig_pg</span><span class="o">.</span><span class="n">compressContentStreams</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">orig_pg</span><span class="p">,</span> <span class="n">text_pg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_pdf_page</span><span class="p">(</span><span class="n">orig</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_pdf_page</span><span class="p">(</span><span class="n">text_file</span><span class="p">)):</span>
+            <span class="n">orig_pg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_merged_single_page</span><span class="p">(</span><span class="n">orig_pg</span><span class="p">,</span> <span class="n">text_pg</span><span class="p">)</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">addPage</span><span class="p">(</span><span class="n">orig_pg</span><span class="p">)</span>
 
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="c"># Flush out this page merge so we can close the text_file</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-            <span class="n">text_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pdf_filename</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="c"># Flush out this page merge so we can close the text_file</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
         <span class="n">orig</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">text_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
+        <span class="c"># Windows sometimes locks the temp text file for no reason, so we need to retry a few times to delete</span>
         <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">text_pdf_filenames</span><span class="p">:</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+            <span class="c">#os.remove(fn)</span>
+            <span class="n">Retry</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">,</span> <span class="n">fn</span><span class="p">),</span> <span class="n">tries</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pause</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">call_with_retry</span><span class="p">()</span> 
 
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">all_text_filename</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Created OCR&#39;ed pdf as </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pdf_filename</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="n">pdf_filename</span>
+</div>
+<div class="viewcode-block" id="PyPdf._get_merged_single_page"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf._get_merged_single_page">[docs]</a>    <span class="k">def</span> <span class="nf">_get_merged_single_page</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_page</span><span class="p">,</span> <span class="n">ocr_text_page</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Take two page objects, rotate the text page if necessary, and return the merged page</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">orig_rotation_angle</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">original_page</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;/Rotate&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">orig_rotation_angle</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Original Rotation: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">orig_rotation_angle</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mergeRotateAroundPointPage</span><span class="p">(</span><span class="n">original_page</span><span class="p">,</span> <span class="n">ocr_text_page</span><span class="p">,</span> <span class="n">orig_rotation_angle</span><span class="p">,</span> <span class="n">ocr_text_page</span><span class="o">.</span><span class="n">mediaBox</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">ocr_text_page</span><span class="o">.</span><span class="n">mediaBox</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+            <span class="c"># None of these commands worked for me:</span>
+            <span class="c">#orig_pg.rotateCounterClockwise(orig_rotation_angle)</span>
+            <span class="c">#orig_pg.mergeRotatedPage(text_pg,orig_rotation_angle)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">original_page</span><span class="o">.</span><span class="n">mergePage</span><span class="p">(</span><span class="n">ocr_text_page</span><span class="p">)</span>
+        <span class="n">original_page</span><span class="o">.</span><span class="n">compressContentStreams</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">original_page</span>
+
 </div>
 <div class="viewcode-block" id="PyPdf._get_img_dims"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf._get_img_dims">[docs]</a>    <span class="k">def</span> <span class="nf">_get_img_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -258,11 +333,19 @@
         <span class="k">return</span> <span class="p">[</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoi</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;(\d+)&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span> <span class="p">]</span>
 </div>
 <div class="viewcode-block" id="PyPdf.add_text_layer"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.add_text_layer">[docs]</a>    <span class="k">def</span> <span class="nf">add_text_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">pdf</span><span class="p">,</span> <span class="n">hocrfile</span><span class="p">,</span> <span class="n">page_num</span><span class="p">,</span><span class="n">height</span><span class="p">,</span> <span class="n">dpi</span><span class="p">):</span>
-      <span class="sd">&quot;&quot;&quot;Draw an invisible text layer for OCR data&quot;&quot;&quot;</span>
-      <span class="n">p1</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;bbox((\s+\d+){4})&#39;</span><span class="p">)</span>
-      <span class="n">p2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;baseline((\s+[\d\.\-]+){2})&#39;</span><span class="p">)</span>
+      <span class="sd">&quot;&quot;&quot;Draw an invisible text layer for OCR data.</span>
+
+<span class="sd">        This function really needs to get cleaned up</span>
+<span class="sd">        </span>
+<span class="sd">      &quot;&quot;&quot;</span>
       <span class="n">hocr</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="p">()</span>
-      <span class="n">hocr</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">hocrfile</span><span class="p">)</span>
+      <span class="k">try</span><span class="p">:</span> 
+        <span class="c"># It&#39;s possible tesseract has failed and written garbage to this hocr file, so we need to catch any exceptions</span>
+          <span class="n">hocr</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">hocrfile</span><span class="p">)</span>
+      <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+          <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Error loading hocr, not adding any text&quot;</span><span class="p">)</span>
+          <span class="k">return</span> 
+
       <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">xml</span><span class="o">.</span><span class="n">etree</span><span class="o">.</span><span class="n">ElementTree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">hocr</span><span class="o">.</span><span class="n">getroot</span><span class="p">()))</span>
       <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">hocr</span><span class="o">.</span><span class="n">getroot</span><span class="p">():</span>  <span class="c"># Find the &lt;body&gt; tag</span>
           <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s">&#39;body&#39;</span><span class="p">:</span>
@@ -277,10 +360,15 @@
       <span class="c">#for line in page.findall(&quot;.//span&quot;):</span>
         <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;ocr_line&#39;</span><span class="p">:</span>
           <span class="k">continue</span>
-        <span class="n">linebox</span> <span class="o">=</span> <span class="n">p1</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">linebox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">regex_bbox</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">textangle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">regex_textangle</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">textangle</span><span class="p">:</span>
+            <span class="n">textangle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoi</span><span class="p">(</span><span class="n">textangle</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">textangle</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">try</span><span class="p">:</span>
-          <span class="n">baseline</span> <span class="o">=</span> <span class="n">p2</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+          <span class="n">baseline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">regex_baseline</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
           <span class="n">baseline</span> <span class="o">=</span> <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="p">]</span>
 
@@ -295,61 +383,52 @@
               <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
                   <span class="n">word_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
           <span class="n">word</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">word_text</span><span class="p">)</span>
-          <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-          <span class="c">#for child in word:</span>
-             <span class="c">#if child.tag:</span>
-                 <span class="c">#word.text = child.text</span>
-
           <span class="k">if</span> <span class="n">word</span><span class="o">.</span><span class="n">text</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">continue</span>
-          <span class="n">font_width</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">stringWidth</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="s">&#39;invisible&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-          <span class="k">if</span> <span class="n">font_width</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">continue</span>
-          <span class="n">box</span> <span class="o">=</span> <span class="n">p1</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+          <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;word: </span><span class="si">%s</span><span class="s">, angle: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span> <span class="n">word</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">textangle</span><span class="p">))</span>
+
+
+          <span class="n">box</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">regex_bbox</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+          <span class="c">#b = self.polyval(baseline, (box[0] + box[2]) / 2 - linebox[0]) + linebox[3]</span>
           <span class="n">box</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">box</span><span class="p">]</span>
-          <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span><span class="n">baseline</span><span class="p">,</span> <span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">linebox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="n">linebox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-          <span class="n">text</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">beginText</span><span class="p">()</span>
-          <span class="n">text</span><span class="o">.</span><span class="n">setTextRenderMode</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c"># double invisible</span>
-          <span class="n">text</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="s">&#39;invisible&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-          <span class="n">text</span><span class="o">.</span><span class="n">setTextOrigin</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">72</span> <span class="o">/</span> <span class="n">dpi</span><span class="p">,</span> <span class="n">height</span> <span class="o">-</span> <span class="n">b</span> <span class="o">*</span> <span class="mi">72</span> <span class="o">/</span> <span class="n">dpi</span><span class="p">)</span>
-          <span class="n">box_width</span> <span class="o">=</span> <span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mi">72</span> <span class="o">/</span> <span class="n">dpi</span>
-          <span class="n">text</span><span class="o">.</span><span class="n">setHorizScale</span><span class="p">(</span><span class="mf">100.0</span> <span class="o">*</span> <span class="n">box_width</span> <span class="o">/</span> <span class="n">font_width</span><span class="p">)</span>
-          <span class="n">text</span><span class="o">.</span><span class="n">textLine</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-          <span class="c">#logging.debug( &quot;Pg%s: %s&quot; % (page_num,word.text.strip()))</span>
-          <span class="n">pdf</span><span class="o">.</span><span class="n">drawText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+          <span class="c"># Transform angle to x,y co-ords needed for proper text placement</span>
+          <span class="c"># We only support 0, 90, 180, 270!.  Anything else, we&#39;ll just use the normal orientation for now</span>
+
+          <span class="n">coords</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">0</span><span class="p">:</span> <span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                    <span class="mi">90</span><span class="p">:</span> <span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span>  <span class="c"># facing right</span>
+                    <span class="mi">180</span><span class="p">:</span> <span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="c"># upside down</span>
+                    <span class="mi">270</span><span class="p">:</span> <span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="c"># facing left</span>
+                    <span class="p">}</span>
+          <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">textangle</span><span class="p">,</span> <span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+          <span class="n">style</span> <span class="o">=</span> <span class="n">getSampleStyleSheet</span><span class="p">()</span>
+          <span class="n">normal</span> <span class="o">=</span> <span class="n">style</span><span class="p">[</span><span class="s">&quot;BodyText&quot;</span><span class="p">]</span>
+          <span class="n">normal</span><span class="o">.</span><span class="n">alignment</span> <span class="o">=</span> <span class="n">TA_LEFT</span>
+          <span class="n">normal</span><span class="o">.</span><span class="n">leading</span> <span class="o">=</span> <span class="mi">0</span>
+          <span class="n">font_name</span><span class="p">,</span> <span class="n">font_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_font_spec</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">])</span>
+          <span class="n">normal</span><span class="o">.</span><span class="n">fontName</span> <span class="o">=</span> <span class="s">&quot;Helvetica&quot;</span>
+          <span class="n">normal</span><span class="o">.</span><span class="n">fontSize</span> <span class="o">=</span> <span class="n">font_size</span>
+
+          <span class="n">para</span> <span class="o">=</span> <span class="n">RotatedPara</span><span class="p">(</span><span class="n">escape</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()),</span> <span class="n">normal</span><span class="p">,</span> <span class="n">textangle</span><span class="p">)</span>
+          <span class="n">para</span><span class="o">.</span><span class="n">wrapOn</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">para</span><span class="o">.</span><span class="n">minWidth</span><span class="p">(),</span> <span class="mi">100</span><span class="p">)</span>  <span class="c"># Not sure what to use as the height  here</span>
+          <span class="n">para</span><span class="o">.</span><span class="n">drawOn</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">x</span><span class="o">*</span><span class="mi">72</span><span class="o">/</span><span class="n">dpi</span><span class="p">,</span> <span class="n">height</span> <span class="o">-</span> <span class="n">y</span><span class="o">*</span><span class="mi">72</span><span class="o">/</span><span class="n">dpi</span><span class="p">)</span>
+
+
 </div>
 <div class="viewcode-block" id="PyPdf.polyval"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.polyval">[docs]</a>    <span class="k">def</span> <span class="nf">polyval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">poly</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
       <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">poly</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">poly</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-<span class="c"># Glyphless variation of vedaal&#39;s invisible font retrieved from</span>
-<span class="c"># http://www.angelfire.com/pr/pgpf/if.html, which says:</span>
-<span class="c"># &#39;Invisible font&#39; is unrestricted freeware. Enjoy, Improve, Distribute freely</span></div>
-<div class="viewcode-block" id="PyPdf.load_invisible_font"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf.load_invisible_font">[docs]</a>    <span class="k">def</span> <span class="nf">load_invisible_font</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-      <span class="n">font</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">    eJzdlk1sG0UUx/+zs3btNEmrUKpCPxikSqRS4jpfFURUagmkEQQoiRXgAl07Y3vL2mvt2ml8APXG</span>
-<span class="s">    hQPiUEGEVDhWVHyIC1REPSAhBOWA+BCgSoULUqsKcWhVBKjhzfPU+VCi3Flrdn7vzZv33ryZ3TUE</span>
-<span class="s">    gC6chsTx8fHck1ONd98D0jnS7jn26GPjyMIleZhk9fT0wcHFl1/9GRDPkTxTqHg1dMkzJH9CbbTk</span>
-<span class="s">    xbWlJfKEdB+Np0pBswi+nH/Nvay92VtfJp4nvEztUJkUHXsdksUOkveXK/X5FNuLD838ICx4dv4N</span>
-<span class="s">    I1e8+ZqbxwCNP2jyqXoV/fmhy+WW/2SqFsb1pX68SfEpZ/TCrI3aHzcP//jitodvYmvL+6Xcr5mV</span>
-<span class="s">    vb1ScCzRnPRPfz+LsRSWNasuwRrZlh1sx0E8AriddyzEDfE6EkglFhJDJO5u9fJbFJ0etEMB78D5</span>
-<span class="s">    4Djm/7kjT0wqhSNURyS+u/2MGJKRu+0ExNkrt1pJti9p2x6b3TBJgmUXuzgnDmI8UWMbkVxeinCw</span>
-<span class="s">    Mo311/l/v3rF7+01D+OkZYE0PrbsYAu+sSyxU0jLLtIiYzmBrFiwnCT9FcsdOOK8ZHbFleSn0znP</span>
-<span class="s">    nDCnxbnAnGT9JeYtrP+FOcV8nTlNnsoc3bBAD85adtCNRcsSffjBsoseca/lBE7Q09LiJOm/ttyB</span>
-<span class="s">    0+IqcwfncJt5q4krO5k7jV7uY+5m7mPebuLKUea7iHvk48w72OYF5rvZT8C8k/WvMN/Dc19j3s02</span>
-<span class="s">    bzPvZZv3me9j/ox5P9t/xdzPzPVJcc7yGnPL/1+GO1lPVTXM+VNWOTRRg0YRHgrUK5yj1kvaEA1E</span>
-<span class="s">    xAWiCtl4qJL2ADKkG6Q3XxYjzEcR0E9hCj5KtBd1xCxp6jV5mKP7LJBr1nTRK2h1TvU2w0akCmGl</span>
-<span class="s">    5lWbBzJqMJsdyaijQaCm/FK5HqspHetoTtMsn4LO0T2mlqcwmlTVOT/28wGhCVKiNANKLiJRlxqB</span>
-<span class="s">    F603axQznIzRhDSq6EWZ4UUs+xud0VHsh1U1kMlmNwu9kTuFaRqpURU0VS3PVmZ0iE7gct0MG/8+</span>
-<span class="s">    2fmUvKlfRLYmisd1w8pk1LSu1XUlryM1MNTH9epTftWv+16gIh1oL9abJZyjrfF5a4qccp3oFAcz</span>
-<span class="s">    Wxxx4DpvlaKKxuytRDzeth5rW4W8qBFesvEX8RFRmLBHoB+TpCmRVCCb1gFCruzHqhhW6+qUF6tC</span>
-<span class="s">    pL26nlWN2K+W1LhRjxlVGKmRTFYVo7CiJug09E+GJb+QocMCPMWBK1wvEOfRFF2U0klK8CppqqvG</span>
-<span class="s">    pylRc2Zn+XDQWZIL8iO5KC9S+1RekOex1uOyZGR/w/Hf1lhzqVfFsxE39B/ws7Rm3N3nDrhPuMfc</span>
-<span class="s">    w3R/aE28KsfY2J+RPNp+j+KaOoCey4h+Dd48b9O5G0v2K7j0AM6s+5WQ/E0wVoK+pA6/3bup7bJf</span>
-<span class="s">    CMGjwvxTsr74/f/F95m3TH9x8o0/TU//N+7/D/ScVcA=</span>
-<span class="s">    &quot;&quot;&quot;</span>
-      <span class="n">ttf</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="n">zlib</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">base64</span><span class="o">.</span><span class="n">decodestring</span><span class="p">(</span><span class="n">font</span><span class="p">)))</span>
-      <span class="n">pdfmetrics</span><span class="o">.</span><span class="n">registerFont</span><span class="p">(</span><span class="n">TTFont</span><span class="p">(</span><span class="s">&#39;invisible&#39;</span><span class="p">,</span> <span class="n">ttf</span><span class="p">))</span>
-</pre></div></div></div>
+</div>
+<div class="viewcode-block" id="PyPdf._get_font_spec"><a class="viewcode-back" href="../../pypdfocr.html#pypdfocr.pypdfocr_pdf.PyPdf._get_font_spec">[docs]</a>    <span class="k">def</span> <span class="nf">_get_font_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fontspec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">regex_fontspec</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+            <span class="n">fontname</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="n">fontspec</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">fontname</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+            <span class="n">fontsize</span> <span class="o">=</span> <span class="s">&quot;8&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">fontname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atoi</span><span class="p">(</span><span class="n">fontsize</span><span class="p">))</span></div></div>
+</pre></div>
 
           </div>
         </div>
@@ -365,7 +444,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.8.5 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.9.0 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>

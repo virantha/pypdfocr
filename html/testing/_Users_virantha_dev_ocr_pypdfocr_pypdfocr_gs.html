@@ -5,7 +5,7 @@
     
     
     <meta http-equiv='X-UA-Compatible' content='IE=emulateIE7' />
-    <title>Coverage for /Users/virantha/dev/ocr/pypdfocr/pypdfocr_gs: 63%</title>
+    <title>Coverage for /Users/virantha/dev/ocr/pypdfocr/pypdfocr_gs: 64%</title>
     <link rel='stylesheet' href='style.css' type='text/css'>
     
     <script type='text/javascript' src='jquery.min.js'></script>
@@ -21,13 +21,13 @@
 <div id='header'>
     <div class='content'>
         <h1>Coverage for <b>/Users/virantha/dev/ocr/pypdfocr/pypdfocr_gs</b> :
-            <span class='pc_cov'>63%</span>
+            <span class='pc_cov'>64%</span>
         </h1>
         <img id='keyboard_icon' src='keybd_closed.png'>
         <h2 class='stats'>
             123 statements &nbsp;
-            <span class='run hide_run shortkey_r button_toggle_run'>77 run</span>
-            <span class='mis shortkey_m button_toggle_mis'>46 missing</span>
+            <span class='run hide_run shortkey_r button_toggle_run'>79 run</span>
+            <span class='mis shortkey_m button_toggle_mis'>44 missing</span>
             <span class='exc shortkey_x button_toggle_exc'>0 excluded</span>
             
         </h2>
@@ -175,7 +175,7 @@
 <p id='n112' class='stm mis'><a href='#n112'>112</a></p>
 <p id='n113' class='pln'><a href='#n113'>113</a></p>
 <p id='n114' class='stm run hide_run'><a href='#n114'>114</a></p>
-<p id='n115' class='stm mis'><a href='#n115'>115</a></p>
+<p id='n115' class='stm run hide_run'><a href='#n115'>115</a></p>
 <p id='n116' class='pln'><a href='#n116'>116</a></p>
 <p id='n117' class='stm run hide_run'><a href='#n117'>117</a></p>
 <p id='n118' class='stm run hide_run'><a href='#n118'>118</a></p>
@@ -218,7 +218,7 @@
 <p id='n155' class='stm run hide_run'><a href='#n155'>155</a></p>
 <p id='n156' class='stm run hide_run'><a href='#n156'>156</a></p>
 <p id='n157' class='stm run hide_run'><a href='#n157'>157</a></p>
-<p id='n158' class='stm mis'><a href='#n158'>158</a></p>
+<p id='n158' class='stm run hide_run'><a href='#n158'>158</a></p>
 <p id='n159' class='pln'><a href='#n159'>159</a></p>
 <p id='n160' class='stm run hide_run'><a href='#n160'>160</a></p>
 <p id='n161' class='pln'><a href='#n161'>161</a></p>
@@ -397,7 +397,7 @@
 <p id='t112' class='stm mis'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>error</span><span class='op'>(</span><span class='nam'>self</span><span class='op'>.</span><span class='nam'>msgs</span><span class='op'>[</span><span class='str'>&#39;GS_MISSING_BINARY&#39;</span><span class='op'>]</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t113' class='pln'><span class='strut'>&nbsp;</span></p>
 <p id='t114' class='stm run hide_run'>&nbsp; &nbsp; <span class='key'>def</span> <span class='nam'>_warn</span><span class='op'>(</span><span class='nam'>self</span><span class='op'>,</span> <span class='nam'>msg</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
-<p id='t115' class='stm mis'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>print</span><span class='op'>(</span><span class='str'>&quot;WARNING: %s&quot;</span> <span class='op'>%</span> <span class='nam'>msg</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
+<p id='t115' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>print</span><span class='op'>(</span><span class='str'>&quot;WARNING: %s&quot;</span> <span class='op'>%</span> <span class='nam'>msg</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t116' class='pln'><span class='strut'>&nbsp;</span></p>
 <p id='t117' class='stm run hide_run'>&nbsp; &nbsp; <span class='key'>def</span> <span class='nam'>_get_dpi</span><span class='op'>(</span><span class='nam'>self</span><span class='op'>,</span> <span class='nam'>pdf_filename</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t118' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>if</span> <span class='key'>not</span> <span class='nam'>os</span><span class='op'>.</span><span class='nam'>path</span><span class='op'>.</span><span class='nam'>exists</span><span class='op'>(</span><span class='nam'>pdf_filename</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
@@ -440,7 +440,7 @@
 <p id='t155' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>ydpi</span><span class='op'>&gt;</span><span class='nam'>xdpi</span><span class='op'>:</span> <span class='nam'>self</span><span class='op'>.</span><span class='nam'>output_dpi</span> <span class='op'>=</span> <span class='nam'>ydpi</span><span class='strut'>&nbsp;</span></p>
 <p id='t156' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>self</span><span class='op'>.</span><span class='nam'>output_dpi</span> <span class='op'>&lt;</span> <span class='num'>300</span><span class='op'>:</span> <span class='nam'>self</span><span class='op'>.</span><span class='nam'>output_dpi</span> <span class='op'>=</span> <span class='num'>300</span><span class='strut'>&nbsp;</span></p>
 <p id='t157' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>if</span> <span class='nam'>abs</span><span class='op'>(</span><span class='nam'>xdpi</span><span class='op'>-</span><span class='nam'>ydpi</span><span class='op'>)</span> <span class='op'>&gt;</span> <span class='nam'>xdpi</span><span class='op'>*</span><span class='num'>.05</span><span class='op'>:</span>&nbsp; <span class='com'># Make sure the two dpi&#39;s are within 5%</span><span class='strut'>&nbsp;</span></p>
-<p id='t158' class='stm mis'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>self</span><span class='op'>.</span><span class='nam'>_warn</span><span class='op'>(</span><span class='str'>&quot;X-dpi is %d, Y-dpi is %d, defaulting to %d&quot;</span> <span class='op'>%</span> <span class='op'>(</span><span class='nam'>xdpi</span><span class='op'>,</span> <span class='nam'>ydpi</span><span class='op'>,</span> <span class='nam'>self</span><span class='op'>.</span><span class='nam'>output_dpi</span><span class='op'>)</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
+<p id='t158' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>self</span><span class='op'>.</span><span class='nam'>_warn</span><span class='op'>(</span><span class='str'>&quot;X-dpi is %d, Y-dpi is %d, defaulting to %d&quot;</span> <span class='op'>%</span> <span class='op'>(</span><span class='nam'>xdpi</span><span class='op'>,</span> <span class='nam'>ydpi</span><span class='op'>,</span> <span class='nam'>self</span><span class='op'>.</span><span class='nam'>output_dpi</span><span class='op'>)</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t159' class='pln'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>else</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t160' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>print</span><span class='op'>(</span><span class='str'>&quot;Using %d DPI&quot;</span> <span class='op'>%</span> <span class='nam'>self</span><span class='op'>.</span><span class='nam'>output_dpi</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t161' class='pln'><span class='strut'>&nbsp;</span></p>

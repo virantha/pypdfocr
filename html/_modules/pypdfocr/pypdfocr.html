@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypdfocr.pypdfocr &mdash; pypdfocr 0.8.5 documentation</title>
+    <title>pypdfocr.pypdfocr &mdash; pypdfocr 0.9.0 documentation</title>
     
     <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.8.5',
+        VERSION:     '0.9.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="pypdfocr 0.8.5 documentation" href="../../index.html" />
+    <link rel="top" title="pypdfocr 0.9.0 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -36,7 +36,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.8.5 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.9.0 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>
@@ -204,8 +204,12 @@
         <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;-l&#39;</span><span class="p">,</span> <span class="s">&#39;--lang&#39;</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="s">&#39;eng&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;lang&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Language(default eng)&#39;</span><span class="p">)</span>
 
+
+        <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--preprocess&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;preprocess&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Enable preprocessing.  Not really useful now with improved Tesseract 3.04+&#39;</span><span class="p">)</span>
+        
         <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--skip-preprocess&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
-                <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;skip_preprocess&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Skip preprocessing (saves time) if your pdf is in good shape already&#39;</span><span class="p">)</span>
+                <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&#39;skip_preprocess&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;DEPRECATED: always skips now.&#39;</span><span class="p">)</span>
 
         <span class="c">#---------</span>
         <span class="c"># Single or watch mode</span>
@@ -243,7 +247,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">watch_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">watch_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">enable_email</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">mail</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">match_using_filename</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">match_using_filename</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">skip_preprocess</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_preprocess</span>
+
+
+        <span class="c"># Deprecating skip_preprocess to make skipping the default (always true). Tesseract 3.04 is so much better now</span>
+        <span class="c"># at handling non-ideal inputs and lines</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_preprocess</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Warning: --skip_preprocess is not needed anymore (defaults to skipping preprocessing).  If you want to enable preprocessing, use the new --preprocess option&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_preprocess</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">preprocess</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skip_preprocess</span> <span class="o">=</span> <span class="bp">False</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">)</span>
@@ -562,7 +575,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">pypdfocr 0.8.5 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">pypdfocr 0.9.0 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
