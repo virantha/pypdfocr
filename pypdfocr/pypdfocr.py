@@ -138,8 +138,12 @@ class PyPDFOCR(object):
         p.add_argument('-l', '--lang',
             default='eng', dest='lang', help='Language(default eng)')
 
+
+        p.add_argument('--preprocess', action='store_true',
+                default=False, dest='preprocess', help='Enable preprocessing.  Not really useful now with improved Tesseract 3.04+')
+        
         p.add_argument('--skip-preprocess', action='store_true',
-                default=False, dest='skip_preprocess', help='Skip preprocessing (saves time) if your pdf is in good shape already')
+                default=False, dest='skip_preprocess', help='DEPRECATED: always skips now.')
 
         #---------
         # Single or watch mode
@@ -177,7 +181,16 @@ class PyPDFOCR(object):
         self.watch_dir = args.watch_dir
         self.enable_email = args.mail
         self.match_using_filename = args.match_using_filename
-        self.skip_preprocess = args.skip_preprocess
+
+
+        # Deprecating skip_preprocess to make skipping the default (always true). Tesseract 3.04 is so much better now
+        # at handling non-ideal inputs and lines
+        if args.skip_preprocess:
+            print("Warning: --skip_preprocess is not needed anymore (defaults to skipping preprocessing).  If you want to enable preprocessing, use the new --preprocess option")
+        self.skip_preprocess = True
+
+        if args.preprocess:
+            self.skip_preprocess = False
 
         if self.debug:
             logging.basicConfig(level=logging.DEBUG, format='%(message)s')

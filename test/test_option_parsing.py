@@ -21,6 +21,10 @@ class TestOptions:
         self.p.get_options(opts)
         assert(self.p.verbose)
 
+        opts.append('--preprocess')
+        self.p.get_options(opts)
+        assert(not self.p.skip_preprocess)
+
         assert(not self.p.enable_filing)
         assert(self.p.config == {})
 

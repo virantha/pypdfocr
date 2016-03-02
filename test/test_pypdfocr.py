@@ -42,6 +42,8 @@ class TestPydfocr:
                            ]),
             (".", os.path.join("temp","target","recipe"), os.path.join("..","test", "pdfs", "1.pdf"), [ ["Simply","Recipes"],
                                  ]),
+            (".", os.path.join("temp","target","recipe"), os.path.join("..","test", "pdfs", "test_recipe_sideways.pdf"), [ ["Simply","Recipes", 'spinach'],
+                                 ]),
         ]
 
     #@pytest.mark.skipif(True, reason="Just testing")
@@ -93,7 +95,7 @@ class TestPydfocr:
         with patch("smtplib.SMTP") as mock_smtp:
             cwd = os.getcwd()
             os.chdir(dirname)
-            opts = [filename, "--config=test_pypdfocr_config.yaml", "-m"]
+            opts = [filename, "--preprocess", "--config=test_pypdfocr_config.yaml", "-m"]
             self.p.go(opts)
 
             out_filename = filename.replace(".pdf", "_ocr.pdf")
