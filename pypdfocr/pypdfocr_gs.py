@@ -124,7 +124,7 @@ class PyGs(object):
         try:
             out = subprocess.check_output(cmd, shell=True)
         except subprocess.CalledProcessError as e:
-            self._warn ("Could not execute pdfimages to calculate DPI (try installing xpdf or poppler?), so defaulting to %sdpi" % self.output_dpi) 
+            self._warn ("Could not execute pdfimages to calculate DPI (try installing xpdf or poppler?), so defaulting to %sdpi" % self.output_dpi)
             return
 
         # Need the second line of output
@@ -137,7 +137,7 @@ class PyGs(object):
         logging.debug(results)
         results = results.split()
         if(results[2] != 'image'):
-            self._warn("Could not understand output of pdfimages, please rerun with -d option and file an issue at http://github.com/virantha/pypdfocr/issues") 
+            self._warn("Could not understand output of pdfimages, please rerun with -d option and file an issue at http://github.com/virantha/pypdfocr/issues")
             return
         x_pt, y_pt, greyscale = int(results[3]), int(results[4]), results[5]=='gray'
         self.greyscale = greyscale
@@ -146,7 +146,13 @@ class PyGs(object):
         cmd = 'identify -format "%%w %%x %%h %%y\n" "%s"' % pdf_filename
         try:
             out = subprocess.check_output(cmd, shell=True)
-            results = out.splitlines()[0]
+
+            # skip any lines starting with "*** Warning"
+            out_splitlines = out.splitlines()
+            while "* Warning:" in  out_splitlines[0]:
+                out_splitlines = out_splitlines[1:]
+            results = out_splitlines[0]
+
             results = results.replace("Undefined", "")
             width, xdensity, height, ydensity = [float(x) for x in results.split()]
             xdpi = round(x_pt/width*xdensity)
@@ -161,8 +167,9 @@ class PyGs(object):
 
 
         except Exception as e:
+            logging.debug(cmd)
             logging.debug(str(e))
-            self._warn ("Could not execute identify to calculate DPI (try installing imagemagick?), so defaulting to %sdpi" % self.output_dpi) 
+            self._warn ("Could not execute identify to calculate DPI (try installing imagemagick?), so defaulting to %sdpi" % self.output_dpi)
         return
 
 
@@ -170,7 +177,7 @@ class PyGs(object):
     def _run_gs(self, options, output_filename, pdf_filename):
         try:
             cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s" "%s" -c quit' % (self.binary, options, output_filename, pdf_filename)
-            logging.info(cmd)        
+            logging.info(cmd)
             out = subprocess.check_output(cmd, shell=True)
 
         except subprocess.CalledProcessError as e:
