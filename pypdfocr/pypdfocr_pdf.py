@@ -152,7 +152,8 @@ class PyPdf(object):
         all_text_filename = os.path.join(pdf_dir, "%s_text.pdf" % (basename))
         merger = PdfFileMerger()
         for text_pdf_filename in text_pdf_filenames:
-            merger.append(PdfFileReader(file(text_pdf_filename, 'rb')))
+            with open(text_pdf_filename, 'rb') as file:
+                    merger.append(PdfFileReader(file))
         merger.write(all_text_filename)
         merger.close()
 	del merger
