@@ -91,6 +91,8 @@ class PyTesseract(object):
         for line in ret_output.splitlines():
             if 'tesseract' in line:
                 ver_str = line.split(' ')[1]
+                if ver_str.endswith('dev'): # Fix for version strings that end in 'dev'
+                    ver_str = ver_str[:-3]
 
         # Iterate through the version dots
         ver = [int(x) for x in ver_str.split('.')]
