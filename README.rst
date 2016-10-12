@@ -305,7 +305,7 @@ External Dependencies
 PyPDFOCR relies on the following (free) programs being installed and in
 the path:
 
--  Tesseract OCR software https://code.google.com/p/tesseract-ocr/
+-  Tesseract OCR software https://github.com/tesseract-ocr/tesseract
 -  GhostScript http://www.ghostscript.com/
 -  ImageMagick http://www.imagemagick.org/
 -  Poppler http://poppler.freedesktop.org/  (`Windows <http://sourceforge.net/projects/poppler-win32/>`__)
