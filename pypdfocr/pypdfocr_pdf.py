@@ -155,7 +155,7 @@ class PyPdf(object):
             merger.append(PdfFileReader(file(text_pdf_filename, 'rb')))
         merger.write(all_text_filename)
         merger.close()
-	del merger
+        del merger
 
 
         writer = PdfFileWriter()
@@ -191,10 +191,10 @@ class PyPdf(object):
 
         if orig_rotation_angle != 0:
             logging.info("Original Rotation: %s" % orig_rotation_angle)
-            self.mergeRotateAroundPointPage(original_page, ocr_text_page, orig_rotation_angle, ocr_text_page.mediaBox.getWidth()/2, ocr_text_page.mediaBox.getWidth()/2)
+            self.mergeRotateAroundPointPage(original_page, ocr_text_page, orig_rotation_angle, ocr_text_page.mediaBox.getWidth()/2, ocr_text_page.mediaBox.getHeight()/2)
             # None of these commands worked for me:
-            #orig_pg.rotateCounterClockwise(orig_rotation_angle)
-            #orig_pg.mergeRotatedPage(text_pg,orig_rotation_angle)
+            #original_page.rotateCounterClockwise(orig_rotation_angle)
+            #original_page.mergeRotatedPage(ocr_text_page,orig_rotation_angle)
         else:
             original_page.mergePage(ocr_text_page)
         original_page.compressContentStreams()
