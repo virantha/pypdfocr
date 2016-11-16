@@ -111,7 +111,7 @@ will happen in sub-directories under this directory.
 
 The ``folders`` section defines your filing directories and the keywords
 associated with them. In this example, we have three filing directories
-(finances, travl, receipts), and some associated keywords for each
+(finances, travel, receipts), and some associated keywords for each
 filing directory. For example, if your OCR'ed PDF contains the phrase
 "american express" (in any upper/lower case), it will be filed into
 ``docs/filed/finances``
@@ -250,7 +250,7 @@ PyPDFOCR is available in PyPI, so you can just run:
 
     pip install pypdfocr
 
-Please note that some of the 3rd-party libraries required by PyPDFOCR wiill
+Please note that some of the 3rd-party libraries required by PyPDFOCR will
 require some build tools, especially on a default Ubuntu system.  If you run
 into any issues using pip install, you may want to install the
 following packages on Ubuntu and try again:
