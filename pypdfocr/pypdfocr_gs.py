@@ -143,7 +143,7 @@ class PyGs(object):
         self.greyscale = greyscale
 
         # Now, run imagemagick identify to get pdf width/height/density
-        cmd = 'identify -format "%%w %%x %%h %%y\n" "%s"' % pdf_filename
+        cmd = 'identify -format "%%w %%x %%h %%y\\n" "%s"' % pdf_filename
         try:
             out = subprocess.check_output(cmd, shell=True)
             results = out.splitlines()[0]
