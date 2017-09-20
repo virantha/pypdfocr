@@ -19,7 +19,7 @@ import hashlib
 import time
 import sys
 
-from pypdfocr_filer import PyFiler
+from .pypdfocr_filer import PyFiler
 
 import functools
 
@@ -87,7 +87,7 @@ class PyFilerEvernote(PyFiler):
         return self._target_folder
     def set_target_folder (self, target_folder):
         """ Override this to make sure we only have the basename"""
-        print("Setting target_folder %s" % target_folder)
+        print(("Setting target_folder %s" % target_folder))
         if target_folder:
             self._target_folder = os.path.basename(target_folder)
         else:
@@ -134,14 +134,14 @@ class PyFilerEvernote(PyFiler):
             user = self.user_store.getUser()
         except EDAMUserException as e:
             err = e.errorCode
-            print("Error attempting to authenticate to Evernote: %s - %s" % (EDAMErrorCode._VALUES_TO_NAMES[err], e.parameter))
+            print(("Error attempting to authenticate to Evernote: %s - %s" % (EDAMErrorCode._VALUES_TO_NAMES[err], e.parameter)))
         except EDAMSystemException as e:
             err = e.errorCode
-            print("Error attempting to authenticate to Evernote: %s - %s" % (EDAMErrorCode._VALUES_TO_NAMES[err], e.message))
+            print(("Error attempting to authenticate to Evernote: %s - %s" % (EDAMErrorCode._VALUES_TO_NAMES[err], e.message)))
             sys.exit(-1)
 
         if user:
-            print("Authenticated to evernote as user %s" % user.username)
+            print(("Authenticated to evernote as user %s" % user.username))
         return True
 
     def add_folder_target(self, folder, keywords):
@@ -274,9 +274,9 @@ class PyFilerEvernote(PyFiler):
             logging.info("[MATCH] %s --> %s" % (filename, foldername))
 
         # Check if the evernote notebook exists
-        print ("Checking for notebook named %s" % foldername)
+        print(("Checking for notebook named %s" % foldername))
         notebook = self._check_and_make_notebook(foldername)
-        print("Uploading %s to %s" % (filename, foldername))
+        print(("Uploading %s to %s" % (filename, foldername)))
         
         note = self._create_evernote_note(notebook, filename)
 

@@ -21,27 +21,27 @@ import shutil, glob
 import itertools
 from functools import wraps
 
-from version import __version__
+from .version import __version__
 from PIL import Image
 import yaml
 
 import multiprocessing
 # Replace the Popen routine to allow win32 pyinstaller to build
 from multiprocessing import forking
-from pypdfocr_multiprocessing import _Popen
+from .pypdfocr_multiprocessing import _Popen
 forking.Popen = _Popen
 
-from pypdfocr_pdf import PyPdf
-from pypdfocr_tesseract import PyTesseract
-from pypdfocr_gs import PyGs
-from pypdfocr_watcher import PyPdfWatcher
-from pypdfocr_pdffiler import PyPdfFiler
-from pypdfocr_filer_dirs import PyFilerDirs
-from pypdfocr_filer_evernote import PyFilerEvernote
-from pypdfocr_preprocess import PyPreprocess
+from .pypdfocr_pdf import PyPdf
+from .pypdfocr_tesseract import PyTesseract
+from .pypdfocr_gs import PyGs
+from .pypdfocr_watcher import PyPdfWatcher
+from .pypdfocr_pdffiler import PyPdfFiler
+from .pypdfocr_filer_dirs import PyFilerDirs
+from .pypdfocr_filer_evernote import PyFilerEvernote
+from .pypdfocr_preprocess import PyPreprocess
 
 def error(text):
-    print("ERROR: %s" % text)
+    print(("ERROR: %s" % text))
     sys.exit(-1)
 
 # decorator to retry multiple times
@@ -299,7 +299,7 @@ class PyPDFOCR(object):
         keyword_count = 0
         folder_count = 0
         if 'folders' in self.config:
-            for folder, keywords in self.config['folders'].items():
+            for folder, keywords in list(self.config['folders'].items()):
                 folder_count +=1
                 keyword_count += len(keywords)
                 # Make sure keywords are lower-cased before adding
@@ -307,8 +307,8 @@ class PyPDFOCR(object):
                 self.filer.add_folder_target(folder, keywords)
 
         print ("Filing of PDFs is enabled")
-        print (" - %d target filing folders" % (folder_count))
-        print (" - %d keywords" % (keyword_count))
+        print((" - %d target filing folders" % (folder_count)))
+        print((" - %d keywords" % (keyword_count)))
 
     
     def _setup_external_tools(self):
@@ -337,7 +337,7 @@ class PyPDFOCR(object):
             :returns: OCR'ed PDF
             :rtype: filename string
         """
-        print ("Starting conversion of %s" % pdf_filename)
+        print(("Starting conversion of %s" % pdf_filename))
         try:
             # Make the images for Tesseract
             img_dpi, glob_img_filename = self.gs.make_img_from_pdf(pdf_filename)
@@ -367,11 +367,11 @@ class PyPDFOCR(object):
             time.sleep(1)
             if not self.debug:
                 # Need to clean up the original image files before preprocessing
-                if locals().has_key("fns"): # Have to check if this was set before exception raised
+                if "fns" in locals(): # Have to check if this was set before exception raised
                     logging.info("Cleaning up %s" % fns)
                     self._clean_up_files(fns)
 
-                if locals().has_key("preprocess_imagefilenames"):  # Have to check if this was set before exception raised
+                if "preprocess_imagefilenames" in locals():  # Have to check if this was set before exception raised
                     logging.info("Cleaning up %s" % preprocess_imagefilenames)
                     self._clean_up_files(preprocess_imagefilenames) # splat the hocr_filenames as it is a list of pairs
                     for ext in [".hocr", ".html", ".txt"]:
@@ -384,7 +384,7 @@ class PyPDFOCR(object):
                     #self._clean_up_files([x[1].replace(".hocr", ".txt") for x in hocr_filenames])
 
 
-        print ("Completed conversion successfully to %s" % ocr_pdf_filename)
+        print(("Completed conversion successfully to %s" % ocr_pdf_filename))
         return ocr_pdf_filename
 
     def file_converted_file(self, ocr_pdffilename, original_pdffilename):
@@ -399,11 +399,11 @@ class PyPDFOCR(object):
             "rtype: string
         """
         filed_path = self.pdf_filer.move_to_matching_folder(ocr_pdffilename)  
-        print("Filed %s to %s as %s" % (ocr_pdffilename, os.path.dirname(filed_path), os.path.basename(filed_path)))
+        print(("Filed %s to %s as %s" % (ocr_pdffilename, os.path.dirname(filed_path), os.path.basename(filed_path))))
 
         tgt_path = self.pdf_filer.file_original(original_pdffilename)
         if tgt_path != original_pdffilename:
-            print("Filed original file %s to %s as %s" % (original_pdffilename, os.path.dirname(tgt_path), os.path.basename(tgt_path)))
+            print(("Filed original file %s to %s as %s" % (original_pdffilename, os.path.dirname(tgt_path), os.path.basename(tgt_path))))
         return os.path.dirname(filed_path)
 
   
@@ -467,7 +467,7 @@ class PyPDFOCR(object):
                 except KeyboardInterrupt:
                     break
                 except Exception as e:
-                    print traceback.print_exc(e)
+                    print(traceback.print_exc(e))
                     py_watcher.stop()
                     
         else:

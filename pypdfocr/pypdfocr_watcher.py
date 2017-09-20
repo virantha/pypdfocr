@@ -40,7 +40,7 @@ class PyPdfWatcher(FileSystemEventHandler):
         self.observer = Observer()
         self.observer.schedule(self, self.monitor_dir)
         self.observer.start()
-        print("Starting to watch for new pdfs in %s" % (self.monitor_dir))
+        print(("Starting to watch for new pdfs in %s" % (self.monitor_dir)))
         while True:
             logging.info("Sleeping for %d seconds" % self.scan_interval)
             time.sleep(self.scan_interval)
@@ -134,7 +134,7 @@ class PyPdfWatcher(FileSystemEventHandler):
         """
         now = time.time()
         PyPdfWatcher.events_lock.acquire()
-        for monitored_file, timestamp in PyPdfWatcher.events.items():
+        for monitored_file, timestamp in list(PyPdfWatcher.events.items()):
             if timestamp == -1:
                 del PyPdfWatcher.events[monitored_file]
             elif now - timestamp > self.scan_interval:

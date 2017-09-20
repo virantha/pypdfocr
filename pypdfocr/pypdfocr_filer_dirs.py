@@ -16,7 +16,7 @@ import logging
 import os
 import shutil
 
-from pypdfocr_filer import PyFiler
+from .pypdfocr_filer import PyFiler
 
 """
     Implementation of a filer class 

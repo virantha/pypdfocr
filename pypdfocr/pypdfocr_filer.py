@@ -14,12 +14,11 @@
 import abc
 import os, logging
 
-class PyFiler(object):
+class PyFiler(object, metaclass=abc.ABCMeta):
     """ Abstract base class for defining filing objects, whether you want to 
     save to a file-system/directory structure or to something like Evernote
 
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def move_to_matching_folder(self, filename):

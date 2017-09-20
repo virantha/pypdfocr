@@ -26,10 +26,10 @@ import glob
 from subprocess import CalledProcessError
 
 from multiprocessing import Pool
-from pypdfocr_interrupts import init_worker
+from .pypdfocr_interrupts import init_worker
 
 def error(text):
-    print("ERROR: %s" % text)
+    print(("ERROR: %s" % text))
     sys.exit(-1)
 
 # Ugly hack to pass in object method to the multiprocessing library
@@ -125,7 +125,7 @@ class PyTesseract(object):
         return version_good, ver_str
 
     def _warn(self, msg): # pragma: no cover
-        print("WARNING: %s" % msg)
+        print(("WARNING: %s" % msg))
 
 
     def make_hocr_from_pnms(self, fns):
@@ -139,7 +139,7 @@ class PyTesseract(object):
         pool = Pool(processes=self.threads, initializer=init_worker)
 
         try:
-            hocr_filenames = pool.map(unwrap_self, zip([self]*len(fns), fns))
+            hocr_filenames = pool.map(unwrap_self, list(zip([self]*len(fns), fns)))
             pool.close()
         except KeyboardInterrupt or Exception:
             print("Caught keyboard interrupt... terminating")
@@ -148,7 +148,7 @@ class PyTesseract(object):
         finally:
             pool.join()
 
-        return zip(fns,hocr_filenames)
+        return list(zip(fns,hocr_filenames))
 
 
     def make_hocr_from_pnm(self, img_filename):
@@ -166,7 +166,7 @@ class PyTesseract(object):
             ret_output = subprocess.check_output(cmd, shell=True,  stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
             # Could not run tesseract
-            print e.output
+            print(e.output)
             self._warn (self.msgs['TS_FAILED'])
                 
         if os.path.isfile(hocr_filename):

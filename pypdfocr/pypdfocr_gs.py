@@ -26,7 +26,7 @@ import logging
 import glob
 
 def error(text):
-    print("ERROR: %s" % text)
+    print(("ERROR: %s" % text))
     exit(-1)
 
 class PyGs(object):
@@ -112,7 +112,7 @@ class PyGs(object):
             error(self.msgs['GS_MISSING_BINARY'])
 
     def _warn(self, msg):
-        print("WARNING: %s" % msg)
+        print(("WARNING: %s" % msg))
 
     def _get_dpi(self, pdf_filename):
         if not os.path.exists(pdf_filename):
@@ -157,7 +157,7 @@ class PyGs(object):
             if abs(xdpi-ydpi) > xdpi*.05:  # Make sure the two dpi's are within 5%
                 self._warn("X-dpi is %d, Y-dpi is %d, defaulting to %d" % (xdpi, ydpi, self.output_dpi))
             else:
-                print("Using %d DPI" % self.output_dpi)
+                print(("Using %d DPI" % self.output_dpi))
 
 
         except Exception as e:
@@ -174,7 +174,7 @@ class PyGs(object):
             out = subprocess.check_output(cmd, shell=True)
 
         except subprocess.CalledProcessError as e:
-            print e.output
+            print(e.output)
             if "undefined in .getdeviceparams" in e.output:
                 error(self.msgs['GS_OUTDATED'])
             else:

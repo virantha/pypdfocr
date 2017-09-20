@@ -31,7 +31,7 @@ import time
 import tempfile
 import glob
 
-import cStringIO
+import io
 import base64
 import zlib
 import math
@@ -52,7 +52,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.enums import TA_LEFT
 from reportlab.platypus.paragraph import Paragraph
 
-from pypdfocr_util import Retry
+from .pypdfocr_util import Retry
 from functools import partial
 
 class RotatedPara(Paragraph):
