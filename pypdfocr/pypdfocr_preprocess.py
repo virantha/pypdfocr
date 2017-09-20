@@ -28,7 +28,7 @@ import functools
 import signal
 
 from multiprocessing import Pool
-from pypdfocr_interrupts import init_worker
+from .pypdfocr_interrupts import init_worker
 
 # Ugly hack to pass in object method to the multiprocessing library
 # From http://www.rueckstiess.net/research/snippets/show/ca1d7d90
@@ -47,7 +47,7 @@ class PyPreprocess(object):
         self.threads = config.get('threads', 4)
 
     def _warn(self, msg): # pragma: no cover
-        print("WARNING: %s" % msg)
+        print(("WARNING: %s" % msg))
 
     def cmd(self, cmd_list):
         if isinstance(cmd_list, list):
@@ -58,7 +58,7 @@ class PyPreprocess(object):
             logging.debug(out)
             return out
         except subprocess.CalledProcessError as e:
-            print e.output
+            print(e.output)
             self._warn("Could not run command %s" % cmd_list)
             
 
@@ -100,7 +100,7 @@ class PyPreprocess(object):
         pool = Pool(processes=self.threads, initializer=init_worker)
         try:
             logging.info("Starting preprocessing parallel execution")
-            preprocessed_filenames = pool.map(unwrap_self,zip([self]*len(fns),fns))
+            preprocessed_filenames = pool.map(unwrap_self,list(zip([self]*len(fns),fns)))
             pool.close()
         except KeyboardInterrupt or Exception:
             print("Caught keyboard interrupt... terminating")
