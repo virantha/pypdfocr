@@ -15,7 +15,9 @@ class TestPDFFiler:
         # Mock the move function so we don't actually end up filing
         p = P.PyPDFOCR()
         cwd = os.getcwd()
-        filename = os.path.join("pdfs", "test_super_long_keyword.pdf")
+        filename = os.path.join(os.path.dirname(__file__),
+                                "pdfs",
+                                "test_super_long_keyword.pdf")
         out_filename = filename.replace(".pdf", "_ocr.pdf")
 
         if os.path.exists(out_filename):
@@ -23,7 +25,10 @@ class TestPDFFiler:
 
         print("Current directory: %s" % os.getcwd())
         #opts = [filename, "--config=test_pypdfocr_config.yaml", "-f"]
-        opts = [filename, "--config=test_pypdfocr_config_filename.yaml", "-f", "-n"]
+        conf_path = os.path.join(
+            os.path.dirname(__file__), 'test_pypdfocr_config.yaml')
+
+        opts = [filename, "--config={}".format(conf_path), "-f", "-n"]
         p.go(opts)
 
         assert(os.path.exists(out_filename))
@@ -34,4 +39,4 @@ class TestPDFFiler:
 
 
 
-        
+
