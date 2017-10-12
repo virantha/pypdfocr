@@ -117,7 +117,7 @@ class PyTesseract(object):
         pool = Pool(processes=self.threads, initializer=init_worker)
 
         try:
-            hocr_filenames = pool.map(unwrap_self, zip([self]*len(fns), fns))
+            hocr_filenames = pool.map(unwrap_self, list(zip([self]*len(fns), fns)))
             pool.close()
         except (KeyboardInterrupt, Exception):
             print("Caught keyboard interrupt... terminating")
@@ -126,7 +126,7 @@ class PyTesseract(object):
         finally:
             pool.join()
 
-        return zip(fns,hocr_filenames)
+        return list(zip(fns,hocr_filenames))
 
 
     def make_hocr_from_pnm(self, img_filename):
