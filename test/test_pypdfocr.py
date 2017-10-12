@@ -77,8 +77,8 @@ class TestPydfocr:
             if len(expected) > i:
                 for keyword in expected[i]:
                     assert(keyword in t)
-            print ("\n----------------------\nPage %d\n" % i)
-            print t
+            print("\n----------------------\nPage %d\n" % i)
+            print(t)
         os.remove(out_filename)
         os.chdir(cwd)
 
@@ -104,8 +104,8 @@ class TestPydfocr:
                 if len(expected) > i:
                     for keyword in expected[i]:
                         assert(keyword in t)
-                print ("\n----------------------\nPage %d\n" % i)
-                print t
+                print("\n----------------------\nPage %d\n" % i)
+                print(t)
             os.remove(out_filename)
             os.chdir(cwd)
             
@@ -146,8 +146,8 @@ class TestPydfocr:
             if len(expected) > i:
                 for keyword in expected[i]:
                     assert(keyword in t)
-            print ("\n----------------------\nPage %d\n" % i)
-            print t
+            print("\n----------------------\nPage %d\n" % i)
+            print(t)
         os.remove(out_filename)
         os.chdir(cwd)
         
