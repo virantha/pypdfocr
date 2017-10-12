@@ -59,7 +59,7 @@ class PyPdfFiler(object):
         # No match found, so return 
         return None
 
-    def file_original (self, original_filename):
+    def file_original(self, original_filename):
         return self.filer.file_original(original_filename)
 
     def move_to_matching_folder(self, filename):
@@ -76,5 +76,5 @@ class PyPdfFiler(object):
 if __name__ == '__main__':
     p = PyPdfFiler(PyFilerDirs())
     for page_text in p.iter_pdf_page_text("scan_ocr.pdf"):
-        print (page_text)
+        print(page_text)
 

@@ -166,7 +166,7 @@ class PyTesseract(object):
             ret_output = subprocess.check_output(cmd, shell=True,  stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
             # Could not run tesseract
-            print e.output
+            print(e.output)
             self._warn (self.msgs['TS_FAILED'])
                 
         if os.path.isfile(hocr_filename):

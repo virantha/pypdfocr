@@ -58,7 +58,7 @@ class PyPreprocess(object):
             logging.debug(out)
             return out
         except subprocess.CalledProcessError as e:
-            print e.output
+            print(e.output)
             self._warn("Could not run command %s" % cmd_list)
             
 
@@ -102,14 +102,14 @@ class PyPreprocess(object):
             logging.info("Starting preprocessing parallel execution")
             preprocessed_filenames = pool.map(unwrap_self,zip([self]*len(fns),fns))
             pool.close()
-        except KeyboardInterrupt or Exception:
+        except (KeyboardInterrupt, Exception):
             print("Caught keyboard interrupt... terminating")
             pool.terminate()
             #sys,exit(-1)
             raise
         finally:
             pool.join()
-            logging.info ("Completed preprocessing")
+            logging.info("Completed preprocessing")
 
         return preprocessed_filenames
 

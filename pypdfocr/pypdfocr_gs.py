@@ -174,7 +174,7 @@ class PyGs(object):
             out = subprocess.check_output(cmd, shell=True)
 
         except subprocess.CalledProcessError as e:
-            print e.output
+            print(e.output)
             if "undefined in .getdeviceparams" in e.output:
                 error(self.msgs['GS_OUTDATED'])
             else:
