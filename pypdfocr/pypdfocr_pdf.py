@@ -52,7 +52,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.enums import TA_LEFT
 from reportlab.platypus.paragraph import Paragraph
 
-from pypdfocr_util import Retry
+from pypdfocr.pypdfocr_util import Retry
 from functools import partial
 
 class RotatedPara(Paragraph):

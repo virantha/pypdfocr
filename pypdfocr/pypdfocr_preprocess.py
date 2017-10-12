@@ -28,7 +28,7 @@ import functools
 import signal
 
 from multiprocessing import Pool
-from pypdfocr_interrupts import init_worker
+from pypdfocr.pypdfocr_interrupts import init_worker
 
 # Ugly hack to pass in object method to the multiprocessing library
 # From http://www.rueckstiess.net/research/snippets/show/ca1d7d90

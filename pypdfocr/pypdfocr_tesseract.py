@@ -26,7 +26,7 @@ import glob
 from subprocess import CalledProcessError
 
 from multiprocessing import Pool
-from pypdfocr_interrupts import init_worker
+from pypdfocr.pypdfocr_interrupts import init_worker
 
 def error(text):
     print("ERROR: %s" % text)
