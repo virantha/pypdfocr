@@ -95,7 +95,9 @@ class TestOptions:
         assert(not self.p.enable_evernote)
 
     def test_watch_filing_evernote(self):
-        opts = ['-w temp', '-e', '--config=test_option_config.yaml']
+        conf_path = os.path.join(
+            os.path.dirname(__file__), 'test_option_config.yaml')
+        opts = ['-w temp', '-e', '--config={}'.format(conf_path)]
         self.p.get_options(opts)
         assert(self.p.watch)
         assert(self.p.config)
@@ -104,7 +106,6 @@ class TestOptions:
 
         conf_path = os.path.join(
             os.path.dirname(__file__), 'test_option_config.yaml')
-        opts.append('--config={}'.format(conf_path))
         opts = ['-w temp', '-f', '-e',  '--config={}'.format(conf_path)]
         self.p.get_options(opts)
         assert(self.p.watch)
