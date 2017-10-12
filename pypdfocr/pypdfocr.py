@@ -61,12 +61,14 @@ def retry(count=5, exc_type = Exception):
     def decorator(func):
         @wraps(func)
         def result(*args, **kwargs):
+            err = None
             for _ in range(count):
                 try:
                     return func(*args, **kwargs)
-                except exc_type:
-                    pass
-                raise
+                except exc_type as e:
+                    err = e
+            else:
+                raise err
         return result
     return decorator
 
@@ -173,7 +175,7 @@ class PyPDFOCR(object):
         filing_group = p.add_argument_group(title="Filing optinos")
         filing_group.add_argument('-f', '--file', action='store_true',
             default=False, dest='enable_filing', help='Enable filing of converted PDFs')
-        #filing_group.add_argument('-c', '--config', type = argparse.FileType('r'),
+        # filing_group.add_argument('-c', '--config', type = argparse.FileType('r'),
         filing_group.add_argument('-c', '--config', type = lambda x: open_file_with_timeout(p,x),
              dest='configfile', help='Configuration file for defaults and PDF filing')
         filing_group.add_argument('-e', '--evernote', action='store_true',
