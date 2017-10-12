@@ -1,4 +1,5 @@
-#from pypdfocr import PyPDFOCR as P
+import os
+
 import pypdfocr.pypdfocr as P
 import pytest
 
@@ -37,7 +38,9 @@ class TestOptions:
             self.p.get_options(opts)
 
         # Assert that it checks that the config file is present
-        opts.append('--config=test_option_config.yaml')
+        conf_path = os.path.join(
+            os.path.dirname(__file__), 'test_option_config.yaml')
+        opts.append('--config={}'.format(conf_path))
         self.p.get_options(opts)
         assert(self.p.enable_filing)
         assert(self.p.config)
@@ -50,7 +53,9 @@ class TestOptions:
         with pytest.raises(SystemExit):
             self.p.get_options(opts)
 
-        opts.append('--config=test_option_config.yaml')
+        conf_path = os.path.join(
+            os.path.dirname(__file__), 'test_option_config.yaml')
+        opts.append('--config={}'.format(conf_path))
         self.p.get_options(opts)
         # Enabling -e should turn on filing too
         assert(self.p.enable_filing)
@@ -80,8 +85,9 @@ class TestOptions:
         opts = ['-w temp']
         self.p.get_options(opts)
         assert(self.p.watch_dir)
-
-        opts.append('--config=test_option_config.yaml')
+        conf_path = os.path.join(
+            os.path.dirname(__file__), 'test_option_config.yaml')
+        opts.append('--config={}'.format(conf_path))
         self.p.get_options(opts)
         assert(self.p.watch)
         assert(self.p.config)
@@ -96,7 +102,10 @@ class TestOptions:
         assert(self.p.enable_filing)
         assert(self.p.enable_evernote)
 
-        opts = ['-w temp', '-f', '-e',  '--config=test_option_config.yaml']
+        conf_path = os.path.join(
+            os.path.dirname(__file__), 'test_option_config.yaml')
+        opts.append('--config={}'.format(conf_path))
+        opts = ['-w temp', '-f', '-e',  '--config={}'.format(conf_path)]
         self.p.get_options(opts)
         assert(self.p.watch)
         assert(self.p.config)
