@@ -3,9 +3,7 @@ import pypdfocr.pypdfocr_tesseract as P
 import pytest
 import os
 
-import hashlib
-
-from mock import patch, call
+from mock import patch
 
 class TestTesseract:
 

@@ -5,11 +5,7 @@ import os
 import logging
 
 from PyPDF2 import PdfFileReader
-import smtplib
-from mock import Mock
 from mock import patch, call
-from mock import MagicMock
-from mock import PropertyMock
 
 
 class TestPydfocr:

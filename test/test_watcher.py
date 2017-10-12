@@ -1,15 +1,11 @@
-#from pypdfocr import PyPDFOCR as P
 import pypdfocr.pypdfocr_watcher as P
 import pytest
 
-import evernote.api.client
-import evernote.edam.type.ttypes as Types
-import hashlib
 import time
 import os
 from collections import namedtuple
 
-from mock import patch, call
+from mock import patch
 
 class TestWatching:
 

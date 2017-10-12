@@ -1,12 +1,8 @@
 #from pypdfocr import PyPDFOCR as P
 import pypdfocr.pypdfocr as P
-import pytest
 import os
 
-import hashlib
-
 from mock import patch, call
-from pytest import skip
 
 class TestPDFFiler:
 

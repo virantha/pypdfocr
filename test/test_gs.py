@@ -3,10 +3,7 @@ import pypdfocr.pypdfocr_gs as P
 import pytest
 import os
 
-import hashlib
-
-from mock import patch, call
-from pytest import skip
+from mock import patch
 
 class TestGS:
 
