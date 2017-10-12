@@ -70,7 +70,7 @@ class TestTesseract:
 
     def test_tesseract_version(self, capsys):
         p = P.PyTesseract({})
-        p.required = "100"
+        p.required = "100.01"
         with pytest.raises(SystemExit):
             p.make_hocr_from_pnms("")
         out, err = capsys.readouterr()
