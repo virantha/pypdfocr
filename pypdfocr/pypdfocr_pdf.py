@@ -31,7 +31,6 @@ import time
 import tempfile
 import glob
 
-import cStringIO
 import base64
 import zlib
 import math

@@ -18,7 +18,6 @@
     on keywords
 """
 
-from sets import Set    
 import sys, os
 import re
 import logging
