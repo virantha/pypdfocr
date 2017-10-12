@@ -381,11 +381,11 @@ class PyPDFOCR(object):
             time.sleep(1)
             if not self.debug:
                 # Need to clean up the original image files before preprocessing
-                if locals().has_key("fns"): # Have to check if this was set before exception raised
+                if "fns" in locals(): # Have to check if this was set before exception raised
                     logging.info("Cleaning up %s" % fns)
                     self._clean_up_files(fns)
 
-                if locals().has_key("preprocess_imagefilenames"):  # Have to check if this was set before exception raised
+                if "preprocess_imagefilenames" in locals():  # Have to check if this was set before exception raised
                     logging.info("Cleaning up %s" % preprocess_imagefilenames)
                     self._clean_up_files(preprocess_imagefilenames) # splat the hocr_filenames as it is a list of pairs
                     for ext in [".hocr", ".html", ".txt"]:
