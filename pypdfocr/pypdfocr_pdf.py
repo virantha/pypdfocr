@@ -155,7 +155,7 @@ class PyPdf(object):
             merger.append(PdfFileReader(file(text_pdf_filename, 'rb')))
         merger.write(all_text_filename)
         merger.close()
-	del merger
+        del merger
 
 
         writer = PdfFileWriter()
