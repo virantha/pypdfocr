@@ -23,13 +23,13 @@ from pypdfocr.pypdfocr_filer import PyFiler
 
 import functools
 
-from evernote.api.client import EvernoteClient
-import evernote.edam.type.ttypes as Types
-import evernote.edam.userstore.constants as UserStoreConstants
-from evernote.edam.error.ttypes import EDAMUserException
-from evernote.edam.error.ttypes import EDAMSystemException
-from evernote.edam.error.ttypes import EDAMNotFoundException
-from evernote.edam.error.ttypes import EDAMErrorCode
+# from evernote.api.client import EvernoteClient
+# import evernote.edam.type.ttypes as Types
+# import evernote.edam.userstore.constants as UserStoreConstants
+# from evernote.edam.error.ttypes import EDAMUserException
+# from evernote.edam.error.ttypes import EDAMSystemException
+# from evernote.edam.error.ttypes import EDAMNotFoundException
+# from evernote.edam.error.ttypes import EDAMErrorCode
 
 
 """
