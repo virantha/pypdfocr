@@ -26,22 +26,21 @@ class TestPydfocr:
     filepath = os.path.dirname(__file__)
     pdf_tests = [
         (
-            # Test the single file conversion with no filing.
             filepath,
             os.path.join(filepath, "temp","target","recipe"),
             os.path.join(filepath, "pdfs", "test_recipe.pdf"),
             [ ["Simply Recipes"],]),
         (
             filepath,
-            os.path.join("temp","target","patents"),
+            os.path.join(filepath, "temp","target","patents"),
             os.path.join("pdfs","test_patent.pdf"),
             [
                 ["asynchronous", "subject to", "20 Claims"], # Page 1
                 ["FOREIGN PATENT" ], # Page 2
-                ]),
+            ]),
         (
             filepath,
-            os.path.join("temp","target", "default"),
+            os.path.join(filepath, "temp","target", "default"),
             os.path.join("pdfs","test_sherlock.pdf"),
             [
                 ["Bohemia", "Trincomalee"], # Page 1
@@ -49,7 +48,7 @@ class TestPydfocr:
             ]),
         (
             os.path.join(filepath, "pdfs"),
-            os.path.join("temp","target","default"),
+            os.path.join(filepath, "temp","target","default"),
             "test_sherlock.pdf",
             [
                 ["Bohemia", "Trincomalee"], # Page 1
@@ -57,21 +56,21 @@ class TestPydfocr:
             ]),
         (
             filepath,
-            os.path.join("temp","target","recipe"),
+            os.path.join(filepath, "temp","target","recipe"),
             os.path.join("..","test", "pdfs", "1.pdf"),
             [
                 ["Simply","Recipes"],
             ]),
         (
             filepath,
-            os.path.join("temp","target","recipe"),
+            os.path.join(filepath, "temp","target","recipe"),
             os.path.join("..","test", "pdfs", "test_recipe_sideways.pdf"),
             [
                 ["Simply","Recipes", 'spinach'],
             ]),
         ]
 
-    #@pytest.mark.skipif(True, reason="Just testing")
+    # @pytest.mark.skipif(True, reason="Just testing")
     @pytest.mark.parametrize("dirname, tgt_folder, filename, expected", pdf_tests)
     def test_standalone(self, dirname, tgt_folder, filename, expected):
         """
@@ -107,7 +106,7 @@ class TestPydfocr:
         os.remove(out_filename)
         os.chdir(cwd)
 
-    #@pytest.mark.skipif(True, reason="just testing")
+    # @pytest.mark.skipif(True, reason="just testing")
     @pytest.mark.parametrize("dirname, tgt_folder, filename, expected", [pdf_tests[0]])
     def test_standalone_email(self, dirname, tgt_folder, filename, expected):
         """
@@ -181,11 +180,11 @@ class TestPydfocr:
 
         # Assert the smtp calls
         calls = [call(out_filename,
-                        os.path.abspath(os.path.join(tgt_folder,os.path.basename(out_filename))))]
+                      os.path.abspath(os.path.join(tgt_folder,os.path.basename(out_filename))))]
         if not "no_move_original" in config:
             new_file_name = os.path.basename(filename).replace(".pdf", "_2.pdf")
             calls.append(call(filename,
-                                os.path.abspath(os.path.join("temp","original", new_file_name))))
+                              os.path.abspath(os.path.join("test", "temp","original", new_file_name))))
         mock_move.assert_has_calls(calls)
 
     def test_set_binaries(self):
