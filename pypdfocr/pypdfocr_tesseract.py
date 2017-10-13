@@ -23,11 +23,11 @@ import os, sys
 import logging
 import subprocess
 import glob
-from distutils.version import StrictVersion
+from pkg_resources import parse_version
 from subprocess import CalledProcessError
 
 from multiprocessing import Pool
-from pypdfocr.pypdfocr_interrupts import init_worker
+from .pypdfocr_interrupts import init_worker
 
 def error(text):
     print("ERROR: %s" % text)
@@ -80,11 +80,11 @@ class PyTesseract(object):
             Make sure the version is current 
         """
         logging.info("Checking tesseract version")
-        cmd = '%s -v' % (self.binary)
+        cmd = [self.binary, '-v']
         logging.info(cmd)        
         try:
             ret_output = subprocess.check_output(
-                cmd, shell=True, encoding="utf-8", stderr=subprocess.STDOUT)
+                cmd, shell=True, stderr=subprocess.STDOUT)
         except CalledProcessError:
             # Could not run tesseract
             error(self.msgs['TS_MISSING'])
@@ -93,14 +93,12 @@ class PyTesseract(object):
         for line in ret_output.splitlines():
             if 'tesseract' in line:
                 ver_str = line.split(' ')[1]
-                if ver_str.endswith('dev'): # Fix for version strings that end in 'dev'
-                    ver_str = ver_str[:-3]
         # Aargh, in windows 3.02.02 is reported as version 3.02  
         if str(os.name) == 'nt':
             req = self.required[:-3]
         else:
             req = self.required
-        return (StrictVersion(ver_str) >= StrictVersion(req)), ver_str
+        return (parse_version(ver_str) >= parse_version(req)), ver_str
 
     def _warn(self, msg): # pragma: no cover
         print("WARNING: %s" % msg)
