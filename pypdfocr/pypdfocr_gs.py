@@ -171,7 +171,7 @@ class PyGs(object):
         try:
             cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s" "%s" -c quit' % (self.binary, options, output_filename, pdf_filename)
             logging.info(cmd)        
-            out = subprocess.check_output(cmd, shell=True)
+            out = subprocess.check_output(cmd, shell=True, universal_newlines=True)
 
         except subprocess.CalledProcessError as e:
             print(e.output)
