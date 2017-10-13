@@ -84,7 +84,7 @@ class PyTesseract(object):
         logging.info(cmd)        
         try:
             ret_output = subprocess.check_output(
-                cmd, shell=True, stderr=subprocess.STDOUT)
+                cmd, shell=True, stderr=subprocess.STDOUT, universal_newlines=True)
         except CalledProcessError:
             # Could not run tesseract
             error(self.msgs['TS_MISSING'])
