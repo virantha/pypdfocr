@@ -80,7 +80,7 @@ class PyTesseract(object):
             Make sure the version is current 
         """
         logging.info("Checking tesseract version")
-        cmd = [self.binary, '-v']
+        cmd = "%s -v" % self.binary
         logging.info(cmd)        
         try:
             ret_output = subprocess.check_output(
@@ -91,6 +91,7 @@ class PyTesseract(object):
 
         ver_str = '0.0.0'
         for line in ret_output.splitlines():
+            print(line)
             if 'tesseract' in line:
                 ver_str = line.split(' ')[1]
         # Aargh, in windows 3.02.02 is reported as version 3.02  
@@ -98,6 +99,7 @@ class PyTesseract(object):
             req = self.required[:-3]
         else:
             req = self.required
+        print(ver_str)
         return (parse_version(ver_str) >= parse_version(req)), ver_str
 
     def _warn(self, msg): # pragma: no cover

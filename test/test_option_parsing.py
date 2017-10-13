@@ -1,6 +1,6 @@
 import os
 
-import pypdfocr.pypdfocr as P
+from pypdfocr import pypdfocr as P
 import pytest
 
 

@@ -1,5 +1,5 @@
 #from pypdfocr import PyPDFOCR as P
-import pypdfocr.pypdfocr as P
+from pypdfocr import pypdfocr as P
 import os
 
 from mock import patch, call

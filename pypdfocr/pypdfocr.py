@@ -21,7 +21,7 @@ import shutil, glob
 import itertools
 from functools import wraps
 
-from pypdfocr.version import __version__
+from .version import __version__
 from PIL import Image
 import yaml
 
@@ -40,17 +40,17 @@ try:
 except ImportError:
     import multiprocessing.forking as forking
 
-from pypdfocr.pypdfocr_multiprocessing import _Popen
+from .pypdfocr_multiprocessing import _Popen
 forking.Popen = _Popen
 
-from pypdfocr.pypdfocr_pdf import PyPdf
-from pypdfocr.pypdfocr_tesseract import PyTesseract
-from pypdfocr.pypdfocr_gs import PyGs
-from pypdfocr.pypdfocr_watcher import PyPdfWatcher
-from pypdfocr.pypdfocr_pdffiler import PyPdfFiler
-from pypdfocr.pypdfocr_filer_dirs import PyFilerDirs
-from pypdfocr.pypdfocr_filer_evernote import PyFilerEvernote
-from pypdfocr.pypdfocr_preprocess import PyPreprocess
+from .pypdfocr_pdf import PyPdf
+from .pypdfocr_tesseract import PyTesseract
+from .pypdfocr_gs import PyGs
+from .pypdfocr_watcher import PyPdfWatcher
+from .pypdfocr_pdffiler import PyPdfFiler
+from .pypdfocr_filer_dirs import PyFilerDirs
+from .pypdfocr_filer_evernote import PyFilerEvernote
+from .pypdfocr_preprocess import PyPreprocess
 
 def error(text):
     print("ERROR: %s" % text)

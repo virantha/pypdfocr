@@ -19,7 +19,7 @@ import hashlib
 import time
 import sys
 
-from pypdfocr.pypdfocr_filer import PyFiler
+from .pypdfocr_filer import PyFiler
 
 import functools
 

@@ -1,5 +1,5 @@
 #from pypdfocr import PyPDFOCR as P
-import pypdfocr.pypdfocr_gs as P
+from pypdfocr import pypdfocr_gs as P
 import pytest
 import os
 

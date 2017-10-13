@@ -1,4 +1,4 @@
-import pypdfocr.pypdfocr_watcher as P
+from pypdfocr import pypdfocr_watcher as P
 import pytest
 
 import time
