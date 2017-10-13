@@ -3,6 +3,9 @@ python:
     - "2.7"
     - "3.5"
     - "3.6"
+before-install:
+    - sudo apt -qq update
+    - sudo apt install -y tesseract-ocr ghostscript imagemagick
 install: 
     - "pip install -r requirements.txt"
     - "pip install pytest mock"
