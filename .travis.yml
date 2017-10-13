@@ -4,8 +4,8 @@ python:
     - "3.5"
     - "3.6"
 install: 
-    - "pip install -r requirements.txt --use-mirrors"
-    - "pip install pytest mock --use-mirrors"
+    - "pip install -r requirements.txt"
+    - "pip install pytest mock"
     - "pip install ."
 script: 
     - "pytest test"
