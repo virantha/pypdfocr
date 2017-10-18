@@ -38,6 +38,7 @@ from pypdfocr_watcher import PyPdfWatcher
 from pypdfocr_pdffiler import PyPdfFiler
 from pypdfocr_filer_dirs import PyFilerDirs
 from pypdfocr_filer_evernote import PyFilerEvernote
+from pypdfocr_filer_dropbox import PyFilerDropbox
 from pypdfocr_preprocess import PyPreprocess
 
 def error(text):
@@ -119,7 +120,8 @@ class PyPDFOCR(object):
             :ivar config: Dict of the config file
             :ivar watch: Whether folder watching mode is turned on
             :ivar enable_evernote: Enable filing to evernote
-
+            :ivar enable_dropbox: Enable dropbox
+    
         """
         p = argparse.ArgumentParser(
                 description = "Convert scanned PDFs into their OCR equivalent.  Depends on GhostScript and Tesseract-OCR being installed.",
@@ -166,6 +168,8 @@ class PyPDFOCR(object):
              dest='configfile', help='Configuration file for defaults and PDF filing')
         filing_group.add_argument('-e', '--evernote', action='store_true',
             default=False, dest='enable_evernote', help='Enable filing to Evernote')
+        filing_group.add_argument('-r', '--dropbox', action='store_true',
+            default=False, dest='enable_dropbox', help='Enable filing to Dropbox')
         filing_group.add_argument('-n', action='store_true',
             default=False, dest='match_using_filename', help='Use filename to match if contents did not match anything, before filing to default folder')
 
@@ -209,7 +213,12 @@ class PyPDFOCR(object):
         else:
             self.enable_evernote = False
 
-        if args.enable_filing or args.enable_evernote:
+        if args.enable_dropbox:
+            self.enable_dropbox = True
+        else:
+            self.enable_dropbox = False
+            
+        if args.enable_filing or args.enable_evernote or args.enable_dropbox:
             self.enable_filing = True
             if not args.configfile:
                 p.error("Please specify a configuration file(CONFIGFILE) to enable filing")
@@ -245,7 +254,8 @@ class PyPDFOCR(object):
         """
             Instance the proper PyFiler object (either
             :class:`pypdfocr.pypdfocr_filer_dirs.PyFilerDirs` or
-            :class:`pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote`)
+            :class:`pypdfocr.pypdfocr_filer_evernote.PyFilerEvernote` or
+            :class:`pypdfocr.pypdfocr_filer_dropbox.PyFilerDropbox`   )
 
             TODO: Make this more generic to allow third-party plugin filing objects
 
@@ -280,9 +290,11 @@ class PyPDFOCR(object):
         # --------------------------------------------------
         if self.enable_evernote:
             self.filer = PyFilerEvernote(self.config['evernote_developer_token'])
+        elif self.enable_dropbox:
+            self.filer = PyFilerDropbox(self.config['dropbox_developer_token'],self.config['dropbox_base_path'])            
         else:
             self.filer = PyFilerDirs()
-            
+
         self.filer.target_folder = self.config['target_folder']
         self.filer.default_folder = self.config['default_folder']
         self.filer.original_move_folder = original_move_folder
