@@ -49,6 +49,7 @@ from .pypdfocr_gs import PyGs
 from .pypdfocr_watcher import PyPdfWatcher
 from .pypdfocr_pdffiler import PyPdfFiler
 from .pypdfocr_filer_dirs import PyFilerDirs
+from .pypdfocr_filer_evernote import ENABLED as evernote_enabled
 from .pypdfocr_filer_evernote import PyFilerEvernote
 from .pypdfocr_preprocess import PyPreprocess
 
@@ -179,7 +180,7 @@ class PyPDFOCR(object):
         filing_group.add_argument('-c', '--config', type = lambda x: open_file_with_timeout(p,x),
              dest='configfile', help='Configuration file for defaults and PDF filing')
         filing_group.add_argument('-e', '--evernote', action='store_true',
-            default=False, dest='enable_evernote', help='Enable filing to Evernote')
+            default=False, dest='enable_evernote', help='Enable filing to Evernote.')
         filing_group.add_argument('-n', action='store_true',
             default=False, dest='match_using_filename', help='Use filename to match if contents did not match anything, before filing to default folder')
 
@@ -218,7 +219,11 @@ class PyPDFOCR(object):
             logging.debug("Read in configuration file")
             logging.debug(self.config)
 
-        if args.enable_evernote:
+        # Evernote filing does not work in py3
+        if args.enable_evernote and not evernote_enabled:
+            print("Warning: Evernote filing disabled, could not find evernote API. Evernote not available in py3.")
+            self.enable_evernote = False
+        elif args.enable_evernote:
             self.enable_evernote = True
         else:
             self.enable_evernote = False
