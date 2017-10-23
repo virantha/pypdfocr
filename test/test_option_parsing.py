@@ -86,8 +86,6 @@ class TestOptions:
             os.path.dirname(__file__), 'test_option_config.yaml')
         opts.append('--config={}'.format(conf_path))
         self.p.get_options(opts)
-        # Enabling -e should turn on filing too
-        assert(self.p.enable_filing)
         assert not self.p.enable_evernote
 
     def test_standalone_watch_conflict(self):
