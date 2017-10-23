@@ -92,21 +92,21 @@ class PyGs(object):
             listing = os.listdir('.')
 
             # Find all possible gs* sub-directories
-	    listing = [x for x in listing if x.startswith('gs')]
+            listing = [x for x in listing if x.startswith('gs')]
 
             # TODO: Make this a natural sort
             listing.sort(reverse=True)
-	    for bindir in listing:
-		binpath = os.path.join(bindir,'bin')
-		if not os.path.exists(binpath): continue
-		os.chdir(binpath)
+            for bindir in listing:
+                binpath = os.path.join(bindir,'bin')
+                if not os.path.exists(binpath): continue
+                os.chdir(binpath)
                 # Look for gswin64c.exe or gswin32c.exe (the c is for the command-line version)
-		gswin = glob.glob('gswin*c.exe')
-		if len(gswin) == 0:
-		    continue
-		gs = os.path.abspath(gswin[0]) # Just use the first found .exe (Do i need to do anything more complicated here?)
-		os.chdir(cwd)
-		return gs
+                gswin = glob.glob('gswin*c.exe')
+                if len(gswin) == 0:
+                    continue
+                gs = os.path.abspath(gswin[0]) # Just use the first found .exe (Do i need to do anything more complicated here?)
+                os.chdir(cwd)
+                return gs
 
         if not gs:
             error(self.msgs['GS_MISSING_BINARY'])
@@ -171,10 +171,10 @@ class PyGs(object):
         try:
             cmd = '%s -q -dNOPAUSE %s -sOutputFile="%s" "%s" -c quit' % (self.binary, options, output_filename, pdf_filename)
             logging.info(cmd)        
-            out = subprocess.check_output(cmd, shell=True)
+            out = subprocess.check_output(cmd, shell=True, universal_newlines=True)
 
         except subprocess.CalledProcessError as e:
-            print e.output
+            print(e.output)
             if "undefined in .getdeviceparams" in e.output:
                 error(self.msgs['GS_OUTDATED'])
             else:

@@ -1,5 +1,7 @@
-#from pypdfocr import PyPDFOCR as P
-import pypdfocr.pypdfocr as P
+import os
+import sys
+
+from pypdfocr import pypdfocr as P
 import pytest
 
 
@@ -37,11 +39,15 @@ class TestOptions:
             self.p.get_options(opts)
 
         # Assert that it checks that the config file is present
-        opts.append('--config=test_option_config.yaml')
+        conf_path = os.path.join(
+            os.path.dirname(__file__), 'test_option_config.yaml')
+        opts.append('--config={}'.format(conf_path))
         self.p.get_options(opts)
         assert(self.p.enable_filing)
         assert(self.p.config)
 
+    @pytest.mark.skipif(sys.version_info.major>2,
+                        reason="Evernote disabled for py3")
     def test_standalone_filing_evernote(self):
         # Check when evernote is enabled
         opts = ["blah.pdf"]
@@ -50,7 +56,9 @@ class TestOptions:
         with pytest.raises(SystemExit):
             self.p.get_options(opts)
 
-        opts.append('--config=test_option_config.yaml')
+        conf_path = os.path.join(
+            os.path.dirname(__file__), 'test_option_config.yaml')
+        opts.append('--config={}'.format(conf_path))
         self.p.get_options(opts)
         # Enabling -e should turn on filing too
         assert(self.p.enable_filing)
@@ -64,6 +72,21 @@ class TestOptions:
         assert(self.p.enable_evernote)
         assert(self.p.config)
         assert(not self.p.watch)
+
+    @pytest.mark.skipif(sys.version_info.major==2,
+                        reason="Evernote works on py2")
+    def test_evernote_disabled(self):
+        opts = ["blah.pdf"]
+        opts.append('-e')
+        # Assert that it checks that the config file is present
+        with pytest.raises(SystemExit):
+            self.p.get_options(opts)
+
+        conf_path = os.path.join(
+            os.path.dirname(__file__), 'test_option_config.yaml')
+        opts.append('--config={}'.format(conf_path))
+        self.p.get_options(opts)
+        assert not self.p.enable_evernote
 
     def test_standalone_watch_conflict(self):
         # When pdf file is specified, we don't want to allow watch option
@@ -80,23 +103,30 @@ class TestOptions:
         opts = ['-w temp']
         self.p.get_options(opts)
         assert(self.p.watch_dir)
-
-        opts.append('--config=test_option_config.yaml')
+        conf_path = os.path.join(
+            os.path.dirname(__file__), 'test_option_config.yaml')
+        opts.append('--config={}'.format(conf_path))
         self.p.get_options(opts)
         assert(self.p.watch)
         assert(self.p.config)
         assert(not self.p.enable_filing)
         assert(not self.p.enable_evernote)
 
+    @pytest.mark.skipif(sys.version_info.major>2,
+                        reason="Evernote disabled for py3")
     def test_watch_filing_evernote(self):
-        opts = ['-w temp', '-e', '--config=test_option_config.yaml']
+        conf_path = os.path.join(
+            os.path.dirname(__file__), 'test_option_config.yaml')
+        opts = ['-w temp', '-e', '--config={}'.format(conf_path)]
         self.p.get_options(opts)
         assert(self.p.watch)
         assert(self.p.config)
         assert(self.p.enable_filing)
         assert(self.p.enable_evernote)
 
-        opts = ['-w temp', '-f', '-e',  '--config=test_option_config.yaml']
+        conf_path = os.path.join(
+            os.path.dirname(__file__), 'test_option_config.yaml')
+        opts = ['-w temp', '-f', '-e',  '--config={}'.format(conf_path)]
         self.p.get_options(opts)
         assert(self.p.watch)
         assert(self.p.config)

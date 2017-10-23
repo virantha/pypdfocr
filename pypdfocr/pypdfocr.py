@@ -21,24 +21,37 @@ import shutil, glob
 import itertools
 from functools import wraps
 
-from version import __version__
+from .version import __version__
 from PIL import Image
 import yaml
 
 import multiprocessing
-# Replace the Popen routine to allow win32 pyinstaller to build
-from multiprocessing import forking
-from pypdfocr_multiprocessing import _Popen
+
+""" Special work-around to support multiprocessing and pyinstaller --onefile on windows systms
+
+    https://github.com/pyinstaller/pyinstaller/wiki/Recipe-Multiprocessing
+"""
+try:
+    # Python 3.4+
+    if sys.platform.startswith('win'):
+        import multiprocessing.popen_spawn_win32 as forking
+    else:
+        import multiprocessing.popen_fork as forking
+except ImportError:
+    import multiprocessing.forking as forking
+
+from .pypdfocr_multiprocessing import _Popen
 forking.Popen = _Popen
 
-from pypdfocr_pdf import PyPdf
-from pypdfocr_tesseract import PyTesseract
-from pypdfocr_gs import PyGs
-from pypdfocr_watcher import PyPdfWatcher
-from pypdfocr_pdffiler import PyPdfFiler
-from pypdfocr_filer_dirs import PyFilerDirs
-from pypdfocr_filer_evernote import PyFilerEvernote
-from pypdfocr_preprocess import PyPreprocess
+from .pypdfocr_pdf import PyPdf
+from .pypdfocr_tesseract import PyTesseract
+from .pypdfocr_gs import PyGs
+from .pypdfocr_watcher import PyPdfWatcher
+from .pypdfocr_pdffiler import PyPdfFiler
+from .pypdfocr_filer_dirs import PyFilerDirs
+from .pypdfocr_filer_evernote import ENABLED as evernote_enabled
+from .pypdfocr_filer_evernote import PyFilerEvernote
+from .pypdfocr_preprocess import PyPreprocess
 
 def error(text):
     print("ERROR: %s" % text)
@@ -49,12 +62,14 @@ def retry(count=5, exc_type = Exception):
     def decorator(func):
         @wraps(func)
         def result(*args, **kwargs):
+            err = None
             for _ in range(count):
                 try:
                     return func(*args, **kwargs)
-                except exc_type:
-                    pass
-                raise
+                except exc_type as e:
+                    err = e
+            else:
+                raise err
         return result
     return decorator
 
@@ -161,11 +176,11 @@ class PyPDFOCR(object):
         filing_group = p.add_argument_group(title="Filing optinos")
         filing_group.add_argument('-f', '--file', action='store_true',
             default=False, dest='enable_filing', help='Enable filing of converted PDFs')
-        #filing_group.add_argument('-c', '--config', type = argparse.FileType('r'),
+        # filing_group.add_argument('-c', '--config', type = argparse.FileType('r'),
         filing_group.add_argument('-c', '--config', type = lambda x: open_file_with_timeout(p,x),
              dest='configfile', help='Configuration file for defaults and PDF filing')
         filing_group.add_argument('-e', '--evernote', action='store_true',
-            default=False, dest='enable_evernote', help='Enable filing to Evernote')
+            default=False, dest='enable_evernote', help='Enable filing to Evernote.')
         filing_group.add_argument('-n', action='store_true',
             default=False, dest='match_using_filename', help='Use filename to match if contents did not match anything, before filing to default folder')
 
@@ -204,7 +219,11 @@ class PyPDFOCR(object):
             logging.debug("Read in configuration file")
             logging.debug(self.config)
 
-        if args.enable_evernote:
+        # Evernote filing does not work in py3
+        if args.enable_evernote and not evernote_enabled:
+            print("Warning: Evernote filing disabled, could not find evernote API. Evernote not available in py3.")
+            self.enable_evernote = False
+        elif args.enable_evernote:
             self.enable_evernote = True
         else:
             self.enable_evernote = False
@@ -367,11 +386,11 @@ class PyPDFOCR(object):
             time.sleep(1)
             if not self.debug:
                 # Need to clean up the original image files before preprocessing
-                if locals().has_key("fns"): # Have to check if this was set before exception raised
+                if "fns" in locals(): # Have to check if this was set before exception raised
                     logging.info("Cleaning up %s" % fns)
                     self._clean_up_files(fns)
 
-                if locals().has_key("preprocess_imagefilenames"):  # Have to check if this was set before exception raised
+                if "preprocess_imagefilenames" in locals():  # Have to check if this was set before exception raised
                     logging.info("Cleaning up %s" % preprocess_imagefilenames)
                     self._clean_up_files(preprocess_imagefilenames) # splat the hocr_filenames as it is a list of pairs
                     for ext in [".hocr", ".html", ".txt"]:
@@ -467,7 +486,7 @@ class PyPDFOCR(object):
                 except KeyboardInterrupt:
                     break
                 except Exception as e:
-                    print traceback.print_exc(e)
+                    print(traceback.print_exc(e))
                     py_watcher.stop()
                     
         else:
