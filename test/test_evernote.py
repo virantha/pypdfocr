@@ -2,13 +2,24 @@
 import pypdfocr.pypdfocr_filer_evernote as P
 import pytest
 import os
+import sys
 
-import evernote.api.client
-import evernote.edam.type.ttypes as Types
+if sys.version_info.major == 2:
+    import evernote.api.client
+    import evernote.edam.type.ttypes as Types
 import hashlib
 
 from mock import patch, call
 
+
+def test_import():
+    """Evernote filing enabled for py2 only"""
+    expect_enabled = sys.version_info.major == 2
+    assert P.ENABLED == expect_enabled
+
+
+@pytest.mark.skipif(sys.version_info.major>=3, 
+                    reason="Evernote API not compatible with py3.")
 class TestEvernote:
 
     def test_connecct(self):
@@ -22,23 +33,25 @@ class TestEvernote:
     def test_file_original(self, mock_move):
         with patch("pypdfocr.pypdfocr_filer_evernote.EvernoteClient") as mock_evernote_client:
             p = P.PyFilerEvernote("TOKEN")
-            filename = os.path.join("pdfs","test_recipe.pdf")
+            filepath = os.path.dirname(__file__)
+            filename = os.path.join(filepath, "pdfs","test_recipe.pdf")
 
             # First, test code that does not move original
             p.file_original(filename)
             assert (not mock_move.called)
 
             # Now test moving
-            p.set_original_move_folder(os.path.join("temp", "original"))
+            p.set_original_move_folder(os.path.join(filepath, "temp", "original"))
             p.file_original(filename)
-            mock_move.assert_called_with(filename, os.path.join("temp","original", "test_recipe_2.pdf"))
+            mock_move.assert_called_with(filename, os.path.join(filepath, "temp","original", "test_recipe_2.pdf"))
 
     @patch('os.remove')
     def test_move_to_folder(self, mock_remove):
         with patch("pypdfocr.pypdfocr_filer_evernote.EvernoteClient") as mock_evernote_client:
             p = P.PyFilerEvernote("TOKEN")
-	    filename = os.path.join("pdfs", "test_recipe.pdf")
-            foldername = 'recipe'
+            filepath = os.path.dirname(__file__)
+            filename = os.path.join(filepath, "pdfs", "test_recipe.pdf")
+            foldername = os.path.join(filepath, 'recipe')
             with pytest.raises(AssertionError):
                 p.move_to_matching_folder(filename, foldername)
             p.set_target_folder('target')
@@ -61,7 +74,8 @@ class TestEvernote:
             p = P.PyFilerEvernote("TOKEN")
             notebook = Types.Notebook()
             notebook.name = "recipe"
-            filename = "pdfs/test_recipe.pdf"
+            filepath = os.path.dirname(__file__)
+            filename = os.path.join(filepath, "pdfs/test_recipe.pdf")
             note = p._create_evernote_note(notebook, filename)
             xml = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd">'
             assert(note.content.startswith(xml))

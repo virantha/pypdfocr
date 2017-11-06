@@ -13,19 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys, os, multiprocessing.forking
 import logging
+import os
+import sys
 
 """ Special work-around to support multiprocessing and pyinstaller --onefile on windows systms
 
     https://github.com/pyinstaller/pyinstaller/wiki/Recipe-Multiprocessing
 """
+try:
+    # Python 3.4+
+    if sys.platform.startswith('win'):
+        import multiprocessing.popen_spawn_win32 as forking
+    else:
+        import multiprocessing.popen_fork as forking
+except ImportError:
+    import multiprocessing.forking as forking
 
-import multiprocessing.forking as forking
-import os
-import sys
 
-class _Popen(multiprocessing.forking.Popen):
+class _Popen(forking.Popen):
     def __init__(self, *args, **kw):
         if hasattr(sys, 'frozen'):
             # We have to set original _MEIPASS2 value from sys._MEIPASS

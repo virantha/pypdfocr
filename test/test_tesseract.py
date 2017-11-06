@@ -1,11 +1,9 @@
 #from pypdfocr import PyPDFOCR as P
-import pypdfocr.pypdfocr_tesseract as P
+from pypdfocr import pypdfocr_tesseract as P
 import pytest
 import os
 
-import hashlib
-
-from mock import patch, call
+from mock import patch
 
 class TestTesseract:
 
@@ -72,7 +70,7 @@ class TestTesseract:
 
     def test_tesseract_version(self, capsys):
         p = P.PyTesseract({})
-        p.required = "100"
+        p.required = "100.01"
         with pytest.raises(SystemExit):
             p.make_hocr_from_pnms("")
         out, err = capsys.readouterr()

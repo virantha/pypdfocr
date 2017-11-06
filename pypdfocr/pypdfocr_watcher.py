@@ -25,16 +25,18 @@ class PyPdfWatcher(FileSystemEventHandler):
         Every few seconds pop-off queue and if timestamp older than 3 seconds,
         process the file else, push it back onto queue.
     """
-    events = {}
-    events_lock = Lock()
 
     def __init__(self, monitor_dir, config):
         FileSystemEventHandler.__init__(self)
+        
+        self.events = {}
+        self.events_lock = Lock()
 
         self.monitor_dir = monitor_dir
         if not config: config = {}
 
         self.scan_interval = config.get('scan_interval', 3) # If no updates in 3 seconds (or user specified option in config file) process file
+
 
     def start(self):
         self.observer = Observer()
@@ -94,19 +96,19 @@ class PyPdfWatcher(FileSystemEventHandler):
         """
         if ev_path.endswith(".pdf"):
             if not ev_path.endswith(("_ocr.pdf", "_test.pdf")):
-                PyPdfWatcher.events_lock.acquire()
-                if not ev_path in PyPdfWatcher.events:
-                    PyPdfWatcher.events[ev_path] = time.time()
+                self.events_lock.acquire()
+                if not ev_path in self.events:
+                    self.events[ev_path] = time.time()
                     logging.info ("Adding %s to event queue" % ev_path)
                 else:
-                    if PyPdfWatcher.events[ev_path] == -1:
+                    if self.events[ev_path] == -1:
                         logging.info ( "%s removing from event queue" % (ev_path))
-                        del PyPdfWatcher.events[ev_path]
+                        del self.events[ev_path]
                     else: 
                         newTime = time.time()
                         logging.debug ( "%s already in event queue, updating timestamp to %d" % (ev_path, newTime))
-                        PyPdfWatcher.events[ev_path]  = newTime
-                PyPdfWatcher.events_lock.release()
+                        self.events[ev_path]  = newTime
+                self.events_lock.release()
 
                       
               
@@ -133,19 +135,18 @@ class PyPdfWatcher(FileSystemEventHandler):
             :returns: Filename if available to process, otherwise None.
         """
         now = time.time()
-        PyPdfWatcher.events_lock.acquire()
-        for monitored_file, timestamp in PyPdfWatcher.events.items():
-            if timestamp == -1:
-                del PyPdfWatcher.events[monitored_file]
-            elif now - timestamp > self.scan_interval:
+        self.events_lock.acquire()
+        self.events = {file:ts for file, ts in self.events.items() if ts != -1}
+        for monitored_file, timestamp in self.events.items():
+            if now - timestamp > self.scan_interval:
                 logging.info("Processing new file %s" % (monitored_file))
                 # Remove this file from the dict
-                del PyPdfWatcher.events[monitored_file]
+                del self.events[monitored_file]
                 monitored_file = self.rename_file_with_spaces(monitored_file)
-                PyPdfWatcher.events[monitored_file] = -1 # Add back into queue and mark as not needing further action in the event handler
-                PyPdfWatcher.events_lock.release()
+                self.events[monitored_file] = -1 # Add back into queue and mark as not needing further action in the event handler
+                self.events_lock.release()
                 return monitored_file
-        PyPdfWatcher.events_lock.release()
+        self.events_lock.release()
         return None
 
 
