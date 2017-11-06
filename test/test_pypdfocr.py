@@ -1,15 +1,11 @@
 #from pypdfocr import PyPDFOCR as P
-import pypdfocr.pypdfocr as P
+from pypdfocr import pypdfocr as P
 import pytest
 import os
 import logging
 
 from PyPDF2 import PdfFileReader
-import smtplib
-from mock import Mock
 from mock import patch, call
-from mock import MagicMock
-from mock import PropertyMock
 
 
 class TestPydfocr:
@@ -23,34 +19,62 @@ class TestPydfocr:
             logging.debug("pdf scanner found %d pages in %s" % (reader.getNumPages(), filename))
             for pgnum in range(reader.getNumPages()):
                 text = reader.getPage(pgnum).extractText()
-                text = text.encode('ascii', 'ignore')
+                # text = text.encode('ascii', 'ignore')
                 text = text.replace('\n', ' ')
                 yield text
-    
+
+    filepath = os.path.dirname(__file__)
     pdf_tests = [
-            (".", os.path.join("temp","target","recipe"), os.path.join("..","test", "pdfs", "test_recipe.pdf"), [ ["Simply Recipes"],
-                                 ]),
-        (".", os.path.join("temp","target","patents"), os.path.join("pdfs","test_patent.pdf"), [ 
-                           ["asynchronous", "subject to", "20 Claims"], # Page 1
-                           ["FOREIGN PATENT" ], # Page 2
-                            ]),
-        (".", os.path.join("temp","target", "default"), os.path.join("pdfs","test_sherlock.pdf"), [ ["Bohemia", "Trincomalee"], # Page 1
-                           ["hundreds of times" ], # Page 2
-                           ]),
-        ("pdfs", os.path.join("temp","target","default"), "test_sherlock.pdf", [ ["Bohemia", "Trincomalee"], # Page 1
-                           ["hundreds of times" ], # Page 2
-                           ]),
-            (".", os.path.join("temp","target","recipe"), os.path.join("..","test", "pdfs", "1.pdf"), [ ["Simply","Recipes"],
-                                 ]),
-            (".", os.path.join("temp","target","recipe"), os.path.join("..","test", "pdfs", "test_recipe_sideways.pdf"), [ ["Simply","Recipes", 'spinach'],
-                                 ]),
+        (
+            filepath,
+            os.path.join(filepath, "temp","target","recipe"),
+            os.path.join(filepath, "pdfs", "test_recipe.pdf"),
+            [ ["Simply Recipes"],]),
+        (
+            filepath,
+            os.path.join(filepath, "temp","target","patents"),
+            os.path.join("pdfs","test_patent.pdf"),
+            [
+                ["asynchronous", "subject to", "20 Claims"], # Page 1
+                ["FOREIGN PATENT" ], # Page 2
+            ]),
+        (
+            filepath,
+            os.path.join(filepath, "temp","target", "default"),
+            os.path.join("pdfs","test_sherlock.pdf"),
+            [
+                ["Bohemia", "Trincomalee"], # Page 1
+                ["hundreds of times" ], # Page 2
+            ]),
+        (
+            os.path.join(filepath, "pdfs"),
+            os.path.join(filepath, "temp","target","default"),
+            "test_sherlock.pdf",
+            [
+                ["Bohemia", "Trincomalee"], # Page 1
+                ["hundreds of times" ], # Page 2
+            ]),
+        (
+            filepath,
+            os.path.join(filepath, "temp","target","recipe"),
+            os.path.join("..","test", "pdfs", "1.pdf"),
+            [
+                ["Simply","Recipes"],
+            ]),
+        (
+            filepath,
+            os.path.join(filepath, "temp","target","recipe"),
+            os.path.join("..","test", "pdfs", "test_recipe_sideways.pdf"),
+            [
+                ["Simply","Recipes", 'spinach'],
+            ]),
         ]
 
-    #@pytest.mark.skipif(True, reason="Just testing")
+    # @pytest.mark.skipif(True, reason="Just testing")
     @pytest.mark.parametrize("dirname, tgt_folder, filename, expected", pdf_tests)
     def test_standalone(self, dirname, tgt_folder, filename, expected):
         """
-            Test the single file conversion with no filing.  
+            Test the single file conversion with no filing.
             Tests relative paths (".."), files in subirs, and files in current dir
             Checks for that _ocr file is created and keywords found in pdf.
             Modify :attribute:`pdf_tests` for changing keywords, etc
@@ -61,9 +85,9 @@ class TestPydfocr:
 
         # First redo the unix-style paths, in case we're running on windows
         # Assume paths in unix-style
-        dirname = os.path.join(*(dirname.split("/")))
-        tgt_folder = os.path.join(*(tgt_folder.split("/")))
-        filename = os.path.join(*(filename.split("/")))
+        # dirname = os.path.join(*(dirname.split("/")))
+        # tgt_folder = os.path.join(*(tgt_folder.split("/")))
+        # filename = os.path.join(*(filename.split("/")))
 
 
         cwd = os.getcwd()
@@ -77,12 +101,12 @@ class TestPydfocr:
             if len(expected) > i:
                 for keyword in expected[i]:
                     assert(keyword in t)
-            print ("\n----------------------\nPage %d\n" % i)
-            print t
+            print("\n----------------------\nPage %d\n" % i)
+            print(t)
         os.remove(out_filename)
         os.chdir(cwd)
 
-    #@pytest.mark.skipif(True, reason="just testing")
+    # @pytest.mark.skipif(True, reason="just testing")
     @pytest.mark.parametrize("dirname, tgt_folder, filename, expected", [pdf_tests[0]])
     def test_standalone_email(self, dirname, tgt_folder, filename, expected):
         """
@@ -104,11 +128,11 @@ class TestPydfocr:
                 if len(expected) > i:
                     for keyword in expected[i]:
                         assert(keyword in t)
-                print ("\n----------------------\nPage %d\n" % i)
-                print t
+                print("\n----------------------\nPage %d\n" % i)
+                print(t)
             os.remove(out_filename)
             os.chdir(cwd)
-            
+
             # Assert the smtp calls
             instance = mock_smtp.return_value
             assert(instance.starttls.called)
@@ -116,7 +140,10 @@ class TestPydfocr:
             assert(instance.sendmail.called)
 
     @patch('shutil.move')
-    @pytest.mark.parametrize("config", [("test_pypdfocr_config.yaml"), ("test_pypdfocr_config_no_move_original.yaml")])
+    @pytest.mark.parametrize(
+        "config",
+        [(os.path.join(filepath, "test_pypdfocr_config.yaml")),
+         (os.path.join(filepath, "test_pypdfocr_config_no_move_original.yaml"))])
     @pytest.mark.parametrize("dirname, tgt_folder, filename, expected", pdf_tests[0:3])
     def test_standalone_filing(self, mock_move, config, dirname, tgt_folder, filename, expected):
         """
@@ -146,18 +173,18 @@ class TestPydfocr:
             if len(expected) > i:
                 for keyword in expected[i]:
                     assert(keyword in t)
-            print ("\n----------------------\nPage %d\n" % i)
-            print t
+            print("\n----------------------\nPage %d\n" % i)
+            print(t)
         os.remove(out_filename)
         os.chdir(cwd)
-        
+
         # Assert the smtp calls
         calls = [call(out_filename,
-                        os.path.abspath(os.path.join(tgt_folder,os.path.basename(out_filename))))]
+                      os.path.abspath(os.path.join(tgt_folder,os.path.basename(out_filename))))]
         if not "no_move_original" in config:
             new_file_name = os.path.basename(filename).replace(".pdf", "_2.pdf")
             calls.append(call(filename,
-                                os.path.abspath(os.path.join("temp","original", new_file_name))))
+                              os.path.abspath(os.path.join("test", "temp","original", new_file_name))))
         mock_move.assert_has_calls(calls)
 
     def test_set_binaries(self):
