@@ -24,6 +24,7 @@ import logging
 import subprocess
 import glob
 from subprocess import CalledProcessError
+from packaging import version
 
 from multiprocessing import Pool
 from pypdfocr_interrupts import init_worker
@@ -91,37 +92,9 @@ class PyTesseract(object):
         for line in ret_output.splitlines():
             if 'tesseract' in line:
                 ver_str = line.split(' ')[1]
-                if ver_str.endswith('dev'): # Fix for version strings that end in 'dev'
-                    ver_str = ver_str[:-3]
 
-        # Iterate through the version dots
-        ver = [int(x) for x in ver_str.split('.')]
-        req = [int(x) for x in self.required.split('.')]
+        version_good = version.parse(self.required) < version.parse(ver_str)
 
-        # Aargh, in windows 3.02.02 is reported as version 3.02  
-        # SFKM
-        if str(os.name) == 'nt':
-            req = req[:2]
-
-        version_good = False
-        for i,num in enumerate(req):
-            if len(ver) < i+1:
-                # This minor version number is not present in tesseract, so it must be
-                # lower than required.  (3.02 < 3.02.01)
-                break
-            if ver[i]==num and len(ver) == i+1 and len(ver)==len(req):
-                # 3.02.02 == 3.02.02
-                version_good = True
-                continue
-            if ver[i]>num:
-                # 4.0 > 3.02.02
-                # 3.03.02 > 3.02.02
-                version_good = True
-                break
-            if ver[i]<num:
-                # 3.01.02 < 3.02.02
-                break
-            
         return version_good, ver_str
 
     def _warn(self, msg): # pragma: no cover
