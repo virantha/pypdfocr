@@ -1,7 +1,7 @@
 PyPDFOCR - Tesseract-OCR based PDF filing
 =========================================
 
-|image0| |image1| |image2| |passing| |quality| |Coverage Status|
+|image0| |passing| |quality| |Coverage Status|
 
 This program will help manage your scanned PDFs by doing the following:
 
@@ -353,8 +353,8 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
 .. |image0| image:: https://badge.fury.io/py/pypdfocr.png
    :target: https://pypi.python.org/pypi/pypdfocr
-.. |image1| image:: https://pypip.in/d/pypdfocr/badge.png
-.. |image2| image:: https://pypip.in/license/pypdfocr/badge.png
+.. |image1| image:: https://shields.io/d/pypdfocr/badge.png
+.. |image2| image:: https://shields.io/license/pypdfocr/badge.png
 .. |passing| image:: https://scrutinizer-ci.com/g/virantha/pypdfocr/badges/build.png?b=master
 .. |quality| image:: https://scrutinizer-ci.com/g/virantha/pypdfocr/badges/quality-score.png?b=master
 .. |Coverage Status| image:: https://coveralls.io/repos/virantha/pypdfocr/badge.png?branch=develop
