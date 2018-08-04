@@ -44,7 +44,7 @@ class PyPreprocess(object):
         self.msgs = {
                 'CV_FAILED': 'convert execution failed',
             }
-        self.threads = config.get('threads', 4)
+        self.threads = config.get('threads', os.cpu_count())
 
     def _warn(self, msg): # pragma: no cover
         print("WARNING: %s" % msg)
