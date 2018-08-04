@@ -213,7 +213,8 @@ Fine-tuning Tesseract/Ghostscript/others
 
 You can specify Tesseract and Ghostscript executable locations manually, as
 well as the number of concurrent processes allowed during preprocessing and
-tesseract.  Use the following in your configuration file:
+tesseract. Defaults to the number of CPUs available. Use the following in
+your configuration file:
 
 ::
 

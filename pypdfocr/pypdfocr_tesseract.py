@@ -46,7 +46,7 @@ class PyTesseract(object):
         """
         self.lang = 'eng'
         self.required = "3.02.02"
-        self.threads = config.get('threads',4)
+        self.threads = config.get('threads', os.cpu_count())
 
         if "binary" in config:  # Override location of binary
             binary = config['binary']

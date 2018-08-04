@@ -39,7 +39,7 @@ class PyGs(object):
                 'GS_OUTDATED': 'Your Ghostscript version is probably out of date.  Please upgrade to the latest version',
                 'GS_MISSING_BINARY': 'Could not find Ghostscript in the usual place; please specify it using your config file',
             }
-        self.threads = config.get('threads',4)
+        self.threads = config.get('threads', os.cpu_count())
 
         if "binary" in config:  # Override location of binary
             binary = config['binary']
