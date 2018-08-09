@@ -95,8 +95,8 @@ class PyTesseract(object):
                     ver_str = ver_str[:-3]
 
         # Iterate through the version dots
-        ver = [int(x) for x in ver_str.split('.')]
-        req = [int(x) for x in self.required.split('.')]
+        ver = [int(float(x)) for x in ver_str.split('.')]
+        req = [int(float(x)) for x in self.required.split('.')]
 
         # Aargh, in windows 3.02.02 is reported as version 3.02  
         # SFKM
