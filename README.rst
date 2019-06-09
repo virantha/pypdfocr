@@ -52,7 +52,7 @@ Automatic filing:
 ~~~~~~~~~~~~~~~~~
 
 To automatically move the OCR'ed pdf to a directory based on a keyword,
-use the -f option and specify a configuration file (described below):
+use the ``-f`` option and specify a configuration file (described below):
 
 ::
 
@@ -69,9 +69,9 @@ Filing based on filename match:
 
 If no keywords match the contents of the filename, you can optionally
 allow it to fallback to trying to find keyword matches with the PDF
-filename using the -n option. For example, you may have receipts always
+filename using the ``-n`` option. For example, you may have receipts always
 named as ``receipt_2013_12_2.pdf`` by your scanner, and you want to move
-this to a folder called 'receipts'. Assuming you have a keyword
+this to a folder called ``receipts``. Assuming you have a keyword
 ``receipt`` matching to folder ``receipts`` in your configuration file
 as described below, you can run the following and have this filed even
 if the content of the pdf does not contain the text 'receipt':
@@ -111,7 +111,7 @@ will happen in sub-directories under this directory.
 
 The ``folders`` section defines your filing directories and the keywords
 associated with them. In this example, we have three filing directories
-(finances, travl, receipts), and some associated keywords for each
+(finances, travel, receipts), and some associated keywords for each
 filing directory. For example, if your OCR'ed PDF contains the phrase
 "american express" (in any upper/lower case), it will be filed into
 ``docs/filed/finances``
@@ -137,7 +137,7 @@ Evernote authentication token
 
 To enable Evernote support, you will need to `get a developer token for
 your Evernote
-account. <https://www.evernote.com/api/DeveloperToken.action>`__. You
+account. <https://www.evernote.com/api/DeveloperToken.action>`__ You
 should note that this script will never delete or modify existing notes
 in your account, and limits itself to creating new Notebooks and Notes.
 Once you get that token, you copy and paste it into your configuration
