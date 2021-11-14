@@ -120,8 +120,8 @@ class PyFilerEvernote(PyFiler):
         """
             Establish a connection to evernote and authenticate.
 
-            :param dictUserInfo: Dict of user info like user/passwrod.  For now, just the dev token
-            :returns success: Return wheter connection succeeded
+            :param dictUserInfo: Dict of user info like user/password.  For now, just the dev token
+            :returns success: Return whether connection succeeded
             :rtype bool:
         """
         print("Authenticating to Evernote")
