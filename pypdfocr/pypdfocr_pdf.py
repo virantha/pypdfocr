@@ -37,6 +37,7 @@ import zlib
 import math
 
 from html import escape
+
 # Pkg to read multiple image tiffs
 from PIL import Image
 from reportlab.pdfgen.canvas import Canvas
