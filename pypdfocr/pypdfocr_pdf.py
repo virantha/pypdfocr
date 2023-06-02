@@ -36,7 +36,7 @@ import base64
 import zlib
 import math
 
-from cgi import escape
+from html import escape
 # Pkg to read multiple image tiffs
 from PIL import Image
 from reportlab.pdfgen.canvas import Canvas
